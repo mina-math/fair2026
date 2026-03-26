@@ -557,21 +557,6 @@
        SCREEN 7: COURSE DESIGN
     =========================== */
     #screen-design { background: var(--bg); padding-bottom: 72px; }
-    .design-tabs { display: flex; gap: 10px; padding: 14px 14px 0; }
-    .design-tab {
-      flex: 1;
-      padding: 11px;
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      background: white;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      text-align: center;
-      transition: all 0.2s;
-      font-family: inherit;
-    }
-    .design-tab.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary-dark); }
     .design-body { padding: 12px 14px; }
     .design-hint {
       background: var(--primary-light);
@@ -582,6 +567,45 @@
       margin-bottom: 12px;
       font-weight: 600;
     }
+    .sem-section-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--primary-dark);
+      padding: 10px 2px 6px;
+      border-bottom: 2px solid var(--primary);
+      margin-bottom: 10px;
+      margin-top: 6px;
+    }
+    .group-card {
+      background: white;
+      border-radius: 16px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .group-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .group-label { font-size: 14px; font-weight: 700; }
+    .group-pick-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 20px;
+      background: #f0f4ff;
+      color: var(--primary-dark);
+      border: 1.5px solid var(--primary);
+    }
+    .group-pick-badge.complete { background: var(--primary); color: white; }
+    .group-pick-badge.over { background: #ffe0e0; color: #c0392b; border-color: #c0392b; }
+    .group-subj-labels { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 9px; }
+    .subj-label-tag {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 8px;
+      background: #f5f5f5;
+      color: #666;
+      font-weight: 600;
+    }
+    .chip.disabled { opacity: 0.38; pointer-events: none; }
     .subject-cat {
       background: white;
       border-radius: 16px;
@@ -977,7 +1001,7 @@
           <div class="menu-sub">소감 남기기</div>
         </div>
       </div>
-      <div class="notice-card" style="position:relative;">
+      <div class="notice-card">
         <div class="notice-title">📢 오늘 박람회 이용 안내</div>
         <div class="notice-item">
           ✅ 각 부스를 방문하고 QR 코드를 스캔하세요<br>
@@ -985,8 +1009,10 @@
           ✅ 과목 설계 후 결과를 캡처해 두세요<br>
           ✅ 박람회 소감을 방명록에 남겨주세요 📝
         </div>
-        <!-- 교사용 진입: 우측 하단 모서리 5회 탭 -->
-        <div class="secret-tap" onclick="secretTap()" title=""></div>
+      </div>
+      <!-- 교사용 관리자 진입: v1.0 텍스트 5회 탭 -->
+      <div style="text-align:center; padding:4px 0 8px;">
+        <span onclick="secretTap()" style="font-size:11px; color:#ccc; cursor:default; user-select:none;">v1.0</span>
       </div>
     </div>
     <div class="bottom-nav">
@@ -1081,12 +1107,8 @@
       <div class="header-title">✏️ 내 과목 설계</div>
     </div>
     <div style="overflow-y:auto; flex:1; padding-bottom:72px;">
-      <div class="design-tabs">
-        <button class="design-tab active" id="dtab-1" onclick="switchDesign(1)">1학년 → 2학년 선택</button>
-        <button class="design-tab" id="dtab-2" onclick="switchDesign(2)">2학년 → 3학년 선택</button>
-      </div>
       <div class="design-body">
-        <div class="design-hint" id="design-hint">📌 내년(2학년) 때 수강 희망 과목을 선택하세요</div>
+        <div class="design-hint" id="design-hint">📌 내년에 수강 희망 과목을 선택하세요</div>
         <div id="design-cats"></div>
         <div class="design-summary-card" id="design-summary">
           <div class="card-title">📋 내가 선택한 과목</div>
@@ -1211,7 +1233,7 @@
 // ============================================================
 
 // 구글 시트 연동 URL (설정 후 교체)
-const SHEETS_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwkZOAG-pUbS8u6EGD4ecVlZNRfMZjNvLz8HQmTgelp54-ZcwnyNU_F2EqIlDIXh3MTKQ/exec';
 
 const BOOTHS = [
   { id:'korean',  name:'국어교과',      icon:'📖', color:'#2980B9', bg:'#EBF4FB', code:'KO01', desc:'국어 선택과목 소개 및 진로 연계 안내' },
@@ -1275,103 +1297,169 @@ const QUIZZES = {
 };
 
 // ※ 과목 데이터: 2026학년도 교육과정 편성표 기준
-// g2 = 현 1학년(2026입학) → 내년 2학년에서 선택할 과목
-// g3 = 현 2학년(2025입학) → 내년 3학년에서 선택할 과목
-const SUBJECTS = {
-  g2: [
-    { cat:'국어', icon:'📖', items:[
-      {n:'독서 토론과 글쓰기', t:'fusion'},
-      {n:'문학과 영상', t:'career'},
-    ]},
-    { cat:'수학', icon:'📐', items:[
-      {n:'인공지능 수학', t:'career'},
-      {n:'기하', t:'career'},
-    ]},
-    { cat:'영어', icon:'🌍', items:[
-      {n:'세계 문화와 영어', t:'fusion'},
-      {n:'영어 발표와 토론', t:'career'},
-    ]},
-    { cat:'사회', icon:'🌏', items:[
-      {n:'사회와 문화', t:'general'},
-      {n:'현대사회와 윤리', t:'general'},
-      {n:'동아시아 역사 기행', t:'career'},
-      {n:'세계사', t:'general'},
-      {n:'세계시민과 지리', t:'general'},
-      {n:'법과 사회', t:'career'},
-    ]},
-    { cat:'과학', icon:'🔬', items:[
-      {n:'물리학', t:'general'},
-      {n:'화학', t:'general'},
-      {n:'생명과학', t:'general'},
-      {n:'지구과학', t:'general'},
-      {n:'역학과 에너지', t:'career'},
-      {n:'물질과 에너지', t:'career'},
-      {n:'세포와 물질대사', t:'career'},
-      {n:'지구시스템과학', t:'career'},
-    ]},
-    { cat:'제2외국어', icon:'🗣️', items:[
-      {n:'스페인어', t:'general'},
-      {n:'중국어', t:'general'},
-      {n:'일본어', t:'general'},
-      {n:'심화 스페인어', t:'fusion'},
-      {n:'심화 중국어', t:'fusion'},
-      {n:'심화 일본어', t:'fusion'},
-    ]},
-  ],
-  g3: [
-    { cat:'국어', icon:'📖', items:[
-      {n:'주제 탐구 독서', t:'career'},
-      {n:'매체 의사소통', t:'fusion'},
-      {n:'언어생활 탐구', t:'fusion'},
-    ]},
-    { cat:'수학', icon:'📐', items:[
-      {n:'미적분Ⅱ', t:'career'},
-      {n:'수학과제 탐구', t:'fusion'},
-    ]},
-    { cat:'영어', icon:'🌍', items:[
-      {n:'심화 영어', t:'career'},
-      {n:'미디어 영어', t:'fusion'},
-    ]},
-    { cat:'사회', icon:'🌏', items:[
-      {n:'도시의 미래 탐구', t:'career'},
-      {n:'동아시아 역사 기행', t:'career'},
-      {n:'법과 사회', t:'career'},
-      {n:'윤리와 사상', t:'career'},
-      {n:'금융과 경제생활', t:'fusion'},
-      {n:'기후변화와 지속가능한 세계', t:'fusion'},
-      {n:'사회문제 탐구', t:'fusion'},
-      {n:'여행지리', t:'fusion'},
-      {n:'역사로 탐구하는 현대 세계', t:'fusion'},
-    ]},
-    { cat:'과학', icon:'🔬', items:[
-      {n:'물질과 에너지', t:'career'},
-      {n:'전자기와 양자', t:'career'},
-      {n:'역학과 에너지', t:'career'},
-      {n:'화학 반응의 세계', t:'career'},
-      {n:'생물의 유전', t:'career'},
-      {n:'세포와 물질대사', t:'career'},
-      {n:'지구시스템과학', t:'career'},
-      {n:'행성우주과학', t:'career'},
-      {n:'기후변화와 환경생태', t:'fusion'},
-    ]},
-    { cat:'기술·정보', icon:'💻', items:[
-      {n:'생활과학 탐구', t:'career'},
-      {n:'인공지능 기초', t:'career'},
-    ]},
-    { cat:'제2외국어', icon:'🗣️', items:[
-      {n:'중국 문화', t:'fusion'},
-      {n:'일본 문화', t:'fusion'},
-    ]},
-    { cat:'교양', icon:'🌱', items:[
-      {n:'교육의 이해', t:'career'},
-      {n:'보건', t:'career'},
-      {n:'인간과 심리', t:'career'},
-      {n:'생태와 환경', t:'general'},
-      {n:'논술', t:'fusion'},
-      {n:'인간과 경제활동', t:'fusion'},
-    ]},
-  ],
-};
+// ── 편제표 기반 선택 영역 ──────────────────────────────────────
+// SUBJECTS_G2: 현 1학년(2026입학) → 2학년 선택과목
+// SUBJECTS_G3: 현 2학년(2025입학) → 3학년 선택과목
+// 각 group: { id, label, pick(최대선택수), credits, items:[{n,subj,t}] }
+// S.subjects.g2 = { 그룹id: [선택된과목명...], ... }
+
+const SUBJECTS_G2 = [
+  {
+    sem: '📅 2학년 1학기',
+    groups: [
+      { id:'s1A', label:'국어·수학·영어', pick:1, credits:3,
+        items:[
+          {n:'독서 토론과 글쓰기', subj:'국어', t:'fusion'},
+          {n:'인공지능 수학',      subj:'수학', t:'career'},
+          {n:'세계 문화와 영어',   subj:'영어', t:'fusion'},
+        ]},
+      { id:'s1B', label:'사회·과학', pick:3, credits:9,
+        items:[
+          {n:'사회와 문화',        subj:'사회', t:'general'},
+          {n:'현대사회와 윤리',    subj:'사회', t:'general'},
+          {n:'동아시아 역사 기행', subj:'사회', t:'career'},
+          {n:'물리학',            subj:'과학', t:'general'},
+          {n:'화학',              subj:'과학', t:'general'},
+          {n:'생명과학',          subj:'과학', t:'general'},
+          {n:'지구과학',          subj:'과학', t:'general'},
+        ]},
+      { id:'s1C', label:'제2외국어', pick:1, credits:3,
+        items:[
+          {n:'스페인어', subj:'제2외국어', t:'general'},
+          {n:'중국어',   subj:'제2외국어', t:'general'},
+          {n:'일본어',   subj:'제2외국어', t:'general'},
+        ]},
+    ]
+  },
+  {
+    sem: '📅 2학년 2학기',
+    groups: [
+      { id:'s2D', label:'국어·수학·영어', pick:1, credits:3,
+        items:[
+          {n:'문학과 영상',       subj:'국어', t:'career'},
+          {n:'기하',             subj:'수학', t:'career'},
+          {n:'영어 발표와 토론', subj:'영어', t:'career'},
+        ]},
+      { id:'s2E', label:'사회·과학', pick:3, credits:9,
+        items:[
+          {n:'세계사',            subj:'사회', t:'general'},
+          {n:'세계시민과 지리',   subj:'사회', t:'general'},
+          {n:'법과 사회',         subj:'사회', t:'career'},
+          {n:'역학과 에너지',     subj:'과학', t:'career'},
+          {n:'물질과 에너지',     subj:'과학', t:'career'},
+          {n:'세포와 물질대사',   subj:'과학', t:'career'},
+          {n:'지구시스템과학',    subj:'과학', t:'career'},
+        ]},
+      { id:'s2F', label:'제2외국어 심화', pick:1, credits:3,
+        items:[
+          {n:'심화 스페인어', subj:'제2외국어', t:'fusion'},
+          {n:'심화 중국어',   subj:'제2외국어', t:'fusion'},
+          {n:'심화 일본어',   subj:'제2외국어', t:'fusion'},
+        ]},
+    ]
+  }
+];
+
+const SUBJECTS_G3 = [
+  {
+    sem: '📅 3학년 1학기',
+    groups: [
+      { id:'s1A', label:'국어·수학·영어', pick:1, credits:3,
+        items:[
+          {n:'주제 탐구 독서',   subj:'국어', t:'career'},
+          {n:'매체 의사소통',    subj:'국어', t:'fusion'},
+          {n:'언어생활 탐구',    subj:'국어', t:'fusion'},
+          {n:'미적분Ⅱ',         subj:'수학', t:'career'},
+          {n:'수학과제 탐구',    subj:'수학', t:'fusion'},
+          {n:'심화 영어',        subj:'영어', t:'career'},
+          {n:'미디어 영어',      subj:'영어', t:'fusion'},
+        ]},
+      { id:'s1B', label:'사회·과학·기타', pick:4, credits:12,
+        items:[
+          {n:'도시의 미래 탐구',          subj:'사회', t:'career'},
+          {n:'동아시아 역사 기행',        subj:'사회', t:'career'},
+          {n:'법과 사회',                subj:'사회', t:'career'},
+          {n:'윤리와 사상',              subj:'사회', t:'career'},
+          {n:'금융과 경제생활',          subj:'사회', t:'fusion'},
+          {n:'기후변화와 지속가능한 세계',subj:'사회', t:'fusion'},
+          {n:'사회문제 탐구',            subj:'사회', t:'fusion'},
+          {n:'여행지리',                subj:'사회', t:'fusion'},
+          {n:'역사로 탐구하는 현대 세계',subj:'사회', t:'fusion'},
+          {n:'물질과 에너지',            subj:'과학', t:'career'},
+          {n:'전자기와 양자',            subj:'과학', t:'career'},
+          {n:'역학과 에너지',            subj:'과학', t:'career'},
+          {n:'화학 반응의 세계',         subj:'과학', t:'career'},
+          {n:'생물의 유전',              subj:'과학', t:'career'},
+          {n:'세포와 물질대사',          subj:'과학', t:'career'},
+          {n:'지구시스템과학',           subj:'과학', t:'career'},
+          {n:'행성우주과학',             subj:'과학', t:'career'},
+          {n:'기후변화와 환경생태',      subj:'과학', t:'fusion'},
+          {n:'생활과학 탐구',            subj:'기술·정보', t:'career'},
+          {n:'인공지능 기초',            subj:'기술·정보', t:'career'},
+          {n:'중국 문화',               subj:'제2외국어', t:'fusion'},
+          {n:'일본 문화',               subj:'제2외국어', t:'fusion'},
+        ]},
+      { id:'s1C', label:'교양', pick:1, credits:2,
+        items:[
+          {n:'교육의 이해',      subj:'교양', t:'career'},
+          {n:'보건',            subj:'교양', t:'career'},
+          {n:'인간과 심리',      subj:'교양', t:'career'},
+          {n:'생태와 환경',      subj:'교양', t:'general'},
+          {n:'논술',            subj:'교양', t:'fusion'},
+          {n:'인간과 경제활동', subj:'교양', t:'fusion'},
+        ]},
+    ]
+  },
+  {
+    sem: '📅 3학년 2학기',
+    groups: [
+      { id:'s2D', label:'국어·수학·영어', pick:3, credits:9,
+        items:[
+          {n:'주제 탐구 독서',   subj:'국어', t:'career'},
+          {n:'매체 의사소통',    subj:'국어', t:'fusion'},
+          {n:'언어생활 탐구',    subj:'국어', t:'fusion'},
+          {n:'미적분Ⅱ',         subj:'수학', t:'career'},
+          {n:'수학과제 탐구',    subj:'수학', t:'fusion'},
+          {n:'심화 영어',        subj:'영어', t:'career'},
+          {n:'미디어 영어',      subj:'영어', t:'fusion'},
+        ]},
+      { id:'s2E', label:'사회·과학·기타', pick:4, credits:12,
+        items:[
+          {n:'도시의 미래 탐구',          subj:'사회', t:'career'},
+          {n:'동아시아 역사 기행',        subj:'사회', t:'career'},
+          {n:'법과 사회',                subj:'사회', t:'career'},
+          {n:'윤리와 사상',              subj:'사회', t:'career'},
+          {n:'금융과 경제생활',          subj:'사회', t:'fusion'},
+          {n:'기후변화와 지속가능한 세계',subj:'사회', t:'fusion'},
+          {n:'사회문제 탐구',            subj:'사회', t:'fusion'},
+          {n:'여행지리',                subj:'사회', t:'fusion'},
+          {n:'역사로 탐구하는 현대 세계',subj:'사회', t:'fusion'},
+          {n:'물질과 에너지',            subj:'과학', t:'career'},
+          {n:'전자기와 양자',            subj:'과학', t:'career'},
+          {n:'역학과 에너지',            subj:'과학', t:'career'},
+          {n:'화학 반응의 세계',         subj:'과학', t:'career'},
+          {n:'생물의 유전',              subj:'과학', t:'career'},
+          {n:'세포와 물질대사',          subj:'과학', t:'career'},
+          {n:'지구시스템과학',           subj:'과학', t:'career'},
+          {n:'행성우주과학',             subj:'과학', t:'career'},
+          {n:'기후변화와 환경생태',      subj:'과학', t:'fusion'},
+          {n:'생활과학 탐구',            subj:'기술·정보', t:'career'},
+          {n:'인공지능 기초',            subj:'기술·정보', t:'career'},
+          {n:'중국 문화',               subj:'제2외국어', t:'fusion'},
+          {n:'일본 문화',               subj:'제2외국어', t:'fusion'},
+        ]},
+      { id:'s2F', label:'교양', pick:1, credits:2,
+        items:[
+          {n:'교육의 이해',      subj:'교양', t:'career'},
+          {n:'보건',            subj:'교양', t:'career'},
+          {n:'인간과 심리',      subj:'교양', t:'career'},
+          {n:'생태와 환경',      subj:'교양', t:'general'},
+          {n:'논술',            subj:'교양', t:'fusion'},
+          {n:'인간과 경제활동', subj:'교양', t:'fusion'},
+        ]},
+    ]
+  }
+];
 
 const INFO_TABS = ['고교학점제','과목 유형','성적 기록','계열 추천','가이드북'];
 const INFO_HTML = [
@@ -1579,11 +1667,19 @@ let S = {
   student: null,
   stamps: {},
   quizResults: {},
-  subjects: { g2:[], g3:[] },
+  subjects: { g2:{}, g3:{} },
   gbEntries: [],
   mood: '😊',
-  designGrade: 1,
 };
+
+function migrateSubjects(subj) {
+  // 구형 포맷(배열) → 신형(그룹 객체) 마이그레이션
+  if (!subj || typeof subj !== 'object') return { g2:{}, g3:{} };
+  return {
+    g2: Array.isArray(subj.g2) ? {} : (subj.g2 || {}),
+    g3: Array.isArray(subj.g3) ? {} : (subj.g3 || {}),
+  };
+}
 
 let qState = { boothId: null, qIdx: 0, answers: [], answered: false };
 let qrBoothId = null;
@@ -1610,14 +1706,14 @@ function init() {
           const d = JSON.parse(sd);
           S.stamps = d.stamps || {};
           S.quizResults = d.quizResults || {};
-          S.subjects = d.subjects || { g2:[], g3:[] };
+          S.subjects = migrateSubjects(d.subjects);
         }
       }
     }
   } catch(e) {}
 
   renderInfoTabs();
-  renderDesignCats(1);
+  renderDesignGroups();
   renderGBEntries();
   renderBoothList();
   renderHomeStamps();
@@ -1660,6 +1756,7 @@ function goTo(id) {
   if (id === 'screen-home') updateHome();
   if (id === 'screen-booths') renderBoothList();
   if (id === 'screen-guestbook') renderGBEntries();
+  if (id === 'screen-design') renderDesignGroups();
 }
 
 // ============================================================
@@ -1687,15 +1784,15 @@ function doLogin() {
       const d = JSON.parse(sd);
       S.stamps = d.stamps || {};
       S.quizResults = d.quizResults || {};
-      S.subjects = d.subjects || { g2:[], g3:[] };
+      S.subjects = migrateSubjects(d.subjects);
       const cnt = Object.keys(S.stamps).length;
       if (cnt > 0) setTimeout(()=>toast(`이전 기록을 불러왔어요! 스탬프 ${cnt}개 ✅`), 400);
-    } catch(e) { S.stamps={}; S.quizResults={}; S.subjects={g2:[],g3:[]}; }
+    } catch(e) { S.stamps={}; S.quizResults={}; S.subjects={g2:{},g3:{}}; }
   } else {
     // 처음 입장하는 학생
     S.stamps = {};
     S.quizResults = {};
-    S.subjects = { g2:[], g3:[] };
+    S.subjects = { g2:{}, g3:{} };
   }
 
   save();
@@ -1897,57 +1994,132 @@ function switchInfoTab(i) {
 // ============================================================
 // COURSE DESIGN
 // ============================================================
-function switchDesign(g) {
-  S.designGrade = g;
-  document.getElementById('dtab-1').classList.toggle('active', g===1);
-  document.getElementById('dtab-2').classList.toggle('active', g===2);
-  document.getElementById('design-hint').textContent = g===1
-    ? '📌 현 1학년용 — 내년(2학년) 선택과목 (2026 입학생 편제표 기준)'
-    : '📌 현 2학년용 — 내년(3학년) 선택과목 (2025 입학생 편제표 기준)';
-  renderDesignCats(g);
-}
-
-function renderDesignCats(g) {
-  const key = g===1?'g2':'g3';
+function renderDesignGroups() {
   const el = document.getElementById('design-cats'); if (!el) return;
-  el.innerHTML = SUBJECTS[key].map(cat=>`
-    <div class="subject-cat">
-      <div class="subject-cat-head">
-        <span>${cat.icon}</span>
-        <span class="subject-cat-name">${cat.cat}</span>
-      </div>
-      <div class="chips">
-        ${cat.items.map(s=>`
-          <button class="chip type-${s.t} ${S.subjects[key].includes(s.n)?'selected':''}"
-                  onclick="toggleSubj('${key}','${s.n}',this)">
-            ${s.n}<span class="type-dot">${s.t==='general'?'일반':s.t==='career'?'진로':'융합'}</span>
-          </button>`).join('')}
-      </div>
-    </div>`).join('');
+  const grade = S.student ? S.student.grade : 0;
+
+  if (!grade) {
+    document.getElementById('design-hint').textContent = '📌 로그인 후 내 학년에 맞는 과목이 표시돼요';
+    el.innerHTML = '<div class="empty-msg" style="padding:24px;text-align:center;">로그인이 필요합니다 🔒</div>';
+    updateSummary(); return;
+  }
+
+  const isG1 = grade === 1;
+  const gradeKey = isG1 ? 'g2' : 'g3';
+  const semData  = isG1 ? SUBJECTS_G2 : SUBJECTS_G3;
+  document.getElementById('design-hint').textContent = isG1
+    ? '📌 현 1학년 — 내년(2학년) 선택과목 (2026입학 편제표 기준)'
+    : '📌 현 2학년 — 내년(3학년) 선택과목 (2025입학 편제표 기준)';
+
+  if (!S.subjects[gradeKey] || typeof S.subjects[gradeKey] !== 'object' || Array.isArray(S.subjects[gradeKey])) {
+    S.subjects[gradeKey] = {};
+  }
+
+  el.innerHTML = semData.map(semObj => {
+    const groupsHtml = semObj.groups.map(grp => {
+      const sel = S.subjects[gradeKey][grp.id] || [];
+      const cnt = sel.length;
+      const full = cnt >= grp.pick;
+      const badgeCls = full ? 'complete' : (cnt > grp.pick ? 'over' : '');
+
+      // 과목별 교과 레이블 모음 (중복 제거)
+      const subjSet = [...new Set(grp.items.map(i=>i.subj))];
+
+      const chipsHtml = grp.items.map(s => {
+        const isSel = sel.includes(s.n);
+        const isDisabled = !isSel && full;
+        return `<button class="chip type-${s.t}${isSel?' selected':''}${isDisabled?' disabled':''}"
+          onclick="selectInGroup('${gradeKey}','${grp.id}','${s.n.replace(/'/g,"\\'")}',this)">
+          <span style="font-size:9px;opacity:0.6;margin-right:3px;">${s.subj}</span>${s.n}<span class="type-dot">${s.t==='general'?'일반':s.t==='career'?'진로':'융합'}</span>
+        </button>`;
+      }).join('');
+
+      return `<div class="group-card">
+        <div class="group-header">
+          <span class="group-label">📌 ${grp.label}</span>
+          <span class="group-pick-badge ${badgeCls}">${cnt}/${grp.pick} 선택 · ${grp.credits}학점</span>
+        </div>
+        <div class="chips">${chipsHtml}</div>
+      </div>`;
+    }).join('');
+
+    return `<div class="sem-section-title">${semObj.sem}</div>${groupsHtml}`;
+  }).join('');
+
   updateSummary();
 }
 
-function toggleSubj(key, name, el) {
-  const arr = S.subjects[key];
-  const i = arr.indexOf(name);
-  if (i===-1) arr.push(name); else arr.splice(i,1);
-  el.classList.toggle('selected');
-  save(); updateSummary();
+function selectInGroup(gradeKey, groupId, name, el) {
+  if (!S.subjects[gradeKey]) S.subjects[gradeKey] = {};
+  const arr = S.subjects[gradeKey][groupId] || [];
+
+  // 현재 그룹의 pick 한도 찾기
+  const semData = gradeKey === 'g2' ? SUBJECTS_G2 : SUBJECTS_G3;
+  let pickLimit = 1;
+  for (const sem of semData) {
+    const grp = sem.groups.find(g => g.id === groupId);
+    if (grp) { pickLimit = grp.pick; break; }
+  }
+
+  const idx = arr.indexOf(name);
+  if (idx !== -1) {
+    // 선택 해제
+    arr.splice(idx, 1);
+  } else {
+    // 선택 추가
+    if (arr.length >= pickLimit) {
+      toast(`이 영역은 최대 ${pickLimit}과목만 선택할 수 있어요 ✋`);
+      return;
+    }
+    arr.push(name);
+  }
+  S.subjects[gradeKey][groupId] = arr;
+  save();
+  renderDesignGroups(); // 전체 재렌더로 disabled 상태 갱신
 }
 
 function updateSummary() {
-  const all = [...S.subjects.g2.map(s=>'2학년:'+s), ...S.subjects.g3.map(s=>'3학년:'+s)];
+  const grade = S.student ? S.student.grade : 0;
+  const gradeKey = grade === 1 ? 'g2' : 'g3';
+  const semData  = grade === 1 ? SUBJECTS_G2 : grade === 2 ? SUBJECTS_G3 : null;
   const el = document.getElementById('selected-chips'); if (!el) return;
-  el.innerHTML = all.length
-    ? all.map(s=>`<span class="selected-chip">${s}</span>`).join('')
+
+  if (!semData || !S.subjects[gradeKey]) {
+    el.innerHTML = '<div class="empty-msg">과목을 선택하면 여기에 표시돼요</div>';
+    return;
+  }
+
+  const chips = [];
+  semData.forEach(sem => {
+    sem.groups.forEach(grp => {
+      const sel = S.subjects[gradeKey][grp.id] || [];
+      sel.forEach(n => chips.push(`<span class="selected-chip">${n}</span>`));
+    });
+  });
+
+  el.innerHTML = chips.length
+    ? chips.join('')
     : '<div class="empty-msg">과목을 선택하면 여기에 표시돼요</div>';
 }
 
 function saveDesign() {
-  const all = [...S.subjects.g2, ...S.subjects.g3];
-  if (!all.length) { toast('선택한 과목이 없어요'); return; }
-  sendToSheets('design', { subjects_2: S.subjects.g2.join(', '), subjects_3: S.subjects.g3.join(', ') });
-  toast('과목 설계 저장 완료! 캡처해서 보관하세요 📸');
+  const grade = S.student ? S.student.grade : 0;
+  const gradeKey = grade === 1 ? 'g2' : 'g3';
+  const semData  = grade === 1 ? SUBJECTS_G2 : SUBJECTS_G3;
+  if (!semData) { toast('로그인이 필요해요'); return; }
+
+  const allSelected = [];
+  semData.forEach(sem => {
+    sem.groups.forEach(grp => {
+      const sel = S.subjects[gradeKey][grp.id] || [];
+      sel.forEach(n => allSelected.push(n));
+    });
+  });
+  if (!allSelected.length) { toast('선택한 과목이 없어요'); return; }
+
+  const nextGrade = grade + 1;
+  sendToSheets('design', { subjects: allSelected.join(', '), grade: nextGrade });
+  toast(`과목 설계 저장 완료! 캡처해서 보관하세요 📸`);
 }
 
 // ============================================================
@@ -2053,9 +2225,8 @@ function doLogout() {
   S.student = null;
   S.stamps = {};
   S.quizResults = {};
-  S.subjects = { g2:[], g3:[] };
+  S.subjects = { g2:{}, g3:{} };
   S.mood = '😊';
-  S.designGrade = 1;
 
   // 로그인 화면으로
   selGrade = 0;
