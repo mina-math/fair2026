@@ -3,8 +3,8 @@
 // ============================================================
 
 // 구글폼 URL (배포 전 실제 URL로 교체하세요)
-const GOOGLE_FORM_CONSULT = 'YOUR_GOOGLE_FORM_CONSULT_URL';  // 상담 신청 구글폼
-const GOOGLE_FORM_FEEDBACK = 'YOUR_GOOGLE_FORM_FEEDBACK_URL'; // 박람회 소감문 구글폼
+const GOOGLE_FORM_CONSULT = 'https://docs.google.com/forms/d/e/1FAIpQLSe4GFOuXYSWG3Kg3x1OIwJ9_kkijsn2WslM8ZeEv2WIyhRGEg/viewform?usp=publish-editor';  // 상담 신청 구글폼
+const GOOGLE_FORM_FEEDBACK = 'https://docs.google.com/forms/d/e/1FAIpQLSdoG1YG8JXkrKRfMa9CjLtCkTUy93cAlQVk3OwenY1trPx9dg/viewform?usp=dialog'; // 박람회 소감문 구글폼
 
 const BOOTHS = [
   { id:'korean',  name:'국어교과',      icon:'📖', color:'#2980B9', bg:'#EBF4FB', code:'KO01', desc:'국어 선택과목 소개 및 진로 연계 안내' },
