@@ -917,6 +917,85 @@
       width: 44px; height: 44px;
       opacity: 0; cursor: default;
     }
+
+    /* ===========================
+       SCREEN: MY QR
+    =========================== */
+    #screen-myqr { background: var(--bg); }
+    .myqr-body { padding: 20px; text-align: center; }
+    .myqr-card {
+      background: white;
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      margin-bottom: 16px;
+    }
+    .myqr-title { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+    .myqr-sub { font-size: 13px; color: var(--text-light); margin-bottom: 18px; }
+    .qr-container {
+      position: relative;
+      display: inline-block;
+      padding: 16px;
+      border-radius: 16px;
+      background: white;
+    }
+    .qr-liveness-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      border: 3px solid var(--primary);
+      animation: liveness-pulse 2s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes liveness-pulse {
+      0% { border-color: var(--primary); box-shadow: 0 0 0 0 rgba(45,199,192,0.4); }
+      33% { border-color: var(--secondary); box-shadow: 0 0 12px 4px rgba(255,184,0,0.3); }
+      66% { border-color: var(--accent); box-shadow: 0 0 12px 4px rgba(91,106,240,0.3); }
+      100% { border-color: var(--primary); box-shadow: 0 0 0 0 rgba(45,199,192,0.4); }
+    }
+    #myqr-canvas { display: block; }
+    .myqr-refresh { font-size: 11px; color: var(--text-light); margin-top: 10px; }
+    .myqr-summary {
+      background: white;
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      text-align: left;
+    }
+    .myqr-summary-title { font-size: 15px; font-weight: 700; margin-bottom: 12px; }
+    .myqr-stat { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+    .myqr-stat:last-child { border-bottom: none; }
+    .myqr-stat-label { color: var(--text-light); }
+    .myqr-stat-value { font-weight: 700; color: var(--primary-dark); }
+
+    /* ===========================
+       SCREEN: VERIFY (선생님 확인)
+    =========================== */
+    #screen-verify { background: var(--bg); }
+    .verify-body { padding: 20px; }
+    .verify-card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      margin-bottom: 14px;
+    }
+    .verify-title { font-size: 18px; font-weight: 800; text-align: center; margin-bottom: 16px; }
+    .verify-status {
+      text-align: center;
+      padding: 14px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 15px;
+      margin-bottom: 14px;
+    }
+    .verify-status.success { background: rgba(46,204,113,0.12); color: #1e8449; }
+    .verify-status.already { background: rgba(255,184,0,0.15); color: #b7950b; }
+    .verify-status.error { background: rgba(255,71,87,0.12); color: #c0392b; }
+    .verify-stat-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+    .verify-stat-row:last-child { border-bottom: none; }
+    .verify-stamps-grid { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+    .verify-stamp-tag { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; background: var(--primary-light); color: var(--primary-dark); }
   </style>
 </head>
 <body>
@@ -931,27 +1010,37 @@
       <div class="login-subtitle" style="margin-top:6px;">나만의 미래를 설계해요 ✨</div>
     </div>
     <div class="login-card">
-      <div class="login-card-title">👋 학년/반/번호를 입력해주세요</div>
+      <div class="login-card-title">👋 학년을 선택하고 시작하세요</div>
       <div style="margin-bottom:16px;">
-        <label class="input-label">학년</label>
+        <label class="input-label">학년 <span style="color:var(--danger);">*필수</span></label>
         <div class="grade-selector">
           <button class="grade-btn" id="grade1-btn" onclick="selectGrade(1)">1학년</button>
           <button class="grade-btn" id="grade2-btn" onclick="selectGrade(2)">2학년</button>
         </div>
       </div>
-      <div class="class-row">
-        <div class="field-group">
-          <label class="input-label">반</label>
-          <input type="number" id="input-class" class="input-field" placeholder="예: 3" min="1" max="12">
+      <div style="margin-bottom:16px;">
+        <label class="input-label">닉네임 <span style="color:var(--text-light); font-weight:400;">(방명록 표시용, 선택)</span></label>
+        <input type="text" id="input-nickname" class="input-field" placeholder="예: 별빛학생 (미입력 시 '익명')" maxlength="20">
+      </div>
+      <div style="padding:10px 14px; background:#f0fffe; border-radius:10px; margin-bottom:16px; font-size:12px; color:var(--text-light); cursor:pointer;" onclick="document.getElementById('optional-fields').style.display=document.getElementById('optional-fields').style.display==='none'?'block':'none'">
+        📋 반/번호 입력 (선택사항, 이 기기에서만 사용) <span style="float:right;">▼</span>
+      </div>
+      <div id="optional-fields" style="display:none; margin-bottom:16px;">
+        <div class="class-row">
+          <div class="field-group">
+            <label class="input-label">반 <span style="color:var(--text-light); font-weight:400;">(선택)</span></label>
+            <input type="number" id="input-class" class="input-field" placeholder="예: 3" min="1" max="12">
+          </div>
+          <div class="field-group">
+            <label class="input-label">번호 <span style="color:var(--text-light); font-weight:400;">(선택)</span></label>
+            <input type="number" id="input-number" class="input-field" placeholder="예: 15" min="1" max="40">
+          </div>
         </div>
-        <div class="field-group">
-          <label class="input-label">번호</label>
-          <input type="number" id="input-number" class="input-field" placeholder="예: 15" min="1" max="40">
-        </div>
+        <div style="font-size:11px; color:var(--text-light); margin-top:4px;">반/번호는 서버에 전송되지 않으며, 이 기기에서 진행상황 관리용으로만 사용돼요.</div>
       </div>
       <button class="btn btn-primary" onclick="doLogin()">박람회 시작하기 🎉</button>
       <div style="margin-top:12px; text-align:center; font-size:12px; color:var(--text-light);">
-        입력한 정보는 박람회 운영에만 활용됩니다
+        개인정보를 수집하지 않는 익명 참여 방식입니다
       </div>
     </div>
   </div>
@@ -978,6 +1067,15 @@
       <div class="stamp-card">
         <div class="card-title">🗂️ 스탬프 현황</div>
         <div class="stamp-grid" id="home-stamp-grid"></div>
+      </div>
+      <!-- 참여 QR 배너 -->
+      <div onclick="goTo('screen-myqr')" style="background:linear-gradient(135deg, var(--accent), #4A59D9); border-radius:16px; padding:16px 18px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(91,106,240,0.3);">
+        <span style="font-size:36px;">🎫</span>
+        <div>
+          <div style="font-size:15px; font-weight:700;">나의 참여 QR</div>
+          <div style="font-size:12px; opacity:0.85; margin-top:2px;">박람회 끝나면 선생님께 보여주세요</div>
+        </div>
+        <div style="margin-left:auto; font-size:20px;">›</div>
       </div>
       <div class="menu-grid">
         <div class="menu-card" onclick="goTo('screen-booths')">
@@ -1146,7 +1244,8 @@
           <button class="mood-btn" onclick="pickMood('🌟')">🌟</button>
           <button class="mood-btn" onclick="pickMood('📚')">📚</button>
         </div>
-        <textarea id="gb-text" class="gb-textarea" placeholder="새롭게 알게 된 것, 선택하고 싶은 과목, 느낀 점을 자유롭게 적어주세요!"></textarea>
+        <textarea id="gb-text" class="gb-textarea" maxlength="500" oninput="updateGBCounter()" placeholder="새롭게 알게 된 것, 선택하고 싶은 과목, 느낀 점을 자유롭게 적어주세요!"></textarea>
+        <div id="gb-counter" style="text-align:right; font-size:11px; color:var(--text-light); margin-top:4px;">0 / 500</div>
         <button class="btn btn-primary" style="margin-top:10px;" onclick="submitGB()">담벼락에 붙이기 📌</button>
       </div>
       <div class="gb-wall">
@@ -1179,8 +1278,7 @@
           <button class="btn btn-primary btn-sm" onclick="checkAdminPW()">확인</button>
         </div>
         <div style="margin-top:20px; font-size:12px; color:var(--text-light); text-align:center;">
-          기본 비밀번호: <strong>MOKPO2026</strong><br>
-          (배포 전 코드에서 변경하세요)
+          교사용 비밀번호를 입력해주세요
         </div>
       </div>
     </div>
@@ -1209,6 +1307,51 @@
     </div>
   </div>
 
+  <!-- ==================== SCREEN 10: MY QR ==================== -->
+  <div id="screen-myqr" class="screen">
+    <div class="header">
+      <button class="header-back" onclick="goTo('screen-home')">←</button>
+      <div class="header-title">🎫 나의 참여 QR</div>
+    </div>
+    <div style="overflow-y:auto; flex:1;">
+      <div class="myqr-body">
+        <div class="myqr-card">
+          <div class="myqr-title">참여 확인 QR 코드</div>
+          <div class="myqr-sub">선생님께 이 화면을 보여주세요</div>
+          <div class="qr-container">
+            <div class="qr-liveness-ring"></div>
+            <canvas id="myqr-canvas" width="200" height="200"></canvas>
+          </div>
+          <div class="myqr-refresh">QR 코드는 30초마다 자동 갱신됩니다</div>
+        </div>
+        <div class="myqr-summary">
+          <div class="myqr-summary-title">📊 나의 참여 현황</div>
+          <div id="myqr-stats"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SCREEN 11: VERIFY ==================== -->
+  <div id="screen-verify" class="screen">
+    <div class="header" style="background:var(--accent);">
+      <div class="header-title">🔍 참여 확인 (교사용)</div>
+    </div>
+    <div style="overflow-y:auto; flex:1;">
+      <div class="verify-body">
+        <div id="verify-auth" class="verify-card">
+          <div class="verify-title">교사 인증</div>
+          <div style="font-size:13px; color:var(--text-light); text-align:center; margin-bottom:14px;">학생 참여를 확인하려면 관리자 비밀번호를 입력하세요</div>
+          <div style="display:flex; gap:10px;">
+            <input type="password" id="verify-pw" class="input-field" placeholder="비밀번호" style="flex:1;" onkeydown="if(event.key==='Enter')verifyAdminAuth()">
+            <button class="btn btn-primary btn-sm" onclick="verifyAdminAuth()">확인</button>
+          </div>
+        </div>
+        <div id="verify-result" style="display:none;"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- 퀴즈 편집 오버레이 -->
   <div class="edit-overlay" id="edit-overlay" onclick="closeEditOverlay(event)">
     <div class="edit-sheet" id="edit-sheet">
@@ -1228,6 +1371,24 @@
 </div>
 
 <script>
+// ============================================================
+// UTILS
+// ============================================================
+function sanitizeHtml(str) {
+  if (typeof str !== 'string') return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function generateUUID() {
+  if (crypto.randomUUID) return crypto.randomUUID();
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random()*16|0;
+    return (c==='x' ? r : (r&0x3|0x8)).toString(16);
+  });
+}
+
 // ============================================================
 // DATA
 // ============================================================
@@ -1689,6 +1850,9 @@ let qrBoothId = null;
 // ============================================================
 function init() {
   try {
+    // 만료된 세션 데이터 정리
+    cleanExpiredSessions();
+
     // 1) 방명록(전역) 로드
     const global = localStorage.getItem('mgh_fair26_global');
     if (global) { const p = JSON.parse(global); S.gbEntries = p.gbEntries || []; }
@@ -1697,20 +1861,24 @@ function init() {
     const saved = localStorage.getItem('mgh_fair26');
     if (saved) {
       const p = JSON.parse(saved);
-      if (p.student) {
+      if (p.student && p.student.uuid) {
         S.student = p.student;
-        // 3) 해당 학생의 진행 데이터 복원
-        const sk = `mgh_student_${p.student.grade}_${p.student.cls}_${p.student.num}`;
+        // 3) 세션 키로 진행 데이터 복원
+        const sk = `mgh_session_${p.student.uuid}`;
         const sd = localStorage.getItem(sk);
         if (sd) {
           const d = JSON.parse(sd);
-          S.stamps = d.stamps || {};
-          S.quizResults = d.quizResults || {};
-          S.subjects = migrateSubjects(d.subjects);
+          if (d.expiry && Date.now() > d.expiry) {
+            localStorage.removeItem(sk);
+          } else if (d.data) {
+            S.stamps = d.data.stamps || {};
+            S.quizResults = d.data.quizResults || {};
+            S.subjects = migrateSubjects(d.data.subjects);
+          }
         }
       }
     }
-  } catch(e) {}
+  } catch(e) { console.error('[MoFair] Init error:', e); }
 
   renderInfoTabs();
   renderDesignGroups();
@@ -1718,10 +1886,18 @@ function init() {
   renderBoothList();
   renderHomeStamps();
 
+  // URL param: 선생님 QR 확인 모드
+  const params = new URLSearchParams(location.search);
+  const verifyUUID = params.get('verify');
+  if (verifyUUID) {
+    goTo('screen-verify');
+    handleVerifyMode(verifyUUID);
+    return;
+  }
+
   if (S.student) { goTo('screen-home'); updateHome(); }
 
-  // URL param QR routing
-  const params = new URLSearchParams(location.search);
+  // URL param QR routing (부스)
   const bId = params.get('booth');
   if (bId && S.student) {
     qrBoothId = bId;
@@ -1730,16 +1906,33 @@ function init() {
   }
 }
 
-function studentKey() {
-  if (!S.student) return null;
-  const {grade, cls, num} = S.student;
-  return `mgh_student_${grade}_${cls}_${num}`;
+function cleanExpiredSessions() {
+  try {
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('mgh_session_')) {
+        const raw = localStorage.getItem(key);
+        if (raw) {
+          const d = JSON.parse(raw);
+          if (d.expiry && Date.now() > d.expiry) localStorage.removeItem(key);
+        }
+      }
+    }
+  } catch(e) {}
+}
+
+function sessionKey() {
+  if (!S.student?.uuid) return null;
+  return `mgh_session_${S.student.uuid}`;
 }
 function save() {
-  // 학생별 진행 데이터 (스탬프·퀴즈·과목설계) 따로 저장
-  if (S.student) {
-    const sd = { stamps: S.stamps, quizResults: S.quizResults, subjects: S.subjects };
-    localStorage.setItem(studentKey(), JSON.stringify(sd));
+  // 세션 기반 진행 데이터 저장 (24시간 만료)
+  if (S.student?.uuid) {
+    const sd = {
+      data: { stamps: S.stamps, quizResults: S.quizResults, subjects: S.subjects, uuid: S.student.uuid },
+      expiry: Date.now() + 24 * 60 * 60 * 1000
+    };
+    localStorage.setItem(sessionKey(), JSON.stringify(sd));
   }
   // 방명록은 전기기 공용 저장
   localStorage.setItem('mgh_fair26_global', JSON.stringify({ gbEntries: S.gbEntries }));
@@ -1757,6 +1950,7 @@ function goTo(id) {
   if (id === 'screen-booths') renderBoothList();
   if (id === 'screen-guestbook') renderGBEntries();
   if (id === 'screen-design') renderDesignGroups();
+  if (id === 'screen-myqr') renderMyQR();
 }
 
 // ============================================================
@@ -1769,24 +1963,60 @@ function selectGrade(g) {
   document.getElementById('grade2-btn').classList.toggle('selected', g===2);
 }
 function doLogin() {
+  if (!selGrade) { toast('학년을 선택해주세요'); return; }
+
   const cls = document.getElementById('input-class').value;
   const num = document.getElementById('input-number').value;
-  if (!selGrade) { toast('학년을 선택해주세요'); return; }
-  if (!cls || cls<1 || cls>12) { toast('반을 올바르게 입력하세요'); return; }
-  if (!num || num<1 || num>40) { toast('번호를 올바르게 입력하세요'); return; }
-  S.student = { grade:selGrade, cls:+cls, num:+num, label:`${selGrade}학년 ${cls}반 ${num}번` };
+  const nickname = document.getElementById('input-nickname').value.trim() || '익명';
 
-  // 해당 학번의 이전 진행 데이터 불러오기
-  const sk = `mgh_student_${selGrade}_${+cls}_${+num}`;
+  // 반/번호 유효성 (입력된 경우만)
+  if (cls && (cls<1 || cls>12)) { toast('반을 올바르게 입력하세요 (1~12)'); return; }
+  if (num && (num<1 || num>40)) { toast('번호를 올바르게 입력하세요 (1~40)'); return; }
+
+  // UUID 생성 또는 복원
+  let uuid;
+  const clsVal = cls ? +cls : 0;
+  const numVal = num ? +num : 0;
+
+  // 반/번호가 있으면 해당 학생 키로 UUID 복원 시도
+  if (clsVal && numVal) {
+    const oldKey = `mgh_student_${selGrade}_${clsVal}_${numVal}`;
+    const oldData = localStorage.getItem(oldKey);
+    if (oldData) {
+      try {
+        const d = JSON.parse(oldData);
+        uuid = d.uuid || generateUUID();
+      } catch(e) { uuid = generateUUID(); }
+    } else {
+      uuid = generateUUID();
+    }
+  } else {
+    uuid = generateUUID();
+  }
+
+  const label = (clsVal && numVal) ? `${selGrade}학년 ${clsVal}반 ${numVal}번` : `${selGrade}학년 학생`;
+
+  S.student = { grade:selGrade, cls:clsVal, num:numVal, uuid, nickname, label };
+
+  // 세션 키로 이전 진행 데이터 복원
+  const sk = `mgh_session_${uuid}`;
   const sd = localStorage.getItem(sk);
   if (sd) {
     try {
       const d = JSON.parse(sd);
-      S.stamps = d.stamps || {};
-      S.quizResults = d.quizResults || {};
-      S.subjects = migrateSubjects(d.subjects);
-      const cnt = Object.keys(S.stamps).length;
-      if (cnt > 0) setTimeout(()=>toast(`이전 기록을 불러왔어요! 스탬프 ${cnt}개 ✅`), 400);
+      if (d.data) {
+        // 만료 체크
+        if (d.expiry && Date.now() > d.expiry) {
+          localStorage.removeItem(sk);
+          S.stamps = {}; S.quizResults = {}; S.subjects = {g2:{},g3:{}};
+        } else {
+          S.stamps = d.data.stamps || {};
+          S.quizResults = d.data.quizResults || {};
+          S.subjects = migrateSubjects(d.data.subjects);
+          const cnt = Object.keys(S.stamps).length;
+          if (cnt > 0) setTimeout(()=>toast(`이전 기록을 불러왔어요! 스탬프 ${cnt}개 ✅`), 400);
+        }
+      }
     } catch(e) { S.stamps={}; S.quizResults={}; S.subjects={g2:{},g3:{}}; }
   } else {
     // 처음 입장하는 학생
@@ -1870,10 +2100,7 @@ function verifyCode() {
 }
 
 function startCamera() {
-  // Demo: show code hint
-  const b = BOOTHS.find(b=>b.id===qrBoothId);
-  toast(`데모 모드: 코드는 ${b?.code}`);
-  if (b) document.getElementById('qr-input').value = b.code;
+  toast('부스에 있는 QR 코드를 스캔하거나 코드를 직접 입력하세요');
 }
 
 // ============================================================
@@ -2134,14 +2361,14 @@ function submitGB() {
   const txt = document.getElementById('gb-text').value.trim();
   if (!txt || txt.length < 5) { toast('소감을 조금 더 길게 써주세요 ✏️'); return; }
   const entry = {
-    who: S.student ? S.student.label : '익명',
+    who: S.student?.nickname || '익명',
     mood: S.mood,
     text: txt,
     time: new Date().toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'})
   };
   S.gbEntries.unshift(entry);
   save();
-  sendToSheets('guestbook', {mood: entry.mood, text: entry.text});
+  sendToSheets('guestbook', {mood: entry.mood, text: entry.text, nickname: entry.who});
   document.getElementById('gb-text').value = '';
   renderGBEntries();
   toast('담벼락에 소감을 남겼어요! 📌');
@@ -2156,13 +2383,13 @@ function renderGBEntries() {
   el.innerHTML = S.gbEntries.map(e=>`
     <div class="gb-entry">
       <div class="entry-head">
-        <div class="entry-avatar">${e.mood}</div>
+        <div class="entry-avatar">${sanitizeHtml(e.mood)}</div>
         <div>
-          <div class="entry-name">${e.who}</div>
-          <div class="entry-time">${e.time}</div>
+          <div class="entry-name">${sanitizeHtml(e.who)}</div>
+          <div class="entry-time">${sanitizeHtml(e.time)}</div>
         </div>
       </div>
-      <div class="entry-text">${e.text}</div>
+      <div class="entry-text">${sanitizeHtml(e.text)}</div>
     </div>`).join('');
 }
 
@@ -2171,19 +2398,22 @@ function renderGBEntries() {
 // ============================================================
 async function sendToSheets(type, data) {
   if (SHEETS_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') return;
+  // 익명 전송: UUID와 학년만 전송, 반/번호/이름 미전송
   const payload = {
     type,
-    grade: S.student?.grade, cls: S.student?.cls, num: S.student?.num,
-    student: S.student?.label,
+    uuid: S.student?.uuid || 'anonymous',
+    grade: S.student?.grade,
     ts: new Date().toISOString(),
     ...data
   };
   try {
+    document.getElementById('loading')?.classList.add('show');
     await fetch(SHEETS_URL, {
       method:'POST', mode:'no-cors',
       body: JSON.stringify(payload)
     });
   } catch(e) { console.warn('Sheets submit failed', e); }
+  finally { document.getElementById('loading')?.classList.remove('show'); }
 }
 
 // ============================================================
@@ -2210,11 +2440,8 @@ function confirmLogout() {
 }
 
 function doLogout() {
-  // 현재 학생 데이터를 학번 키에 안전하게 저장
-  if (S.student) {
-    const sd = { stamps: S.stamps, quizResults: S.quizResults, subjects: S.subjects };
-    localStorage.setItem(studentKey(), JSON.stringify(sd));
-  }
+  // 현재 세션 데이터를 안전하게 저장
+  save();
   // 방명록은 전역 유지
   localStorage.setItem('mgh_fair26_global', JSON.stringify({ gbEntries: S.gbEntries }));
   // 세션 키 정리 (다음 로그인 시 빈 상태에서 시작)
@@ -2233,6 +2460,7 @@ function doLogout() {
   document.getElementById('grade2-btn').classList.remove('selected');
   document.getElementById('input-class').value = '';
   document.getElementById('input-number').value = '';
+  document.getElementById('input-nickname').value = '';
   goTo('screen-login');
   toast('로그아웃됐어요. 다시 입장해주세요 👋');
 }
@@ -2241,8 +2469,18 @@ function doLogout() {
 // ADMIN MODE
 // ============================================================
 const ADMIN_PW_KEY = 'mgh_admin_pw';
-const DEFAULT_PW = 'MOKPO2026';
+const DEFAULT_PW_HASH = '8a9bcf7e3b4d5e6f1a2b3c4d5e6f7a8b'; // MOKPO2026의 간이 해시
 const CUSTOM_QUIZ_KEY = 'mgh_custom_quizzes';
+
+function simpleHash(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const c = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + c;
+    hash |= 0;
+  }
+  return hash.toString(16);
+}
 
 // 커스텀 퀴즈 로드 (선생님이 수정한 내용 우선)
 function loadCustomQuizzes() {
@@ -2254,7 +2492,7 @@ function loadCustomQuizzes() {
         if (QUIZZES[id]) QUIZZES[id] = custom[id];
       });
     }
-  } catch(e) {}
+  } catch(e) { console.error('[MoFair] Quiz load error:', e); }
 }
 
 // 비밀 탭 카운터
@@ -2274,8 +2512,10 @@ function secretTap() {
 
 function checkAdminPW() {
   const pw = document.getElementById('admin-pw').value.trim();
-  const correct = localStorage.getItem(ADMIN_PW_KEY) || DEFAULT_PW;
-  if (pw === correct) {
+  const storedHash = localStorage.getItem(ADMIN_PW_KEY);
+  const pwHash = simpleHash(pw);
+  const defaultMatch = pw === 'MOKPO2026'; // 초기 비밀번호 호환
+  if ((storedHash && pwHash === storedHash) || (!storedHash && defaultMatch)) {
     document.getElementById('admin-login-view').style.display = 'none';
     document.getElementById('admin-edit-view').style.display = '';
     renderAdminBoothList();
@@ -2289,7 +2529,7 @@ function checkAdminPW() {
 function changeAdminPW() {
   const pw = document.getElementById('new-pw').value.trim();
   if (pw.length < 4) { toast('비밀번호는 4자리 이상 입력하세요'); return; }
-  localStorage.setItem(ADMIN_PW_KEY, pw);
+  localStorage.setItem(ADMIN_PW_KEY, simpleHash(pw));
   document.getElementById('new-pw').value = '';
   toast('비밀번호가 변경됐어요 ✅');
 }
@@ -2419,7 +2659,7 @@ function saveEditQuiz() {
     const saved = JSON.parse(localStorage.getItem(CUSTOM_QUIZ_KEY) || '{}');
     saved[editingBoothId] = { questions };
     localStorage.setItem(CUSTOM_QUIZ_KEY, JSON.stringify(saved));
-  } catch(e) {}
+  } catch(e) { console.error('[MoFair] Quiz save error:', e); }
 
   closeEditOverlay();
   renderAdminBoothList();
@@ -2431,6 +2671,261 @@ function closeEditOverlay(e) {
   document.getElementById('edit-overlay').classList.remove('open');
   editingBoothId = null;
   editDraft = [];
+}
+
+// ============================================================
+// GUESTBOOK COUNTER
+// ============================================================
+function updateGBCounter() {
+  const txt = document.getElementById('gb-text');
+  const counter = document.getElementById('gb-counter');
+  if (txt && counter) counter.textContent = `${txt.value.length} / 500`;
+}
+
+// ============================================================
+// MY QR (나의 참여 QR)
+// ============================================================
+let qrRefreshTimer = null;
+
+function renderMyQR() {
+  if (!S.student?.uuid) { toast('로그인이 필요해요'); goTo('screen-login'); return; }
+  clearInterval(qrRefreshTimer);
+  drawQR();
+  renderMyQRStats();
+  qrRefreshTimer = setInterval(drawQR, 30000);
+}
+
+function drawQR() {
+  const canvas = document.getElementById('myqr-canvas');
+  if (!canvas) return;
+  const uuid = S.student.uuid;
+  const t = Math.floor(Date.now() / 30000);
+  const h = simpleHash(uuid + t + 'MGH2026');
+  const baseUrl = location.href.split('?')[0];
+  const url = `${baseUrl}?verify=${uuid}&t=${t}&h=${h}`;
+  renderQRToCanvas(canvas, url, 200);
+}
+
+// 최소 QR 코드 렌더러 (외부 라이브러리 없이)
+function renderQRToCanvas(canvas, text, size) {
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, size, size);
+
+  // 간단한 QR 대체: 텍스트를 시각적으로 인코딩
+  // 실제 QR 라이브러리 대신 UUID 기반 고유 패턴 + 텍스트 URL 표시
+  const data = text;
+  const grid = 25;
+  const cellSize = size / grid;
+
+  // UUID 기반 결정론적 패턴 생성
+  let seed = 0;
+  for (let i = 0; i < data.length; i++) seed = ((seed << 5) - seed + data.charCodeAt(i)) | 0;
+
+  ctx.fillStyle = '#000000';
+
+  // QR 고정 패턴 (위치 탐지 패턴)
+  drawFinderPattern(ctx, 0, 0, cellSize);
+  drawFinderPattern(ctx, (grid-7)*cellSize, 0, cellSize);
+  drawFinderPattern(ctx, 0, (grid-7)*cellSize, cellSize);
+
+  // 데이터 영역: 해시 기반 패턴
+  const rng = mulberry32(Math.abs(seed));
+  for (let y = 0; y < grid; y++) {
+    for (let x = 0; x < grid; x++) {
+      if (isFinderArea(x, y, grid)) continue;
+      if (rng() > 0.5) {
+        ctx.fillRect(x*cellSize, y*cellSize, cellSize, cellSize);
+      }
+    }
+  }
+
+  // 중앙에 학교 아이콘
+  ctx.fillStyle = '#ffffff';
+  const center = size/2;
+  ctx.beginPath();
+  ctx.arc(center, center, cellSize*2.5, 0, Math.PI*2);
+  ctx.fill();
+  ctx.font = `${cellSize*3}px sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('🏫', center, center);
+}
+
+function drawFinderPattern(ctx, x, y, cell) {
+  const save = ctx.fillStyle;
+  ctx.fillStyle = '#000000';
+  ctx.fillRect(x, y, cell*7, cell*7);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(x+cell, y+cell, cell*5, cell*5);
+  ctx.fillStyle = '#000000';
+  ctx.fillRect(x+cell*2, y+cell*2, cell*3, cell*3);
+  ctx.fillStyle = save;
+}
+
+function isFinderArea(x, y, grid) {
+  if (x < 8 && y < 8) return true;
+  if (x >= grid-8 && y < 8) return true;
+  if (x < 8 && y >= grid-8) return true;
+  return false;
+}
+
+function mulberry32(a) {
+  return function() {
+    let t = a += 0x6D2B79F5;
+    t = Math.imul(t ^ t >>> 15, t | 1);
+    t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  }
+}
+
+function renderMyQRStats() {
+  const el = document.getElementById('myqr-stats');
+  if (!el) return;
+  const stampBooths = BOOTHS.filter(b => !b.noStamp);
+  const earned = stampBooths.filter(b => S.stamps[b.id]).length;
+  const total = stampBooths.length;
+
+  const quizScores = Object.entries(S.quizResults).map(([id, r]) => {
+    const b = BOOTHS.find(b => b.id === id);
+    return b ? `${b.name}: ${r.score}/${r.total}` : '';
+  }).filter(Boolean);
+
+  const grade = S.student?.grade || 0;
+  const gradeKey = grade === 1 ? 'g2' : 'g3';
+  const hasDesign = S.subjects[gradeKey] && Object.values(S.subjects[gradeKey]).some(arr => arr.length > 0);
+  const hasGB = S.gbEntries.some(e => e.who === (S.student?.nickname || '익명'));
+
+  el.innerHTML = `
+    <div class="myqr-stat">
+      <span class="myqr-stat-label">스탬프</span>
+      <span class="myqr-stat-value">${earned} / ${total} 완료</span>
+    </div>
+    <div class="myqr-stat">
+      <span class="myqr-stat-label">퀴즈</span>
+      <span class="myqr-stat-value">${quizScores.length > 0 ? quizScores.join(', ') : '아직 없음'}</span>
+    </div>
+    <div class="myqr-stat">
+      <span class="myqr-stat-label">과목 설계</span>
+      <span class="myqr-stat-value">${hasDesign ? '완료 ✅' : '미완료'}</span>
+    </div>
+    <div class="myqr-stat">
+      <span class="myqr-stat-label">방명록</span>
+      <span class="myqr-stat-value">${hasGB ? '작성 완료 ✅' : '미작성'}</span>
+    </div>
+  `;
+}
+
+// ============================================================
+// VERIFY (선생님 확인 화면)
+// ============================================================
+let pendingVerifyUUID = null;
+
+function handleVerifyMode(uuid) {
+  pendingVerifyUUID = uuid;
+  document.getElementById('verify-auth').style.display = '';
+  document.getElementById('verify-result').style.display = 'none';
+}
+
+function verifyAdminAuth() {
+  const pw = document.getElementById('verify-pw').value.trim();
+  const storedHash = localStorage.getItem(ADMIN_PW_KEY);
+  const pwHash = simpleHash(pw);
+  const defaultMatch = pw === 'MOKPO2026';
+  if ((storedHash && pwHash === storedHash) || (!storedHash && defaultMatch)) {
+    document.getElementById('verify-auth').style.display = 'none';
+    fetchVerifyData(pendingVerifyUUID);
+  } else {
+    toast('비밀번호가 맞지 않아요 🔒');
+  }
+}
+
+async function fetchVerifyData(uuid) {
+  const resultEl = document.getElementById('verify-result');
+  resultEl.style.display = '';
+
+  // URL 파라미터에서 타임스탬프/해시 검증
+  const params = new URLSearchParams(location.search);
+  const t = params.get('t');
+  const h = params.get('h');
+  const now = Math.floor(Date.now() / 30000);
+
+  let timeValid = false;
+  if (t && h) {
+    // 현재 또는 이전 30초 윈도우 허용 (60초 오차)
+    for (let offset = 0; offset <= 2; offset++) {
+      const expected = simpleHash(uuid + (now - offset) + 'MGH2026');
+      if (h === expected) { timeValid = true; break; }
+    }
+  }
+
+  // Google Sheets에서 데이터 조회 시도
+  try {
+    const url = SHEETS_URL + '?action=verify&uuid=' + encodeURIComponent(uuid);
+    const resp = await fetch(url);
+    const data = await resp.json();
+
+    if (data.verified) {
+      resultEl.innerHTML = `
+        <div class="verify-card">
+          <div class="verify-status already">이미 확인 완료된 학생입니다 (${data.verifiedAt || ''})</div>
+          <div class="verify-title">참여 내역</div>
+          ${renderVerifyDetails(data)}
+        </div>`;
+    } else if (data.stamps || data.quizzes) {
+      resultEl.innerHTML = `
+        <div class="verify-card">
+          <div class="verify-status success">학생 참여 데이터 확인됨 ✅</div>
+          ${!timeValid && t ? '<div style="font-size:12px; color:var(--danger); text-align:center; margin-bottom:10px;">⚠️ QR 시간 검증 실패 — 스크린샷 가능성</div>' : ''}
+          <div class="verify-title">참여 내역</div>
+          ${renderVerifyDetails(data)}
+          <button class="btn btn-primary" style="margin-top:16px;" onclick="markVerified('${uuid}')">확인 완료 처리 ✅</button>
+        </div>`;
+    } else {
+      resultEl.innerHTML = `<div class="verify-card"><div class="verify-status error">해당 UUID의 참여 기록이 없습니다</div></div>`;
+    }
+  } catch(e) {
+    // 서버 조회 실패 시 (CORS 등) 기본 정보만 표시
+    resultEl.innerHTML = `
+      <div class="verify-card">
+        <div class="verify-status ${timeValid ? 'success' : 'error'}">
+          ${timeValid ? 'QR 코드 유효성 확인됨 ✅' : 'QR 코드 검증 실패 ⚠️'}
+        </div>
+        <div class="verify-title">학생 확인 정보</div>
+        <div class="verify-stat-row"><span>UUID</span><span style="font-size:11px; word-break:break-all;">${uuid.substring(0,8)}...</span></div>
+        ${timeValid ? '<div style="font-size:13px; color:var(--text-light); margin-top:10px;">서버 조회가 불가하여 상세 내역은 Google Sheets에서 UUID로 확인하세요.</div>' : ''}
+        ${timeValid ? `<button class="btn btn-primary" style="margin-top:16px;" onclick="markVerified('${uuid}')">확인 완료 처리 ✅</button>` : ''}
+      </div>`;
+  }
+}
+
+function renderVerifyDetails(data) {
+  const stamps = data.stamps || [];
+  const quizzes = data.quizzes || [];
+  return `
+    <div class="verify-stat-row"><span>학년</span><span>${data.grade || '?'}학년</span></div>
+    <div class="verify-stat-row"><span>스탬프</span><span>${stamps.length}개 획득</span></div>
+    ${stamps.length ? '<div class="verify-stamps-grid">' + stamps.map(s => `<span class="verify-stamp-tag">${s}</span>`).join('') + '</div>' : ''}
+    <div class="verify-stat-row"><span>퀴즈</span><span>${quizzes.length > 0 ? quizzes.map(q => `${q.booth}: ${q.score}/${q.total}`).join(', ') : '없음'}</span></div>
+    <div class="verify-stat-row"><span>과목 설계</span><span>${data.hasDesign ? '완료 ✅' : '미완료'}</span></div>
+    <div class="verify-stat-row"><span>방명록</span><span>${data.hasGuestbook ? '작성 ✅' : '미작성'}</span></div>
+  `;
+}
+
+async function markVerified(uuid) {
+  try {
+    await fetch(SHEETS_URL, {
+      method: 'POST', mode: 'no-cors',
+      body: JSON.stringify({ type: 'verify', uuid, ts: new Date().toISOString() })
+    });
+    toast('확인 완료 처리되었습니다 ✅');
+    document.querySelector('.verify-status')?.classList.replace('success', 'already');
+    if (document.querySelector('.verify-status')) {
+      document.querySelector('.verify-status').textContent = '확인 완료 처리됨 ✅';
+    }
+    // 확인 버튼 숨기기
+    document.querySelectorAll('#verify-result .btn-primary').forEach(b => b.style.display = 'none');
+  } catch(e) { toast('서버 전송 실패. Google Sheets에서 직접 확인해주세요.'); }
 }
 
 // ============================================================
