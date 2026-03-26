@@ -1,0 +1,2275 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>2026 목포여고 교육과정 박람회</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+      font-family: -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', BlinkMacSystemFont, sans-serif;
+      background: #e8f4f4;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+    }
+    #app {
+      width: 100%;
+      max-width: 430px;
+      min-height: 100vh;
+      background: white;
+      position: relative;
+      overflow-x: hidden;
+      box-shadow: 0 0 40px rgba(0,0,0,0.12);
+    }
+    .screen { display: none; width: 100%; min-height: 100vh; flex-direction: column; }
+    .screen.active { display: flex; }
+    :root {
+      --primary: #2DC7C0;
+      --primary-dark: #1A9E98;
+      --primary-light: #E8FAF9;
+      --secondary: #FFB800;
+      --accent: #5B6AF0;
+      --danger: #FF4757;
+      --success: #2ECC71;
+      --text: #1A2332;
+      --text-light: #718096;
+      --bg: #F7FAFA;
+      --border: #E2EEF0;
+    }
+
+    /* === HEADER === */
+    .header {
+      background: var(--primary);
+      color: white;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(45,199,192,0.3);
+    }
+    .header-back {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .header-title { font-size: 17px; font-weight: 700; flex: 1; }
+    .header-badge {
+      background: var(--secondary);
+      color: #333;
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    /* === BOTTOM NAV === */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      max-width: 430px;
+      background: white;
+      border-top: 1px solid var(--border);
+      display: flex;
+      z-index: 100;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px 4px 6px;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: var(--text-light);
+      font-size: 10px;
+      gap: 2px;
+      transition: color 0.2s;
+    }
+    .nav-item.active { color: var(--primary); }
+    .nav-icon { font-size: 20px; }
+
+    /* === BUTTONS === */
+    .btn {
+      border: none;
+      border-radius: 12px;
+      padding: 14px 24px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      width: 100%;
+      font-family: inherit;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:active { background: var(--primary-dark); }
+    .btn-secondary { background: var(--secondary); color: #333; }
+    .btn-outline { background: white; border: 2px solid var(--primary); color: var(--primary); }
+    .btn-sm { padding: 10px 18px; font-size: 14px; width: auto; }
+
+    /* === CARDS === */
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      border: 1px solid var(--border);
+    }
+
+    /* === INPUTS === */
+    .input-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+      display: block;
+    }
+    .input-field {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.2s;
+      font-family: inherit;
+      color: var(--text);
+    }
+    .input-field:focus { border-color: var(--primary); }
+
+    /* ===========================
+       SCREEN 1: LOGIN
+    =========================== */
+    #screen-login {
+      background: linear-gradient(160deg, #1A9E98 0%, #2DC7C0 40%, #48D9D2 100%);
+      justify-content: center;
+      padding: 40px 24px 60px;
+      min-height: 100vh;
+    }
+    .login-top { text-align: center; margin-bottom: 32px; }
+    .login-school-icon {
+      font-size: 64px;
+      display: block;
+      margin-bottom: 12px;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+    }
+    .login-year {
+      display: inline-block;
+      background: rgba(255,255,255,0.25);
+      color: white;
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .login-title {
+      font-size: 26px;
+      font-weight: 900;
+      color: white;
+      line-height: 1.3;
+      margin-bottom: 4px;
+    }
+    .login-subtitle { font-size: 14px; color: rgba(255,255,255,0.85); }
+    .login-card {
+      background: white;
+      border-radius: 24px;
+      padding: 28px 24px;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.15);
+    }
+    .login-card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .grade-selector { display: flex; gap: 10px; margin-bottom: 18px; }
+    .grade-btn {
+      flex: 1;
+      padding: 14px;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      background: white;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .grade-btn.selected {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      color: var(--primary-dark);
+    }
+    .class-row { display: flex; gap: 12px; margin-bottom: 20px; }
+    .class-row .field-group { flex: 1; }
+
+    /* ===========================
+       SCREEN 2: HOME
+    =========================== */
+    #screen-home { background: var(--bg); padding-bottom: 72px; }
+    .home-hero {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      padding: 22px 20px 36px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    .home-hero::after {
+      content: '';
+      position: absolute;
+      bottom: -20px;
+      left: 0;
+      right: 0;
+      height: 40px;
+      background: var(--bg);
+      border-radius: 24px 24px 0 0;
+    }
+    .home-greeting { font-size: 13px; opacity: 0.85; margin-bottom: 3px; }
+    .home-name { font-size: 22px; font-weight: 800; margin-bottom: 18px; }
+    .progress-wrapper { }
+    .progress-label { font-size: 12px; opacity: 0.9; margin-bottom: 6px; display: flex; justify-content: space-between; }
+    .progress-bar {
+      background: rgba(255,255,255,0.3);
+      border-radius: 10px;
+      height: 10px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      background: var(--secondary);
+      height: 100%;
+      border-radius: 10px;
+      transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+    }
+    .home-body { padding: 0 16px; }
+    .stamp-card {
+      background: white;
+      border-radius: 20px;
+      padding: 20px;
+      margin-top: 8px;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+    }
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+    .stamp-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+    .stamp-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+    }
+    .stamp-circle {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 2px dashed #CBD5E0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      color: #CBD5E0;
+      transition: all 0.4s;
+    }
+    .stamp-circle.earned {
+      border-style: solid;
+      animation: stamp-pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes stamp-pop {
+      0% { transform: scale(0); opacity: 0; }
+      60% { transform: scale(1.25); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .stamp-label {
+      font-size: 9px;
+      text-align: center;
+      color: var(--text-light);
+      line-height: 1.2;
+      word-break: keep-all;
+    }
+    .menu-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .menu-card {
+      background: white;
+      border-radius: 16px;
+      padding: 18px 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      cursor: pointer;
+      text-align: center;
+      border: 1px solid var(--border);
+      transition: all 0.15s;
+    }
+    .menu-card:active { transform: scale(0.96); box-shadow: none; }
+    .menu-icon { font-size: 32px; margin-bottom: 8px; }
+    .menu-title { font-size: 13px; font-weight: 700; color: var(--text); }
+    .menu-sub { font-size: 11px; color: var(--text-light); margin-top: 3px; }
+    .notice-card {
+      background: linear-gradient(135deg, #f0fafa, #e8f9f8);
+      border: 1px solid rgba(45,199,192,0.2);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+    .notice-title { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+    .notice-item { font-size: 13px; color: var(--text); line-height: 1.8; }
+
+    /* ===========================
+       SCREEN 3: BOOTHS
+    =========================== */
+    #screen-booths { background: var(--bg); padding-bottom: 72px; }
+    .booth-list { padding: 12px 14px; }
+    .booth-card {
+      background: white;
+      border-radius: 16px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    .booth-card:active { transform: scale(0.98); }
+    .booth-card.completed { border-color: var(--primary); background: var(--primary-light); }
+    .booth-icon-wrap {
+      width: 50px;
+      height: 50px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+    .booth-info { flex: 1; min-width: 0; }
+    .booth-name { font-size: 15px; font-weight: 700; color: var(--text); }
+    .booth-desc { font-size: 12px; color: var(--text-light); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .booth-quiz-score { font-size: 11px; color: var(--primary-dark); margin-top: 3px; font-weight: 600; }
+    .booth-status-icon { font-size: 22px; flex-shrink: 0; }
+
+    /* ===========================
+       SCREEN 4: QR
+    =========================== */
+    #screen-qr { background: var(--bg); }
+    .qr-body { padding: 20px; }
+    .qr-visual {
+      background: #1a1a2e;
+      border-radius: 20px;
+      padding: 28px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .qr-frame-box {
+      width: 180px;
+      height: 180px;
+      border-radius: 12px;
+      margin: 0 auto;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .qr-corner-tl, .qr-corner-tr, .qr-corner-bl, .qr-corner-br {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      border-color: var(--secondary);
+      border-style: solid;
+    }
+    .qr-corner-tl { top: 0; left: 0; border-width: 3px 0 0 3px; border-radius: 6px 0 0 0; }
+    .qr-corner-tr { top: 0; right: 0; border-width: 3px 3px 0 0; border-radius: 0 6px 0 0; }
+    .qr-corner-bl { bottom: 0; left: 0; border-width: 0 0 3px 3px; border-radius: 0 0 0 6px; }
+    .qr-corner-br { bottom: 0; right: 0; border-width: 0 3px 3px 0; border-radius: 0 0 6px 0; }
+    .qr-center-icon { font-size: 56px; }
+    .qr-hint { color: rgba(255,255,255,0.6); font-size: 13px; margin-top: 14px; }
+    .divider-text {
+      text-align: center;
+      color: var(--text-light);
+      font-size: 13px;
+      margin: 16px 0;
+      position: relative;
+    }
+    .divider-text::before, .divider-text::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 35%;
+      height: 1px;
+      background: var(--border);
+    }
+    .divider-text::before { left: 0; }
+    .divider-text::after { right: 0; }
+    .code-row { display: flex; gap: 10px; }
+
+    /* ===========================
+       SCREEN 5: QUIZ
+    =========================== */
+    #screen-quiz { background: white; }
+    .quiz-body { padding: 20px; flex: 1; }
+    .quiz-booth-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 14px;
+    }
+    .quiz-progress-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .quiz-progress-text { font-size: 13px; color: var(--text-light); }
+    .quiz-bar { height: 6px; background: var(--border); border-radius: 6px; overflow: hidden; margin-bottom: 22px; }
+    .quiz-bar-fill { height: 100%; background: var(--primary); border-radius: 6px; transition: width 0.4s; }
+    .quiz-question { font-size: 18px; font-weight: 700; color: var(--text); line-height: 1.55; margin-bottom: 22px; }
+    .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+    .quiz-opt {
+      background: white;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 13px 16px;
+      cursor: pointer;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.15s;
+      font-family: inherit;
+      text-align: left;
+    }
+    .opt-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+      flex-shrink: 0;
+      transition: all 0.15s;
+    }
+    .quiz-opt.selected { border-color: var(--accent); background: rgba(91,106,240,0.06); }
+    .quiz-opt.selected .opt-num { background: var(--accent); color: white; }
+    .quiz-opt.correct { border-color: var(--success); background: rgba(46,204,113,0.07); }
+    .quiz-opt.correct .opt-num { background: var(--success); color: white; }
+    .quiz-opt.wrong { border-color: var(--danger); background: rgba(255,71,87,0.07); }
+    .quiz-opt.wrong .opt-num { background: var(--danger); color: white; }
+    .quiz-opt.dimmed { opacity: 0.45; }
+    .quiz-action { padding: 16px 20px 28px; }
+    .quiz-result-wrap { padding: 32px 24px; text-align: center; flex: 1; }
+    .result-big-emoji { font-size: 80px; margin-bottom: 12px; display: block; }
+    .result-title { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+    .result-score { font-size: 52px; font-weight: 900; color: var(--primary); margin-bottom: 6px; line-height: 1; }
+    .result-msg { font-size: 15px; color: var(--text-light); margin-bottom: 28px; }
+    .stamp-earned-box {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border-radius: 18px;
+      padding: 22px;
+      color: white;
+      margin-bottom: 20px;
+    }
+    .stamp-earned-icon { font-size: 48px; display: block; margin-bottom: 8px; animation: stamp-pop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .stamp-earned-text { font-size: 17px; font-weight: 700; }
+
+    /* ===========================
+       SCREEN 6: COURSE INFO
+    =========================== */
+    #screen-info { background: var(--bg); padding-bottom: 72px; }
+    .info-tab-bar { display: flex; gap: 8px; padding: 14px 14px 0; overflow-x: auto; scrollbar-width: none; }
+    .info-tab-bar::-webkit-scrollbar { display: none; }
+    .info-tab {
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: 2px solid var(--border);
+      background: white;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      color: var(--text-light);
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .info-tab.active { background: var(--primary); border-color: var(--primary); color: white; }
+    .info-panels { padding: 14px; }
+    .info-panel { display: none; }
+    .info-panel.active { display: block; }
+    .info-card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .info-card h3 { font-size: 17px; font-weight: 800; color: var(--primary); margin-bottom: 14px; }
+    .info-card h4 { font-size: 14px; font-weight: 700; color: var(--text); margin: 14px 0 8px; }
+    .info-card p { font-size: 14px; line-height: 1.75; color: var(--text); margin-bottom: 10px; }
+    .highlight-box {
+      background: var(--primary-light);
+      border-left: 4px solid var(--primary);
+      padding: 12px 14px;
+      border-radius: 0 10px 10px 0;
+      margin: 12px 0;
+    }
+    .highlight-box p { margin: 0; font-weight: 600; }
+    .info-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 10px 0; }
+    .info-table th { background: var(--primary); color: white; padding: 8px 10px; text-align: left; font-weight: 600; }
+    .info-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .info-table tr:nth-child(even) td { background: #f7fdfd; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; margin: 2px; }
+    .badge-common { background: #e8f4fd; color: #2980b9; }
+    .badge-general { background: #fff3e0; color: #e67e22; }
+    .badge-career { background: #f3e5f5; color: #8e44ad; }
+    .badge-fusion { background: #e8f5e9; color: #27ae60; }
+
+    /* ===========================
+       SCREEN 7: COURSE DESIGN
+    =========================== */
+    #screen-design { background: var(--bg); padding-bottom: 72px; }
+    .design-tabs { display: flex; gap: 10px; padding: 14px 14px 0; }
+    .design-tab {
+      flex: 1;
+      padding: 11px;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      background: white;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .design-tab.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary-dark); }
+    .design-body { padding: 12px 14px; }
+    .design-hint {
+      background: var(--primary-light);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--primary-dark);
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+    .subject-cat {
+      background: white;
+      border-radius: 16px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .subject-cat-head { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .subject-cat-name { font-size: 15px; font-weight: 700; }
+    .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+    .chip {
+      padding: 6px 11px;
+      border-radius: 20px;
+      border: 1.5px solid var(--border);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      background: white;
+      color: var(--text);
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .chip:active { transform: scale(0.95); }
+    .chip.type-career { border-color: #c9b1e0; }
+    .chip.type-fusion { border-color: #a8d5b0; }
+    .chip.selected { background: var(--primary-light); border-color: var(--primary); color: var(--primary-dark); }
+    .chip.type-career.selected { background: rgba(142,68,173,0.1); border-color: #8e44ad; color: #6c3483; }
+    .chip.type-fusion.selected { background: rgba(39,174,96,0.1); border-color: #27ae60; color: #1e8449; }
+    .type-dot { font-size: 9px; opacity: 0.65; margin-left: 2px; }
+    .design-summary-card {
+      background: white;
+      border-radius: 16px;
+      padding: 16px;
+      margin-top: 4px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .selected-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; min-height: 28px; }
+    .selected-chip {
+      padding: 4px 10px;
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .empty-msg { font-size: 13px; color: var(--text-light); padding: 6px 0; }
+    .action-row { display: flex; gap: 10px; }
+
+    /* ===========================
+       SCREEN 8: GUESTBOOK
+    =========================== */
+    #screen-guestbook { background: var(--bg); padding-bottom: 72px; }
+    .gb-write { padding: 14px; }
+    .gb-mood-row { display: flex; gap: 10px; margin: 10px 0 12px; }
+    .mood-btn {
+      flex: 1;
+      padding: 10px;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      background: white;
+      font-size: 26px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .mood-btn.selected { border-color: var(--secondary); background: rgba(255,184,0,0.1); }
+    .gb-textarea {
+      width: 100%;
+      padding: 13px 14px;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      font-size: 15px;
+      resize: none;
+      height: 96px;
+      outline: none;
+      font-family: inherit;
+      transition: border-color 0.2s;
+      color: var(--text);
+    }
+    .gb-textarea:focus { border-color: var(--primary); }
+    .gb-wall { padding: 0 14px; }
+    .gb-wall-title { font-size: 15px; font-weight: 700; margin-bottom: 10px; }
+    .gb-entry {
+      background: white;
+      border-radius: 14px;
+      padding: 13px 14px;
+      margin-bottom: 9px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      animation: fadeUp 0.3s ease;
+    }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    .entry-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .entry-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .entry-name { font-size: 13px; font-weight: 700; }
+    .entry-time { font-size: 11px; color: var(--text-light); }
+    .entry-text { font-size: 14px; line-height: 1.65; color: var(--text); }
+    .gb-empty { text-align: center; padding: 36px 0; color: var(--text-light); }
+    .gb-empty-icon { font-size: 40px; margin-bottom: 10px; }
+
+    /* === TOAST === */
+    .toast {
+      position: fixed;
+      bottom: 85px;
+      left: 50%;
+      transform: translateX(-50%) translateY(8px);
+      background: rgba(26,35,50,0.92);
+      color: white;
+      padding: 11px 22px;
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 600;
+      z-index: 999;
+      opacity: 0;
+      transition: all 0.25s;
+      white-space: nowrap;
+      pointer-events: none;
+      max-width: 90%;
+      text-align: center;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* === LOADING === */
+    .loading {
+      position: fixed;
+      inset: 0;
+      background: rgba(255,255,255,0.88);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 500;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .loading.show { display: flex; }
+    .spinner {
+      width: 38px;
+      height: 38px;
+      border: 4px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* === PRINT === */
+    @media print {
+      .header, .bottom-nav, .action-row button:last-child, .gb-write { display: none !important; }
+      body { background: white; }
+      #app { box-shadow: none; max-width: 100%; }
+      .design-summary-card { box-shadow: none; border: 1px solid #ddd; }
+    }
+
+    /* ===========================
+       ADMIN MODE
+    =========================== */
+    #screen-admin { background: var(--bg); padding-bottom: 20px; }
+    .admin-login-wrap {
+      padding: 40px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 80vh;
+    }
+    .admin-icon { font-size: 52px; margin-bottom: 14px; }
+    .admin-login-title { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+    .admin-login-sub { font-size: 13px; color: var(--text-light); margin-bottom: 28px; }
+    .admin-pw-row { display: flex; gap: 10px; width: 100%; }
+    .admin-section { padding: 14px; }
+    .admin-booth-card {
+      background: white;
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.15s;
+    }
+    .admin-booth-card:active { transform: scale(0.98); }
+    .admin-booth-info { flex: 1; }
+    .admin-booth-name { font-size: 15px; font-weight: 700; }
+    .admin-booth-qcount { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+    /* Quiz edit overlay */
+    .edit-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 300;
+      justify-content: flex-end;
+      flex-direction: column;
+    }
+    .edit-overlay.open { display: flex; }
+    .edit-sheet {
+      background: white;
+      border-radius: 24px 24px 0 0;
+      max-height: 92vh;
+      overflow-y: auto;
+      padding: 0 0 32px;
+    }
+    .edit-sheet-handle {
+      width: 40px; height: 4px;
+      background: var(--border);
+      border-radius: 4px;
+      margin: 14px auto 4px;
+    }
+    .edit-sheet-title {
+      font-size: 17px; font-weight: 800;
+      padding: 8px 20px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .edit-q-block {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .edit-q-num {
+      font-size: 12px; font-weight: 700;
+      color: var(--primary); margin-bottom: 8px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .edit-label { font-size: 12px; color: var(--text-light); margin-bottom: 4px; font-weight: 600; }
+    .edit-input {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      margin-bottom: 8px;
+      transition: border-color 0.2s;
+    }
+    .edit-input:focus { border-color: var(--primary); }
+    .edit-opts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
+    .edit-opt-wrap { position: relative; }
+    .edit-opt-label {
+      position: absolute; top: 50%; left: 10px;
+      transform: translateY(-50%);
+      font-size: 12px; font-weight: 700;
+      color: var(--text-light); pointer-events: none;
+    }
+    .edit-opt-input {
+      width: 100%;
+      padding: 9px 10px 9px 26px;
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      transition: all 0.2s;
+    }
+    .edit-opt-input.is-answer { border-color: var(--success); background: rgba(46,204,113,0.07); }
+    .edit-opt-input:focus { border-color: var(--primary); }
+    .edit-answer-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .edit-answer-label { font-size: 12px; color: var(--text-light); font-weight: 600; }
+    .ans-btn {
+      padding: 5px 14px;
+      border-radius: 20px;
+      border: 1.5px solid var(--border);
+      background: white;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .ans-btn.selected { background: var(--success); border-color: var(--success); color: white; }
+    .add-q-btn {
+      margin: 14px 20px 0;
+      border: 2px dashed var(--primary);
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      width: calc(100% - 40px);
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .edit-actions {
+      display: flex; gap: 10px;
+      padding: 16px 20px 0;
+      position: sticky; bottom: 0;
+      background: white;
+      border-top: 1px solid var(--border);
+      margin-top: 14px;
+    }
+    /* Secret tap zone */
+    .secret-tap {
+      position: absolute; bottom: 0; right: 0;
+      width: 44px; height: 44px;
+      opacity: 0; cursor: default;
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ==================== SCREEN 1: LOGIN ==================== -->
+  <div id="screen-login" class="screen active">
+    <div class="login-top">
+      <span class="login-school-icon">🏫</span>
+      <span class="login-year">2026 교육과정 박람회</span>
+      <div class="login-title">목포여자고등학교<br>과목선택 가이드</div>
+      <div class="login-subtitle" style="margin-top:6px;">나만의 미래를 설계해요 ✨</div>
+    </div>
+    <div class="login-card">
+      <div class="login-card-title">👋 학년/반/번호를 입력해주세요</div>
+      <div style="margin-bottom:16px;">
+        <label class="input-label">학년</label>
+        <div class="grade-selector">
+          <button class="grade-btn" id="grade1-btn" onclick="selectGrade(1)">1학년</button>
+          <button class="grade-btn" id="grade2-btn" onclick="selectGrade(2)">2학년</button>
+        </div>
+      </div>
+      <div class="class-row">
+        <div class="field-group">
+          <label class="input-label">반</label>
+          <input type="number" id="input-class" class="input-field" placeholder="예: 3" min="1" max="12">
+        </div>
+        <div class="field-group">
+          <label class="input-label">번호</label>
+          <input type="number" id="input-number" class="input-field" placeholder="예: 15" min="1" max="40">
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="doLogin()">박람회 시작하기 🎉</button>
+      <div style="margin-top:12px; text-align:center; font-size:12px; color:var(--text-light);">
+        입력한 정보는 박람회 운영에만 활용됩니다
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SCREEN 2: HOME ==================== -->
+  <div id="screen-home" class="screen">
+    <div class="home-hero">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:3px;">
+        <div class="home-greeting">안녕하세요! 👋</div>
+        <button onclick="confirmLogout()" style="background:rgba(255,255,255,0.2);border:none;color:white;font-size:12px;padding:4px 10px;border-radius:20px;cursor:pointer;font-family:inherit;">재입장</button>
+      </div>
+      <div class="home-name" id="home-name">1학년 3반 15번</div>
+      <div class="progress-wrapper">
+        <div class="progress-label">
+          <span>스탬프 투어 진행률</span>
+          <span id="progress-text">0 / 9</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+    <div class="home-body">
+      <div class="stamp-card">
+        <div class="card-title">🗂️ 스탬프 현황</div>
+        <div class="stamp-grid" id="home-stamp-grid"></div>
+      </div>
+      <div class="menu-grid">
+        <div class="menu-card" onclick="goTo('screen-booths')">
+          <div class="menu-icon">🗺️</div>
+          <div class="menu-title">부스 투어</div>
+          <div class="menu-sub">QR 스탬프 찍기</div>
+        </div>
+        <div class="menu-card" onclick="goTo('screen-info')">
+          <div class="menu-icon">📖</div>
+          <div class="menu-title">교육과정 안내</div>
+          <div class="menu-sub">고교학점제</div>
+        </div>
+        <div class="menu-card" onclick="goTo('screen-design')">
+          <div class="menu-icon">✏️</div>
+          <div class="menu-title">과목 설계</div>
+          <div class="menu-sub">나만의 시간표</div>
+        </div>
+        <div class="menu-card" onclick="goTo('screen-guestbook')">
+          <div class="menu-icon">💬</div>
+          <div class="menu-title">방명록</div>
+          <div class="menu-sub">소감 남기기</div>
+        </div>
+      </div>
+      <div class="notice-card" style="position:relative;">
+        <div class="notice-title">📢 오늘 박람회 이용 안내</div>
+        <div class="notice-item">
+          ✅ 각 부스를 방문하고 QR 코드를 스캔하세요<br>
+          ✅ 퀴즈를 풀면 스탬프를 획득할 수 있어요<br>
+          ✅ 과목 설계 후 결과를 캡처해 두세요<br>
+          ✅ 박람회 소감을 방명록에 남겨주세요 📝
+        </div>
+        <!-- 교사용 진입: 우측 하단 모서리 5회 탭 -->
+        <div class="secret-tap" onclick="secretTap()" title=""></div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <button class="nav-item active" onclick="goTo('screen-home')"><span class="nav-icon">🏠</span>홈</button>
+      <button class="nav-item" onclick="goTo('screen-booths')"><span class="nav-icon">🗺️</span>부스투어</button>
+      <button class="nav-item" onclick="goTo('screen-design')"><span class="nav-icon">✏️</span>과목설계</button>
+      <button class="nav-item" onclick="goTo('screen-guestbook')"><span class="nav-icon">💬</span>방명록</button>
+    </div>
+  </div>
+
+  <!-- ==================== SCREEN 3: BOOTHS ==================== -->
+  <div id="screen-booths" class="screen">
+    <div class="header">
+      <button class="header-back" onclick="goTo('screen-home')">←</button>
+      <div class="header-title">🗺️ 부스 투어</div>
+      <div class="header-badge" id="booth-badge">0/9</div>
+    </div>
+    <div style="overflow-y:auto; flex:1; padding-bottom:72px;">
+      <div class="booth-list" id="booth-list"></div>
+    </div>
+    <div class="bottom-nav">
+      <button class="nav-item" onclick="goTo('screen-home')"><span class="nav-icon">🏠</span>홈</button>
+      <button class="nav-item active" onclick="goTo('screen-booths')"><span class="nav-icon">🗺️</span>부스투어</button>
+      <button class="nav-item" onclick="goTo('screen-design')"><span class="nav-icon">✏️</span>과목설계</button>
+      <button class="nav-item" onclick="goTo('screen-guestbook')"><span class="nav-icon">💬</span>방명록</button>
+    </div>
+  </div>
+
+  <!-- ==================== SCREEN 4: QR ==================== -->
+  <div id="screen-qr" class="screen">
+    <div class="header">
+      <button class="header-back" onclick="goTo('screen-booths')">←</button>
+      <div class="header-title" id="qr-title">QR 스캔</div>
+    </div>
+    <div style="overflow-y:auto; flex:1;">
+      <div class="qr-body">
+        <div class="qr-visual">
+          <div class="qr-frame-box">
+            <div class="qr-corner-tl"></div>
+            <div class="qr-corner-tr"></div>
+            <div class="qr-corner-bl"></div>
+            <div class="qr-corner-br"></div>
+            <div class="qr-center-icon">📷</div>
+          </div>
+          <div class="qr-hint">부스의 QR 코드를 스캔하거나<br>아래에 코드를 직접 입력하세요</div>
+        </div>
+        <div class="divider-text">또는 코드 직접 입력</div>
+        <div class="code-row" style="margin-bottom:12px;">
+          <input type="text" id="qr-input" class="input-field" placeholder="부스 코드 입력 (예: KO01)" maxlength="6" style="flex:1; text-transform:uppercase;">
+          <button class="btn btn-primary btn-sm" onclick="verifyCode()">확인</button>
+        </div>
+        <button class="btn btn-outline" onclick="startCamera()" id="camera-btn">📷 카메라로 QR 스캔</button>
+        <div id="qr-reader-wrap" style="margin-top:14px; border-radius:14px; overflow:hidden;"></div>
+        <div style="margin-top:14px; padding:14px; background:var(--primary-light); border-radius:12px; font-size:13px; color:var(--primary-dark);">
+          💡 부스 선생님께 코드를 확인하거나, 부스에 붙어 있는 QR 코드를 스캔하세요.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SCREEN 5: QUIZ ==================== -->
+  <div id="screen-quiz" class="screen">
+    <div class="header">
+      <button class="header-back" onclick="exitQuiz()">✕</button>
+      <div class="header-title" id="quiz-header">퀴즈</div>
+    </div>
+    <div style="overflow-y:auto; flex:1;" id="quiz-wrap"></div>
+  </div>
+
+  <!-- ==================== SCREEN 6: COURSE INFO ==================== -->
+  <div id="screen-info" class="screen">
+    <div class="header">
+      <button class="header-back" onclick="goTo('screen-home')">←</button>
+      <div class="header-title">📖 교육과정 안내</div>
+    </div>
+    <div style="overflow-y:auto; flex:1; padding-bottom:72px;">
+      <div class="info-tab-bar" id="info-tab-bar"></div>
+      <div class="info-panels" id="info-panels"></div>
+    </div>
+    <div class="bottom-nav">
+      <button class="nav-item" onclick="goTo('screen-home')"><span class="nav-icon">🏠</span>홈</button>
+      <button class="nav-item" onclick="goTo('screen-booths')"><span class="nav-icon">🗺️</span>부스투어</button>
+      <button class="nav-item" onclick="goTo('screen-design')"><span class="nav-icon">✏️</span>과목설계</button>
+      <button class="nav-item" onclick="goTo('screen-guestbook')"><span class="nav-icon">💬</span>방명록</button>
+    </div>
+  </div>
+
+  <!-- ==================== SCREEN 7: COURSE DESIGN ==================== -->
+  <div id="screen-design" class="screen">
+    <div class="header">
+      <button class="header-back" onclick="goTo('screen-home')">←</button>
+      <div class="header-title">✏️ 내 과목 설계</div>
+    </div>
+    <div style="overflow-y:auto; flex:1; padding-bottom:72px;">
+      <div class="design-tabs">
+        <button class="design-tab active" id="dtab-1" onclick="switchDesign(1)">1학년 → 2학년 선택</button>
+        <button class="design-tab" id="dtab-2" onclick="switchDesign(2)">2학년 → 3학년 선택</button>
+      </div>
+      <div class="design-body">
+        <div class="design-hint" id="design-hint">📌 내년(2학년) 때 수강 희망 과목을 선택하세요</div>
+        <div id="design-cats"></div>
+        <div class="design-summary-card" id="design-summary">
+          <div class="card-title">📋 내가 선택한 과목</div>
+          <div class="selected-chips" id="selected-chips">
+            <div class="empty-msg">과목을 선택하면 여기에 표시돼요</div>
+          </div>
+          <div class="action-row">
+            <button class="btn btn-primary" onclick="saveDesign()">저장하기 💾</button>
+            <button class="btn btn-outline btn-sm" onclick="window.print()">출력 🖨️</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <button class="nav-item" onclick="goTo('screen-home')"><span class="nav-icon">🏠</span>홈</button>
+      <button class="nav-item" onclick="goTo('screen-booths')"><span class="nav-icon">🗺️</span>부스투어</button>
+      <button class="nav-item active" onclick="goTo('screen-design')"><span class="nav-icon">✏️</span>과목설계</button>
+      <button class="nav-item" onclick="goTo('screen-guestbook')"><span class="nav-icon">💬</span>방명록</button>
+    </div>
+  </div>
+
+  <!-- ==================== SCREEN 8: GUESTBOOK ==================== -->
+  <div id="screen-guestbook" class="screen">
+    <div class="header">
+      <button class="header-back" onclick="goTo('screen-home')">←</button>
+      <div class="header-title">💬 방명록 · 담벼락</div>
+    </div>
+    <div style="overflow-y:auto; flex:1; padding-bottom:72px;">
+      <div class="gb-write">
+        <div class="card-title">오늘 박람회 어떠셨나요? 😊</div>
+        <div style="font-size:13px; color:var(--text-light); margin-bottom:8px;">기분을 골라주세요</div>
+        <div class="gb-mood-row" id="mood-row">
+          <button class="mood-btn" onclick="pickMood('😊')">😊</button>
+          <button class="mood-btn" onclick="pickMood('🤔')">🤔</button>
+          <button class="mood-btn" onclick="pickMood('🌟')">🌟</button>
+          <button class="mood-btn" onclick="pickMood('📚')">📚</button>
+        </div>
+        <textarea id="gb-text" class="gb-textarea" placeholder="새롭게 알게 된 것, 선택하고 싶은 과목, 느낀 점을 자유롭게 적어주세요!"></textarea>
+        <button class="btn btn-primary" style="margin-top:10px;" onclick="submitGB()">담벼락에 붙이기 📌</button>
+      </div>
+      <div class="gb-wall">
+        <div class="gb-wall-title">💬 담벼락</div>
+        <div id="gb-entries"></div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <button class="nav-item" onclick="goTo('screen-home')"><span class="nav-icon">🏠</span>홈</button>
+      <button class="nav-item" onclick="goTo('screen-booths')"><span class="nav-icon">🗺️</span>부스투어</button>
+      <button class="nav-item" onclick="goTo('screen-design')"><span class="nav-icon">✏️</span>과목설계</button>
+      <button class="nav-item active" onclick="goTo('screen-guestbook')"><span class="nav-icon">💬</span>방명록</button>
+    </div>
+  </div>
+
+  <!-- ==================== SCREEN 9: ADMIN ==================== -->
+  <div id="screen-admin" class="screen">
+    <!-- 로그인 뷰 -->
+    <div id="admin-login-view">
+      <div class="header">
+        <button class="header-back" onclick="goTo('screen-home')">←</button>
+        <div class="header-title">🔐 교사 관리자</div>
+      </div>
+      <div class="admin-login-wrap">
+        <div class="admin-icon">🛠️</div>
+        <div class="admin-login-title">관리자 모드</div>
+        <div class="admin-login-sub">교사용 비밀번호를 입력하세요</div>
+        <div class="admin-pw-row">
+          <input type="password" id="admin-pw" class="input-field" placeholder="비밀번호 입력" style="flex:1;" onkeydown="if(event.key==='Enter')checkAdminPW()">
+          <button class="btn btn-primary btn-sm" onclick="checkAdminPW()">확인</button>
+        </div>
+        <div style="margin-top:20px; font-size:12px; color:var(--text-light); text-align:center;">
+          기본 비밀번호: <strong>MOKPO2026</strong><br>
+          (배포 전 코드에서 변경하세요)
+        </div>
+      </div>
+    </div>
+    <!-- 편집 뷰 -->
+    <div id="admin-edit-view" style="display:none;">
+      <div class="header">
+        <button class="header-back" onclick="adminLogout()">←</button>
+        <div class="header-title">🛠️ 퀴즈 편집</div>
+        <div class="header-badge">교사용</div>
+      </div>
+      <div style="overflow-y:auto; flex:1;">
+        <div style="padding:12px 14px 6px; font-size:13px; color:var(--text-light);">
+          부스를 선택해 퀴즈 문제를 수정하세요
+        </div>
+        <div class="admin-section" id="admin-booth-list"></div>
+        <!-- 비밀번호 변경 -->
+        <div style="margin:0 14px; padding:14px; background:white; border-radius:14px; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+          <div style="font-size:14px; font-weight:700; margin-bottom:10px;">🔑 비밀번호 변경</div>
+          <div style="display:flex; gap:10px;">
+            <input type="password" id="new-pw" class="input-field" placeholder="새 비밀번호" style="flex:1; font-size:14px; padding:10px 12px;">
+            <button class="btn btn-outline btn-sm" onclick="changeAdminPW()">변경</button>
+          </div>
+        </div>
+        <div style="height:30px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 퀴즈 편집 오버레이 -->
+  <div class="edit-overlay" id="edit-overlay" onclick="closeEditOverlay(event)">
+    <div class="edit-sheet" id="edit-sheet">
+      <div class="edit-sheet-handle"></div>
+      <div class="edit-sheet-title" id="edit-sheet-title">퀴즈 편집</div>
+      <div id="edit-questions-wrap"></div>
+      <button class="add-q-btn" onclick="addEditQ()">+ 문제 추가</button>
+      <div class="edit-actions">
+        <button class="btn btn-primary" onclick="saveEditQuiz()">저장하기 💾</button>
+        <button class="btn btn-outline btn-sm" onclick="closeEditOverlay()">취소</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <div class="loading" id="loading"><div class="spinner"></div><div style="font-size:14px;color:var(--text-light)">저장 중...</div></div>
+</div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+
+// 구글 시트 연동 URL (설정 후 교체)
+const SHEETS_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
+
+const BOOTHS = [
+  { id:'korean',  name:'국어교과',      icon:'📖', color:'#2980B9', bg:'#EBF4FB', code:'KO01', desc:'국어 선택과목 소개 및 진로 연계 안내' },
+  { id:'math',    name:'수학교과',      icon:'📐', color:'#8E44AD', bg:'#F5EEF8', code:'MA02', desc:'수학 선택과목 소개 및 계열별 추천 안내' },
+  { id:'english', name:'영어교과',      icon:'🌍', color:'#16A085', bg:'#E8F8F5', code:'EN03', desc:'영어 선택과목 소개 및 활용 안내' },
+  { id:'social',  name:'사회교과',      icon:'🌏', color:'#D35400', bg:'#FEF5EC', code:'SO04', desc:'사회·역사·도덕 교과 선택과목 안내' },
+  { id:'science', name:'과학교과',      icon:'🔬', color:'#1E8449', bg:'#EAFAF1', code:'SC05', desc:'과학 선택과목 소개 및 계열별 추천' },
+  { id:'arts',    name:'체육·예술교과', icon:'🎨', color:'#C0392B', bg:'#FDEDEC', code:'AP06', desc:'체육·음악·미술 교과 선택과목 안내' },
+  { id:'life',    name:'생활·교양교과', icon:'🌱', color:'#B7950B', bg:'#FEF9E7', code:'LI07', desc:'기술가정·정보·제2외국어·교양 안내' },
+  { id:'career',  name:'진로진학상담',  icon:'🎯', color:'#6C3483', bg:'#F4ECF7', code:'CA08', desc:'진로·진학·대입 정보 상담' },
+  { id:'mentor',  name:'멘토상담',      icon:'💬', color:'#1F618D', bg:'#EAF2F8', code:'ME09', desc:'선배 멘토와 함께하는 과목 선택 상담' },
+  { id:'info',    name:'인포메이션',    icon:'ℹ️', color:'#717D7E', bg:'#F2F3F4', code:'IN00', desc:'전체 박람회 안내 데스크', noStamp:true },
+];
+
+const QUIZZES = {
+  korean: { questions:[
+    { q:'2022 개정 교육과정에서 국어 교과의 공통과목을 모두 고르면?', opts:['공통국어1·공통국어2','화법과 언어·독서와 작문','문학·독서','주제탐구독서·문학'], ans:0 },
+    { q:'다음 중 국어 교과 진로선택 과목인 것은?', opts:['화법과 언어','독서와 작문','문학과 영상','문학'], ans:2 },
+    { q:'고교학점제에서 과목 이수 인정을 받기 위한 최소 출석률은?', opts:['1/2 이상','2/3 이상','3/4 이상','전부 출석'], ans:1 },
+  ]},
+  math: { questions:[
+    { q:'수학 교과 공통과목이 아닌 것은?', opts:['공통수학1','공통수학2','대수','기본수학1'], ans:2 },
+    { q:'고교학점제에서 3년간 취득해야 하는 최소 졸업 학점은?', opts:['180학점','192학점','204학점','216학점'], ans:1 },
+    { q:'수학 교과 융합선택 과목이 아닌 것은?', opts:['수학과 문화','실용 통계','수학과제탐구','기하'], ans:3 },
+  ]},
+  english: { questions:[
+    { q:'영어 교과의 일반선택 과목으로 바르게 묶인 것은?', opts:['영어Ⅰ·영어Ⅱ','심화영어·영미문학읽기','실생활영어회화·미디어영어','직무영어·영어발표와토론'], ans:0 },
+    { q:'다음 중 영어 교과 융합선택 과목은?', opts:['영어Ⅰ','심화영어','실생활 영어 회화','영미 문학 읽기'], ans:2 },
+    { q:'영어 공통과목의 수는 모두 몇 개인가요?', opts:['2개','3개','4개','5개'], ans:2 },
+  ]},
+  social: { questions:[
+    { q:'사회 교과 공통과목에 포함되지 않는 것은?', opts:['한국사1','통합사회1','세계시민과 지리','한국사2'], ans:2 },
+    { q:'2022 개정 사회 교과 융합선택 과목인 것은?', opts:['세계사','여행지리','동아시아 역사 기행','정치'], ans:1 },
+    { q:'진로선택 과목의 성적 기록 방식은?', opts:['9등급+성취도','5등급+성취도','성취도(A~E)만','등급만'], ans:2 },
+  ]},
+  science: { questions:[
+    { q:'과학 교과 공통과목이 아닌 것은?', opts:['통합과학1','과학탐구실험1','물리학','통합과학2'], ans:2 },
+    { q:'과학 교과 융합선택 과목인 것은?', opts:['역학과 에너지','세포와 물질대사','과학의 역사와 문화','전자기와 양자'], ans:2 },
+    { q:'물리학 관련 진로선택 과목은?', opts:['역학과 에너지','지구시스템과학','생물의 유전','반응의 세계'], ans:0 },
+  ]},
+  arts: { questions:[
+    { q:'체육 교과 일반선택 과목은?', opts:['운동과 건강','체육1·체육2','스포츠 문화','스포츠 생활1'], ans:1 },
+    { q:'예술 교과 공통과목이 아닌 것은?', opts:['음악','미술','연극','음악 연주와 창작'], ans:3 },
+    { q:'다음 중 예술 교과 진로선택 과목인 것은?', opts:['음악','미술','미술 창작','연극'], ans:2 },
+  ]},
+  life: { questions:[
+    { q:'정보 교과의 진로선택 과목은?', opts:['기술·가정','인공지능 기초','소프트웨어와 생활','데이터 과학'], ans:1 },
+    { q:'교양 교과 일반선택 과목은?', opts:['철학','진로와 직업','인간과 심리','논술'], ans:1 },
+    { q:'제2외국어 교과에 포함되지 않는 언어는?', opts:['일본어','베트남어','포르투갈어','아랍어'], ans:2 },
+  ]},
+  career: { questions:[
+    { q:'고교학점제에서 학생이 직접 선택하지 않는 과목 유형은?', opts:['일반선택','진로선택','융합선택','공통과목'], ans:3 },
+    { q:'2027학년도 대입에서 중요해지는 새로운 평가 요소는?', opts:['전공 관련 과목 이수 여부','영어 점수','수능 최저 등급','내신 1등급'], ans:0 },
+    { q:'과목 선택 시 가장 중요하게 고려해야 할 것은?', opts:['친구가 듣는 과목','선생님 추천','나의 진로·적성','쉬운 과목'], ans:2 },
+  ]},
+  mentor: { questions:[
+    { q:'선배 멘토에게 과목 선택 상담을 받을 때 가장 유익한 것은?', opts:['친구 따라가기','자신의 진로와 연결해 묻기','수능 점수만 보기','부모님 의견만 따르기'], ans:1 },
+    { q:'3학년 때 수강한 과목이 대입에서 중요한 이유는?', opts:['학점이 많아서','전공 연계 과목 이수 여부 평가','수능 필수라서','내신에 미포함'], ans:1 },
+    { q:'과목 선택 정보를 얻을 수 있는 방법으로 옳은 것은?', opts:['교육과정 박람회 참여','과목 안내 가이드북 읽기','선생님·선배 상담','위 모두'], ans:3 },
+  ]},
+};
+
+// ※ 과목 데이터: 2026학년도 교육과정 편성표 기준
+// g2 = 현 1학년(2026입학) → 내년 2학년에서 선택할 과목
+// g3 = 현 2학년(2025입학) → 내년 3학년에서 선택할 과목
+const SUBJECTS = {
+  g2: [
+    { cat:'국어', icon:'📖', items:[
+      {n:'독서 토론과 글쓰기', t:'fusion'},
+      {n:'문학과 영상', t:'career'},
+    ]},
+    { cat:'수학', icon:'📐', items:[
+      {n:'인공지능 수학', t:'career'},
+      {n:'기하', t:'career'},
+    ]},
+    { cat:'영어', icon:'🌍', items:[
+      {n:'세계 문화와 영어', t:'fusion'},
+      {n:'영어 발표와 토론', t:'career'},
+    ]},
+    { cat:'사회', icon:'🌏', items:[
+      {n:'사회와 문화', t:'general'},
+      {n:'현대사회와 윤리', t:'general'},
+      {n:'동아시아 역사 기행', t:'career'},
+      {n:'세계사', t:'general'},
+      {n:'세계시민과 지리', t:'general'},
+      {n:'법과 사회', t:'career'},
+    ]},
+    { cat:'과학', icon:'🔬', items:[
+      {n:'물리학', t:'general'},
+      {n:'화학', t:'general'},
+      {n:'생명과학', t:'general'},
+      {n:'지구과학', t:'general'},
+      {n:'역학과 에너지', t:'career'},
+      {n:'물질과 에너지', t:'career'},
+      {n:'세포와 물질대사', t:'career'},
+      {n:'지구시스템과학', t:'career'},
+    ]},
+    { cat:'제2외국어', icon:'🗣️', items:[
+      {n:'스페인어', t:'general'},
+      {n:'중국어', t:'general'},
+      {n:'일본어', t:'general'},
+      {n:'심화 스페인어', t:'fusion'},
+      {n:'심화 중국어', t:'fusion'},
+      {n:'심화 일본어', t:'fusion'},
+    ]},
+  ],
+  g3: [
+    { cat:'국어', icon:'📖', items:[
+      {n:'주제 탐구 독서', t:'career'},
+      {n:'매체 의사소통', t:'fusion'},
+      {n:'언어생활 탐구', t:'fusion'},
+    ]},
+    { cat:'수학', icon:'📐', items:[
+      {n:'미적분Ⅱ', t:'career'},
+      {n:'수학과제 탐구', t:'fusion'},
+    ]},
+    { cat:'영어', icon:'🌍', items:[
+      {n:'심화 영어', t:'career'},
+      {n:'미디어 영어', t:'fusion'},
+    ]},
+    { cat:'사회', icon:'🌏', items:[
+      {n:'도시의 미래 탐구', t:'career'},
+      {n:'동아시아 역사 기행', t:'career'},
+      {n:'법과 사회', t:'career'},
+      {n:'윤리와 사상', t:'career'},
+      {n:'금융과 경제생활', t:'fusion'},
+      {n:'기후변화와 지속가능한 세계', t:'fusion'},
+      {n:'사회문제 탐구', t:'fusion'},
+      {n:'여행지리', t:'fusion'},
+      {n:'역사로 탐구하는 현대 세계', t:'fusion'},
+    ]},
+    { cat:'과학', icon:'🔬', items:[
+      {n:'물질과 에너지', t:'career'},
+      {n:'전자기와 양자', t:'career'},
+      {n:'역학과 에너지', t:'career'},
+      {n:'화학 반응의 세계', t:'career'},
+      {n:'생물의 유전', t:'career'},
+      {n:'세포와 물질대사', t:'career'},
+      {n:'지구시스템과학', t:'career'},
+      {n:'행성우주과학', t:'career'},
+      {n:'기후변화와 환경생태', t:'fusion'},
+    ]},
+    { cat:'기술·정보', icon:'💻', items:[
+      {n:'생활과학 탐구', t:'career'},
+      {n:'인공지능 기초', t:'career'},
+    ]},
+    { cat:'제2외국어', icon:'🗣️', items:[
+      {n:'중국 문화', t:'fusion'},
+      {n:'일본 문화', t:'fusion'},
+    ]},
+    { cat:'교양', icon:'🌱', items:[
+      {n:'교육의 이해', t:'career'},
+      {n:'보건', t:'career'},
+      {n:'인간과 심리', t:'career'},
+      {n:'생태와 환경', t:'general'},
+      {n:'논술', t:'fusion'},
+      {n:'인간과 경제활동', t:'fusion'},
+    ]},
+  ],
+};
+
+const INFO_TABS = ['고교학점제','과목 유형','성적 기록','계열 추천','가이드북'];
+const INFO_HTML = [
+  /* ===== 탭 1: 고교학점제 ===== */
+  `<div class="info-card">
+    <h3>🏫 고교학점제란?</h3>
+    <div class="highlight-box">
+      <p>학생이 기초 소양과 기본 학력을 바탕으로 <strong>진로·적성에 따라 과목을 선택</strong>하고,<br>이수 기준에 도달한 과목에 대해 <strong>학점을 취득·누적하여 졸업</strong>하는 제도</p>
+    </div>
+
+    <h4>📌 3가지 핵심 원리</h4>
+    <p>✅ <strong>과목 선택의 자유</strong> — 자신의 흥미·적성·진로에 맞는 과목을 직접 골라요.<br>
+    ✅ <strong>이수 기준 충족</strong> — 출석 2/3 이상 + 성취율 40% 이상이면 학점 인정!<br>
+    ✅ <strong>192학점 취득 후 졸업</strong> — 3년간 192학점 이상 쌓아야 졸업할 수 있어요.</p>
+
+    <h4>⚙️ 고교학점제 운영 7단계</h4>
+    <div style="background:#f0fffe;border-radius:10px;padding:12px;font-size:13px;line-height:2;">
+      <b>1단계</b> 교육과정 편성 → <b>2단계</b> 진로·학업 설계 → <b>3단계</b> 수강신청<br>
+      → <b>4단계</b> 수업 운영 → <b>5단계</b> 학생 평가 → <b>6단계</b> 학점 취득 → <b>7단계</b> 졸업
+    </div>
+
+    <h4>🔒 최소 성취수준 보장지도</h4>
+    <p>과목 이수를 돕기 위해 <strong>예방지도</strong>(이수 기준 미달 예상 학생 사전 지도)와 <strong>보충지도</strong>(미달 학생 대상 이수 지도)가 함께 운영돼요.</p>
+
+    <h4>❓ 자주 묻는 질문 Q&amp;A</h4>
+    <div style="background:#fffbf0;border-left:3px solid #FFB800;padding:10px 12px;border-radius:0 8px 8px 0;margin-bottom:8px;">
+      <p><strong>Q. 192학점을 빨리 채우면 조기 졸업이 되나요?</strong></p>
+      <p>아니요. 고등학교는 3년 과정을 균형 있게 이수해야 해요. 학점을 다 채워도 바로 졸업할 수 없어요.</p>
+    </div>
+    <div style="background:#fffbf0;border-left:3px solid #FFB800;padding:10px 12px;border-radius:0 8px 8px 0;margin-bottom:8px;">
+      <p><strong>Q. 이수 기준을 못 채운 과목은 어떻게 되나요?</strong></p>
+      <p>보충 학습(보충지도 프로그램)을 통해 다시 이수할 기회가 주어져요. 포기하지 마세요!</p>
+    </div>
+    <div style="background:#fffbf0;border-left:3px solid #FFB800;padding:10px 12px;border-radius:0 8px 8px 0;">
+      <p><strong>Q. 2025년부터 창의적 체험활동도 이수 기준이 있나요?</strong></p>
+      <p>네! 고등학교 3년 동안 운영된 수업 횟수의 2/3 이상 출석하면 학점을 인정받아요.</p>
+    </div>
+  </div>`,
+
+  /* ===== 탭 2: 과목 유형 ===== */
+  `<div class="info-card">
+    <h3>📂 선택과목 유형 완전 정복</h3>
+    <table class="info-table">
+      <tr><th>유형</th><th>특징</th><th>성적 기록</th></tr>
+      <tr>
+        <td><span class="badge badge-common">공통과목</span></td>
+        <td>기초 소양·기본 학력 함양.<br>전교생 필수 이수</td>
+        <td>9등급 + 성취도</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-general">일반선택</span></td>
+        <td>교과별 학문 영역의<br>핵심 내용 이해·탐구</td>
+        <td>9등급 + 성취도</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-career">진로선택</span></td>
+        <td>교과 심화 학습 및<br>진로 관련 과목</td>
+        <td>성취도(A~E)만</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-fusion">융합선택</span></td>
+        <td>교과 내·교과 간 주제 융합<br>실생활 체험·응용</td>
+        <td>성취도(A~E)만</td>
+      </tr>
+    </table>
+
+    <div class="highlight-box" style="margin-top:14px;">
+      <p>💡 <strong>진로선택·융합선택</strong>은 등급 없이 성취도(A~E)만 기록돼요!<br>
+      등급 경쟁 부담 없이 도전하고 싶은 과목을 자유롭게 선택하세요 😊</p>
+    </div>
+
+    <h4>📊 성취도 기준 (A~E)</h4>
+    <table class="info-table">
+      <tr><th>성취도</th><th>성취율</th><th>의미</th></tr>
+      <tr><td><b style="color:#2DC7C0">A</b></td><td>90% 이상</td><td>매우 우수</td></tr>
+      <tr><td><b style="color:#5B6AF0">B</b></td><td>80% 이상</td><td>우수</td></tr>
+      <tr><td><b style="color:#2ECC71">C</b></td><td>70% 이상</td><td>보통</td></tr>
+      <tr><td><b style="color:#FFB800">D</b></td><td>60% 이상</td><td>미흡</td></tr>
+      <tr><td><b style="color:#FF4757">E</b></td><td>40% 이상</td><td>매우 미흡(이수 인정)</td></tr>
+    </table>
+    <p style="font-size:12px;color:#718096;margin-top:6px;">※ 성취율 40% 미만은 미이수 → 보충지도 대상</p>
+
+    <h4>🏫 목포여고 교과 구조</h4>
+    <p><strong>1학년</strong>: 국어·수학·영어·사회·과학 공통과목 중심<br>
+    <strong>2학년</strong>: 일반선택 + 진로·융합선택 과목 본격 수강<br>
+    <strong>3학년</strong>: 진로·융합선택 과목 집중 이수 + 대입 준비</p>
+  </div>`,
+
+  /* ===== 탭 3: 성적 기록 ===== */
+  `<div class="info-card">
+    <h3>📊 성적은 어떻게 산출되고 기록되나요?</h3>
+
+    <h4>🔢 공통과목·일반선택 — 9등급제</h4>
+    <table class="info-table">
+      <tr><th>등급</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr>
+      <tr><td>비율</td><td>4%</td><td>11%</td><td>23%</td><td>40%</td><td>60%</td></tr>
+    </table>
+    <p style="font-size:12px;color:#718096;margin-top:4px;">※ 1~5등급 누적 비율. 9등급까지 있으며 내신 성적에 반영돼요.</p>
+
+    <h4>🎯 진로선택·융합선택 — 성취도만 기록</h4>
+    <div class="highlight-box">
+      <p>등급 없이 <strong>A / B / C / D / E</strong> 성취도만 기록!<br>
+      학교생활기록부(생기부)에는 과목별 <strong>세부능력 및 특기사항(세특)</strong>이 함께 기재돼요.</p>
+    </div>
+
+    <h4>📋 학교생활기록부 기재 내용</h4>
+    <p>✅ 수강한 모든 과목명과 학점<br>
+    ✅ 공통·일반선택: 등급 + 성취도 + 원점수/평균/표준편차<br>
+    ✅ 진로·융합선택: 성취도 + 원점수/평균<br>
+    ✅ 모든 과목: <strong>세부능력 및 특기사항</strong> (수업 태도, 역량, 성장 기록)</p>
+
+    <h4>⚠️ 대학 입시에서 주목하는 것</h4>
+    <div style="background:#fff0f0;border-left:3px solid #FF4757;padding:10px 12px;border-radius:0 8px 8px 0;">
+      <p>2028학년도 대입부터 <strong>전공(계열) 관련 교과 이수 여부</strong>가 중요한 평가 기준이 돼요!<br>
+      단순히 등급만 좋은 과목보다, <strong>진로와 연결된 과목을 체계적으로 이수</strong>한 것이 더 중요해요.</p>
+    </div>
+
+    <h4>📌 과목 선택 3대 원칙</h4>
+    <p>① <strong>진로 연계</strong> — 희망 대학·학과의 권장 이수 과목 미리 확인하기<br>
+    ② <strong>위계 고려</strong> — 공통 → 일반선택 → 진로선택 순서로 쌓기<br>
+    ③ <strong>균형 유지</strong> — 쉬운 과목만 피하고, 도전적 과목에도 도전하기</p>
+  </div>`,
+
+  /* ===== 탭 4: 계열별 추천 ===== */
+  `<div class="info-card">
+    <h3>✏️ 나의 진로·계열별 추천 과목</h3>
+    <div class="highlight-box">
+      <p>🎯 2028학년도 대입부터 <strong>전공 관련 과목 이수 여부</strong>가 핵심 평가 요소!<br>
+      내가 원하는 계열에 맞는 과목을 미리 파악해 두세요.</p>
+    </div>
+
+    <h4>🔬 자연과학·공학·IT 계열</h4>
+    <p>수학: <span class="badge badge-career">미적분Ⅱ</span> <span class="badge badge-career">기하</span><br>
+    과학: <span class="badge badge-career">역학과 에너지</span> <span class="badge badge-career">전자기와 양자</span> <span class="badge badge-career">화학 반응의 세계</span> <span class="badge badge-career">지구시스템과학</span><br>
+    정보: <span class="badge badge-career">인공지능 기초</span></p>
+
+    <h4>🏥 의료·보건·생명 계열</h4>
+    <p>과학: <span class="badge badge-career">생물의 유전</span> <span class="badge badge-career">세포와 물질대사</span> <span class="badge badge-career">물질과 에너지</span><br>
+    수학: <span class="badge badge-career">미적분Ⅱ</span><br>
+    교양: <span class="badge badge-career">보건</span> <span class="badge badge-career">인간과 심리</span></p>
+
+    <h4>📚 인문·사회·법·경제 계열</h4>
+    <p>국어: <span class="badge badge-career">주제 탐구 독서</span> <span class="badge badge-fusion">언어생활 탐구</span><br>
+    사회: <span class="badge badge-career">법과 사회</span> <span class="badge badge-career">윤리와 사상</span> <span class="badge badge-fusion">금융과 경제생활</span> <span class="badge badge-fusion">사회문제 탐구</span><br>
+    교양: <span class="badge badge-fusion">인간과 경제활동</span> <span class="badge badge-career">교육의 이해</span></p>
+
+    <h4>🌍 국제·외국어 계열</h4>
+    <p>영어: <span class="badge badge-career">심화 영어</span> <span class="badge badge-fusion">미디어 영어</span><br>
+    제2외국어: <span class="badge badge-fusion">중국 문화</span> <span class="badge badge-fusion">일본 문화</span><br>
+    사회: <span class="badge badge-career">동아시아 역사 기행</span> <span class="badge badge-fusion">역사로 탐구하는 현대 세계</span></p>
+
+    <h4>🎨 예술·체육·디자인 계열</h4>
+    <p>예술: <span class="badge badge-career">미술 창작(2학년)</span> <span class="badge badge-fusion">미술과 매체</span><br>
+    체육: 스포츠 생활1·2, 운동과 건강<br>
+    융합: <span class="badge badge-fusion">매체 의사소통</span></p>
+
+    <h4>🌱 교육·심리·사회복지 계열</h4>
+    <p>교양: <span class="badge badge-career">교육의 이해</span> <span class="badge badge-career">인간과 심리</span><br>
+    사회: <span class="badge badge-career">윤리와 사상</span> <span class="badge badge-fusion">사회문제 탐구</span><br>
+    과학: <span class="badge badge-fusion">기후변화와 환경생태</span> <span class="badge badge-career">생태와 환경</span></p>
+  </div>`,
+
+  /* ===== 탭 5: 가이드북 다운로드 ===== */
+  `<div class="info-card">
+    <h3>📥 과목선택 가이드북</h3>
+    <div class="highlight-box">
+      <p>교육부에서 제작한 <strong>2022 개정 교육과정 학업 설계 가이드북</strong>을 다운로드해서 읽어보세요!<br>
+      고교학점제 개요, 과목 유형, 진로 탐색, 학업 설계 방법이 담겨 있어요 📖</p>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px;margin-top:16px;">
+      <a href="고교학점제_가이드북.pdf" download style="
+        display:flex;align-items:center;gap:14px;
+        background:linear-gradient(135deg,#2DC7C0,#1A9E98);
+        color:white;border-radius:14px;padding:16px 18px;
+        text-decoration:none;box-shadow:0 4px 14px rgba(45,199,192,0.4);">
+        <span style="font-size:36px;">📗</span>
+        <div>
+          <div style="font-size:16px;font-weight:700;">2022 개정 교육과정 학업 설계 가이드북</div>
+          <div style="font-size:12px;opacity:0.85;margin-top:3px;">고교학점제 · 과목 유형 · 진로 탐색 · 학업 설계</div>
+          <div style="font-size:11px;opacity:0.7;margin-top:2px;">📎 PDF 다운로드 (5.0MB)</div>
+        </div>
+      </a>
+    </div>
+
+    <div style="background:#f0f4ff;border-radius:10px;padding:12px 14px;margin-top:16px;font-size:13px;color:#5B6AF0;">
+      💡 <strong>다운로드 안 되는 경우</strong><br>
+      가이드북 파일이 앱과 같은 폴더에 있어야 해요.<br>
+      선생님께 파일을 받거나 진로진학상담 부스에서 문의해 주세요!
+    </div>
+
+    <h4 style="margin-top:18px;">📋 가이드북 주요 목차</h4>
+    <p>Ⅰ. 고교학점제 이해하기<br>
+    Ⅱ. 2022 개정 교육과정 알아보기<br>
+    Ⅲ. 나의 진로 탐색하기<br>
+    Ⅳ. 진학 정보 탐색하기 (2028 대입)<br>
+    Ⅴ. 나의 학업 설계하기</p>
+  </div>`,
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let S = {
+  student: null,
+  stamps: {},
+  quizResults: {},
+  subjects: { g2:[], g3:[] },
+  gbEntries: [],
+  mood: '😊',
+  designGrade: 1,
+};
+
+let qState = { boothId: null, qIdx: 0, answers: [], answered: false };
+let qrBoothId = null;
+
+// ============================================================
+// INIT
+// ============================================================
+function init() {
+  try {
+    // 1) 방명록(전역) 로드
+    const global = localStorage.getItem('mgh_fair26_global');
+    if (global) { const p = JSON.parse(global); S.gbEntries = p.gbEntries || []; }
+
+    // 2) 이전 세션 복원 (어떤 학생이 로그인 중이었는지)
+    const saved = localStorage.getItem('mgh_fair26');
+    if (saved) {
+      const p = JSON.parse(saved);
+      if (p.student) {
+        S.student = p.student;
+        // 3) 해당 학생의 진행 데이터 복원
+        const sk = `mgh_student_${p.student.grade}_${p.student.cls}_${p.student.num}`;
+        const sd = localStorage.getItem(sk);
+        if (sd) {
+          const d = JSON.parse(sd);
+          S.stamps = d.stamps || {};
+          S.quizResults = d.quizResults || {};
+          S.subjects = d.subjects || { g2:[], g3:[] };
+        }
+      }
+    }
+  } catch(e) {}
+
+  renderInfoTabs();
+  renderDesignCats(1);
+  renderGBEntries();
+  renderBoothList();
+  renderHomeStamps();
+
+  if (S.student) { goTo('screen-home'); updateHome(); }
+
+  // URL param QR routing
+  const params = new URLSearchParams(location.search);
+  const bId = params.get('booth');
+  if (bId && S.student) {
+    qrBoothId = bId;
+    if (!S.stamps[bId]) { goTo('screen-quiz'); startQuiz(bId); }
+    else { goTo('screen-home'); toast(BOOTHS.find(b=>b.id===bId)?.name + ' 스탬프 이미 획득! ✅'); }
+  }
+}
+
+function studentKey() {
+  if (!S.student) return null;
+  const {grade, cls, num} = S.student;
+  return `mgh_student_${grade}_${cls}_${num}`;
+}
+function save() {
+  // 학생별 진행 데이터 (스탬프·퀴즈·과목설계) 따로 저장
+  if (S.student) {
+    const sd = { stamps: S.stamps, quizResults: S.quizResults, subjects: S.subjects };
+    localStorage.setItem(studentKey(), JSON.stringify(sd));
+  }
+  // 방명록은 전기기 공용 저장
+  localStorage.setItem('mgh_fair26_global', JSON.stringify({ gbEntries: S.gbEntries }));
+  // 현재 세션 저장 (앱 재접속 시 복원용)
+  localStorage.setItem('mgh_fair26', JSON.stringify(S));
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function goTo(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id === 'screen-home') updateHome();
+  if (id === 'screen-booths') renderBoothList();
+  if (id === 'screen-guestbook') renderGBEntries();
+}
+
+// ============================================================
+// LOGIN
+// ============================================================
+let selGrade = 0;
+function selectGrade(g) {
+  selGrade = g;
+  document.getElementById('grade1-btn').classList.toggle('selected', g===1);
+  document.getElementById('grade2-btn').classList.toggle('selected', g===2);
+}
+function doLogin() {
+  const cls = document.getElementById('input-class').value;
+  const num = document.getElementById('input-number').value;
+  if (!selGrade) { toast('학년을 선택해주세요'); return; }
+  if (!cls || cls<1 || cls>12) { toast('반을 올바르게 입력하세요'); return; }
+  if (!num || num<1 || num>40) { toast('번호를 올바르게 입력하세요'); return; }
+  S.student = { grade:selGrade, cls:+cls, num:+num, label:`${selGrade}학년 ${cls}반 ${num}번` };
+
+  // 해당 학번의 이전 진행 데이터 불러오기
+  const sk = `mgh_student_${selGrade}_${+cls}_${+num}`;
+  const sd = localStorage.getItem(sk);
+  if (sd) {
+    try {
+      const d = JSON.parse(sd);
+      S.stamps = d.stamps || {};
+      S.quizResults = d.quizResults || {};
+      S.subjects = d.subjects || { g2:[], g3:[] };
+      const cnt = Object.keys(S.stamps).length;
+      if (cnt > 0) setTimeout(()=>toast(`이전 기록을 불러왔어요! 스탬프 ${cnt}개 ✅`), 400);
+    } catch(e) { S.stamps={}; S.quizResults={}; S.subjects={g2:[],g3:[]}; }
+  } else {
+    // 처음 입장하는 학생
+    S.stamps = {};
+    S.quizResults = {};
+    S.subjects = { g2:[], g3:[] };
+  }
+
+  save();
+  goTo('screen-home');
+  updateHome();
+}
+
+// ============================================================
+// HOME
+// ============================================================
+function updateHome() {
+  if (!S.student) return;
+  document.getElementById('home-name').textContent = S.student.label;
+  const earned = BOOTHS.filter(b=>!b.noStamp && S.stamps[b.id]).length;
+  const total = BOOTHS.filter(b=>!b.noStamp).length;
+  document.getElementById('progress-text').textContent = `${earned} / ${total}`;
+  document.getElementById('progress-fill').style.width = Math.round(earned/total*100)+'%';
+  document.getElementById('booth-badge').textContent = `${earned}/${total}`;
+  renderHomeStamps();
+}
+
+function renderHomeStamps() {
+  const g = document.getElementById('home-stamp-grid'); if (!g) return;
+  const booths = BOOTHS.filter(b=>!b.noStamp);
+  g.innerHTML = booths.map(b => {
+    const earned = S.stamps[b.id];
+    return `<div class="stamp-item">
+      <div class="stamp-circle ${earned?'earned':''}" style="${earned?`border-color:${b.color};background:${b.bg};color:${b.color};`:''}">
+        ${earned ? b.icon : '○'}
+      </div>
+      <div class="stamp-label">${b.name.replace('교과','').replace('상담','').trim()}</div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// BOOTHS
+// ============================================================
+function renderBoothList() {
+  const el = document.getElementById('booth-list'); if (!el) return;
+  el.innerHTML = BOOTHS.map(b => `
+    <div class="booth-card ${S.stamps[b.id]?'completed':''}" onclick="${b.noStamp?'':'openQR(\''+b.id+'\')'}">
+      <div class="booth-icon-wrap" style="background:${b.bg}">${b.icon}</div>
+      <div class="booth-info">
+        <div class="booth-name">${b.name}</div>
+        <div class="booth-desc">${b.desc}</div>
+        ${S.quizResults[b.id] ? `<div class="booth-quiz-score">퀴즈: ${S.quizResults[b.id].score}/${S.quizResults[b.id].total}점 ✅</div>` : ''}
+      </div>
+      <div class="booth-status-icon">${b.noStamp?'ℹ️':(S.stamps[b.id]?'✅':'○')}</div>
+    </div>`
+  ).join('');
+}
+
+function openQR(id) {
+  if (S.stamps[id]) { toast(BOOTHS.find(b=>b.id===id).name + ' 스탬프 이미 획득했어요! ✅'); return; }
+  qrBoothId = id;
+  document.getElementById('qr-title').textContent = BOOTHS.find(b=>b.id===id).name;
+  document.getElementById('qr-input').value = '';
+  goTo('screen-qr');
+}
+
+function verifyCode() {
+  const code = document.getElementById('qr-input').value.trim().toUpperCase();
+  const booth = BOOTHS.find(b=>b.id===qrBoothId);
+  if (!booth) return;
+  if (code === booth.code) {
+    goTo('screen-quiz');
+    startQuiz(qrBoothId);
+  } else {
+    const inp = document.getElementById('qr-input');
+    inp.style.borderColor = 'var(--danger)';
+    toast('코드가 맞지 않아요. 부스 선생님께 확인하세요!');
+    setTimeout(()=>{ inp.style.borderColor=''; }, 2000);
+  }
+}
+
+function startCamera() {
+  // Demo: show code hint
+  const b = BOOTHS.find(b=>b.id===qrBoothId);
+  toast(`데모 모드: 코드는 ${b?.code}`);
+  if (b) document.getElementById('qr-input').value = b.code;
+}
+
+// ============================================================
+// QUIZ
+// ============================================================
+function startQuiz(id) {
+  const quiz = QUIZZES[id];
+  if (!quiz) { toast('이 부스는 퀴즈가 없어요'); return; }
+  const booth = BOOTHS.find(b=>b.id===id);
+  qState = { boothId:id, qIdx:0, answers:[], answered:false };
+  document.getElementById('quiz-header').textContent = booth.name + ' 퀴즈';
+  renderQ();
+}
+
+function renderQ() {
+  const {boothId, qIdx} = qState;
+  const quiz = QUIZZES[boothId];
+  const booth = BOOTHS.find(b=>b.id===boothId);
+  const q = quiz.questions[qIdx];
+  const total = quiz.questions.length;
+  qState.answered = false;
+
+  document.getElementById('quiz-wrap').innerHTML = `
+    <div class="quiz-body">
+      <div class="quiz-booth-tag" style="background:${booth.bg};color:${booth.color}">${booth.icon} ${booth.name}</div>
+      <div class="quiz-progress-row">
+        <span class="quiz-progress-text">문제 ${qIdx+1} / ${total}</span>
+      </div>
+      <div class="quiz-bar"><div class="quiz-bar-fill" style="width:${(qIdx+1)/total*100}%"></div></div>
+      <div class="quiz-question">${q.q}</div>
+      <div class="quiz-options">
+        ${q.opts.map((o,i)=>`
+          <button class="quiz-opt" id="qo${i}" onclick="pickOpt(${i})">
+            <div class="opt-num">${['①','②','③','④'][i]}</div>
+            <div>${o}</div>
+          </button>`).join('')}
+      </div>
+    </div>
+    <div class="quiz-action">
+      <button class="btn btn-primary" id="quiz-next" onclick="nextQ()" disabled style="opacity:.45">
+        ${qIdx < total-1 ? '다음 문제 →' : '결과 보기 🎯'}
+      </button>
+    </div>`;
+}
+
+function pickOpt(i) {
+  if (qState.answered) return;
+  qState.answered = true;
+  const {boothId, qIdx} = qState;
+  const ans = QUIZZES[boothId].questions[qIdx].ans;
+  qState.answers.push({sel:i, ok:i===ans});
+
+  document.querySelectorAll('.quiz-opt').forEach((el,j)=>{
+    if (j===ans) el.classList.add('correct');
+    else if (j===i && i!==ans) el.classList.add('wrong');
+    else el.classList.add('dimmed');
+  });
+
+  const nb = document.getElementById('quiz-next');
+  nb.disabled = false; nb.style.opacity = '1';
+  toast(i===ans ? '✅ 정답이에요!' : `❌ 정답은 "${QUIZZES[boothId].questions[qIdx].opts[ans]}"이에요`);
+}
+
+function nextQ() {
+  qState.qIdx++;
+  if (qState.qIdx >= QUIZZES[qState.boothId].questions.length) showResult();
+  else renderQ();
+}
+
+function showResult() {
+  const {boothId, answers} = qState;
+  const booth = BOOTHS.find(b=>b.id===boothId);
+  const total = answers.length;
+  const score = answers.filter(a=>a.ok).length;
+  const pct = Math.round(score/total*100);
+
+  S.quizResults[boothId] = {score, total};
+  S.stamps[boothId] = true;
+  save(); updateHome();
+
+  sendToSheets('stamp', {booth:booth.name, boothId, score, total});
+
+  const emoji = pct===100?'🏆':pct>=67?'🌟':'📚';
+  const msg = pct===100?'완벽! 모두 맞혔어요!':pct>=67?'훌륭해요! 거의 다 맞혔어요!':'조금 더 공부해봐요!';
+
+  document.getElementById('quiz-wrap').innerHTML = `
+    <div class="quiz-result-wrap">
+      <span class="result-big-emoji">${emoji}</span>
+      <div class="result-title">${booth.name} 퀴즈 완료!</div>
+      <div class="result-score">${score}/${total}</div>
+      <div class="result-msg">${msg}</div>
+      <div class="stamp-earned-box">
+        <span class="stamp-earned-icon">${booth.icon}</span>
+        <div class="stamp-earned-text">${booth.name} 스탬프 획득! 🎉</div>
+      </div>
+      <button class="btn btn-primary" style="margin-bottom:10px" onclick="goTo('screen-booths')">다른 부스 방문하기</button>
+      <button class="btn btn-outline" onclick="goTo('screen-home')">홈으로</button>
+    </div>`;
+}
+
+function exitQuiz() { goTo('screen-booths'); }
+
+// ============================================================
+// COURSE INFO
+// ============================================================
+function renderInfoTabs() {
+  const bar = document.getElementById('info-tab-bar');
+  const panels = document.getElementById('info-panels');
+  if (!bar || !panels) return;
+  bar.innerHTML = INFO_TABS.map((t,i)=>`<button class="info-tab ${i===0?'active':''}" onclick="switchInfoTab(${i})">${t}</button>`).join('');
+  panels.innerHTML = INFO_HTML.map((h,i)=>`<div class="info-panel ${i===0?'active':''}" id="ipanel-${i}">${h}</div>`).join('');
+}
+function switchInfoTab(i) {
+  document.querySelectorAll('.info-tab').forEach((t,j)=>t.classList.toggle('active',j===i));
+  document.querySelectorAll('.info-panel').forEach((p,j)=>p.classList.toggle('active',j===i));
+}
+
+// ============================================================
+// COURSE DESIGN
+// ============================================================
+function switchDesign(g) {
+  S.designGrade = g;
+  document.getElementById('dtab-1').classList.toggle('active', g===1);
+  document.getElementById('dtab-2').classList.toggle('active', g===2);
+  document.getElementById('design-hint').textContent = g===1
+    ? '📌 현 1학년용 — 내년(2학년) 선택과목 (2026 입학생 편제표 기준)'
+    : '📌 현 2학년용 — 내년(3학년) 선택과목 (2025 입학생 편제표 기준)';
+  renderDesignCats(g);
+}
+
+function renderDesignCats(g) {
+  const key = g===1?'g2':'g3';
+  const el = document.getElementById('design-cats'); if (!el) return;
+  el.innerHTML = SUBJECTS[key].map(cat=>`
+    <div class="subject-cat">
+      <div class="subject-cat-head">
+        <span>${cat.icon}</span>
+        <span class="subject-cat-name">${cat.cat}</span>
+      </div>
+      <div class="chips">
+        ${cat.items.map(s=>`
+          <button class="chip type-${s.t} ${S.subjects[key].includes(s.n)?'selected':''}"
+                  onclick="toggleSubj('${key}','${s.n}',this)">
+            ${s.n}<span class="type-dot">${s.t==='general'?'일반':s.t==='career'?'진로':'융합'}</span>
+          </button>`).join('')}
+      </div>
+    </div>`).join('');
+  updateSummary();
+}
+
+function toggleSubj(key, name, el) {
+  const arr = S.subjects[key];
+  const i = arr.indexOf(name);
+  if (i===-1) arr.push(name); else arr.splice(i,1);
+  el.classList.toggle('selected');
+  save(); updateSummary();
+}
+
+function updateSummary() {
+  const all = [...S.subjects.g2.map(s=>'2학년:'+s), ...S.subjects.g3.map(s=>'3학년:'+s)];
+  const el = document.getElementById('selected-chips'); if (!el) return;
+  el.innerHTML = all.length
+    ? all.map(s=>`<span class="selected-chip">${s}</span>`).join('')
+    : '<div class="empty-msg">과목을 선택하면 여기에 표시돼요</div>';
+}
+
+function saveDesign() {
+  const all = [...S.subjects.g2, ...S.subjects.g3];
+  if (!all.length) { toast('선택한 과목이 없어요'); return; }
+  sendToSheets('design', { subjects_2: S.subjects.g2.join(', '), subjects_3: S.subjects.g3.join(', ') });
+  toast('과목 설계 저장 완료! 캡처해서 보관하세요 📸');
+}
+
+// ============================================================
+// GUESTBOOK
+// ============================================================
+function pickMood(m) {
+  S.mood = m;
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.toggle('selected', b.textContent.trim()===m));
+}
+
+function submitGB() {
+  const txt = document.getElementById('gb-text').value.trim();
+  if (!txt || txt.length < 5) { toast('소감을 조금 더 길게 써주세요 ✏️'); return; }
+  const entry = {
+    who: S.student ? S.student.label : '익명',
+    mood: S.mood,
+    text: txt,
+    time: new Date().toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'})
+  };
+  S.gbEntries.unshift(entry);
+  save();
+  sendToSheets('guestbook', {mood: entry.mood, text: entry.text});
+  document.getElementById('gb-text').value = '';
+  renderGBEntries();
+  toast('담벼락에 소감을 남겼어요! 📌');
+}
+
+function renderGBEntries() {
+  const el = document.getElementById('gb-entries'); if (!el) return;
+  if (!S.gbEntries.length) {
+    el.innerHTML = '<div class="gb-empty"><div class="gb-empty-icon">📝</div>아직 소감이 없어요.<br>첫 번째로 남겨보세요!</div>';
+    return;
+  }
+  el.innerHTML = S.gbEntries.map(e=>`
+    <div class="gb-entry">
+      <div class="entry-head">
+        <div class="entry-avatar">${e.mood}</div>
+        <div>
+          <div class="entry-name">${e.who}</div>
+          <div class="entry-time">${e.time}</div>
+        </div>
+      </div>
+      <div class="entry-text">${e.text}</div>
+    </div>`).join('');
+}
+
+// ============================================================
+// SERVER (Google Sheets)
+// ============================================================
+async function sendToSheets(type, data) {
+  if (SHEETS_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') return;
+  const payload = {
+    type,
+    grade: S.student?.grade, cls: S.student?.cls, num: S.student?.num,
+    student: S.student?.label,
+    ts: new Date().toISOString(),
+    ...data
+  };
+  try {
+    await fetch(SHEETS_URL, {
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+  } catch(e) { console.warn('Sheets submit failed', e); }
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>el.classList.remove('show'), 2600);
+}
+
+// ============================================================
+// LOGOUT / 재입장
+// ============================================================
+function confirmLogout() {
+  const earned = BOOTHS.filter(b=>!b.noStamp && S.stamps[b.id]).length;
+  const msg = earned > 0
+    ? `현재 스탬프 ${earned}개를 획득한 상태예요.\n\n로그아웃해도 이 기기에 진행 데이터가 저장돼요.\n같은 학번으로 다시 입장하면 이어서 할 수 있어요! 😊\n\n처음 화면으로 돌아갈까요?`
+    : `처음 화면으로 돌아가서 다시 입장할 수 있어요.\n계속할까요?`;
+  if (confirm(msg)) doLogout();
+}
+
+function doLogout() {
+  // 현재 학생 데이터를 학번 키에 안전하게 저장
+  if (S.student) {
+    const sd = { stamps: S.stamps, quizResults: S.quizResults, subjects: S.subjects };
+    localStorage.setItem(studentKey(), JSON.stringify(sd));
+  }
+  // 방명록은 전역 유지
+  localStorage.setItem('mgh_fair26_global', JSON.stringify({ gbEntries: S.gbEntries }));
+  // 세션 키 정리 (다음 로그인 시 빈 상태에서 시작)
+  localStorage.removeItem('mgh_fair26');
+
+  // 메모리 상태 초기화
+  S.student = null;
+  S.stamps = {};
+  S.quizResults = {};
+  S.subjects = { g2:[], g3:[] };
+  S.mood = '😊';
+  S.designGrade = 1;
+
+  // 로그인 화면으로
+  selGrade = 0;
+  document.getElementById('grade1-btn').classList.remove('selected');
+  document.getElementById('grade2-btn').classList.remove('selected');
+  document.getElementById('input-class').value = '';
+  document.getElementById('input-number').value = '';
+  goTo('screen-login');
+  toast('로그아웃됐어요. 다시 입장해주세요 👋');
+}
+
+// ============================================================
+// ADMIN MODE
+// ============================================================
+const ADMIN_PW_KEY = 'mgh_admin_pw';
+const DEFAULT_PW = 'MOKPO2026';
+const CUSTOM_QUIZ_KEY = 'mgh_custom_quizzes';
+
+// 커스텀 퀴즈 로드 (선생님이 수정한 내용 우선)
+function loadCustomQuizzes() {
+  try {
+    const saved = localStorage.getItem(CUSTOM_QUIZ_KEY);
+    if (saved) {
+      const custom = JSON.parse(saved);
+      Object.keys(custom).forEach(id => {
+        if (QUIZZES[id]) QUIZZES[id] = custom[id];
+      });
+    }
+  } catch(e) {}
+}
+
+// 비밀 탭 카운터
+let secretTapCount = 0, secretTapTimer = null;
+function secretTap() {
+  secretTapCount++;
+  clearTimeout(secretTapTimer);
+  secretTapTimer = setTimeout(() => { secretTapCount = 0; }, 1500);
+  if (secretTapCount >= 5) {
+    secretTapCount = 0;
+    goTo('screen-admin');
+    document.getElementById('admin-login-view').style.display = '';
+    document.getElementById('admin-edit-view').style.display = 'none';
+    document.getElementById('admin-pw').value = '';
+  }
+}
+
+function checkAdminPW() {
+  const pw = document.getElementById('admin-pw').value.trim();
+  const correct = localStorage.getItem(ADMIN_PW_KEY) || DEFAULT_PW;
+  if (pw === correct) {
+    document.getElementById('admin-login-view').style.display = 'none';
+    document.getElementById('admin-edit-view').style.display = '';
+    renderAdminBoothList();
+  } else {
+    toast('비밀번호가 맞지 않아요 🔒');
+    document.getElementById('admin-pw').style.borderColor = 'var(--danger)';
+    setTimeout(() => { document.getElementById('admin-pw').style.borderColor = ''; }, 2000);
+  }
+}
+
+function changeAdminPW() {
+  const pw = document.getElementById('new-pw').value.trim();
+  if (pw.length < 4) { toast('비밀번호는 4자리 이상 입력하세요'); return; }
+  localStorage.setItem(ADMIN_PW_KEY, pw);
+  document.getElementById('new-pw').value = '';
+  toast('비밀번호가 변경됐어요 ✅');
+}
+
+function adminLogout() {
+  document.getElementById('admin-login-view').style.display = '';
+  document.getElementById('admin-edit-view').style.display = 'none';
+  goTo('screen-home');
+}
+
+// 관리자 부스 목록 렌더
+function renderAdminBoothList() {
+  const el = document.getElementById('admin-booth-list'); if (!el) return;
+  const quizBooths = BOOTHS.filter(b => !b.noStamp && QUIZZES[b.id]);
+  el.innerHTML = quizBooths.map(b => `
+    <div class="admin-booth-card" onclick="openQuizEdit('${b.id}')">
+      <div class="booth-icon-wrap" style="background:${b.bg}; width:46px; height:46px; font-size:22px;">${b.icon}</div>
+      <div class="admin-booth-info">
+        <div class="admin-booth-name">${b.name}</div>
+        <div class="admin-booth-qcount">퀴즈 ${QUIZZES[b.id].questions.length}문제 · 탭해서 편집</div>
+      </div>
+      <div style="font-size:20px; color:var(--text-light);">›</div>
+    </div>`).join('');
+}
+
+// 퀴즈 편집 오버레이 열기
+let editingBoothId = null;
+let editDraft = []; // 현재 편집 중인 문제 배열
+
+function openQuizEdit(boothId) {
+  editingBoothId = boothId;
+  const booth = BOOTHS.find(b => b.id === boothId);
+  // 깊은 복사
+  editDraft = JSON.parse(JSON.stringify(QUIZZES[boothId].questions));
+
+  document.getElementById('edit-sheet-title').textContent = booth.icon + ' ' + booth.name + ' 퀴즈 편집';
+  renderEditQuestions();
+  document.getElementById('edit-overlay').classList.add('open');
+}
+
+function renderEditQuestions() {
+  const wrap = document.getElementById('edit-questions-wrap');
+  wrap.innerHTML = editDraft.map((q, qi) => `
+    <div class="edit-q-block" id="eq-${qi}">
+      <div class="edit-q-num">
+        <span>문제 ${qi + 1}</span>
+        ${editDraft.length > 1 ? `<button onclick="removeEditQ(${qi})" style="border:none;background:none;color:var(--danger);font-size:13px;cursor:pointer;font-weight:700;">삭제</button>` : ''}
+      </div>
+      <div class="edit-label">문제 내용</div>
+      <textarea class="edit-input" id="eq-q-${qi}" rows="2" style="resize:vertical;">${q.q}</textarea>
+      <div class="edit-label">보기 (정답에 해당하는 것을 아래서 선택)</div>
+      <div class="edit-opts-grid">
+        ${q.opts.map((o, oi) => `
+          <div class="edit-opt-wrap">
+            <span class="edit-opt-label">${['①','②','③','④'][oi]}</span>
+            <input type="text" class="edit-opt-input ${q.ans === oi ? 'is-answer' : ''}"
+                   id="eq-o-${qi}-${oi}" value="${o}"
+                   oninput="highlightAns(${qi})">
+          </div>`).join('')}
+      </div>
+      <div class="edit-answer-row">
+        <span class="edit-answer-label">정답:</span>
+        ${q.opts.map((_, oi) => `
+          <button class="ans-btn ${q.ans === oi ? 'selected' : ''}"
+                  id="eans-${qi}-${oi}"
+                  onclick="setAns(${qi}, ${oi})">
+            ${['①','②','③','④'][oi]}
+          </button>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+function highlightAns(qi) {
+  const ans = editDraft[qi].ans;
+  [0,1,2,3].forEach(oi => {
+    const el = document.getElementById(`eq-o-${qi}-${oi}`);
+    if (el) el.classList.toggle('is-answer', oi === ans);
+  });
+}
+
+function setAns(qi, oi) {
+  editDraft[qi].ans = oi;
+  // 버튼 스타일 업데이트
+  [0,1,2,3].forEach(j => {
+    const btn = document.getElementById(`eans-${qi}-${j}`);
+    if (btn) btn.classList.toggle('selected', j === oi);
+    const inp = document.getElementById(`eq-o-${qi}-${j}`);
+    if (inp) inp.classList.toggle('is-answer', j === oi);
+  });
+}
+
+function addEditQ() {
+  editDraft.push({ q:'새 문제를 입력하세요', opts:['보기1','보기2','보기3','보기4'], ans:0 });
+  renderEditQuestions();
+  // 스크롤 마지막 문제로
+  setTimeout(() => {
+    const last = document.getElementById(`eq-${editDraft.length - 1}`);
+    if (last) last.scrollIntoView({ behavior:'smooth' });
+  }, 100);
+}
+
+function removeEditQ(qi) {
+  if (editDraft.length <= 1) { toast('문제는 최소 1개 이상이어야 해요'); return; }
+  editDraft.splice(qi, 1);
+  renderEditQuestions();
+}
+
+function saveEditQuiz() {
+  // 현재 입력값 수집
+  const questions = editDraft.map((q, qi) => {
+    const qText = document.getElementById(`eq-q-${qi}`)?.value.trim() || q.q;
+    const opts = [0,1,2,3].map(oi => document.getElementById(`eq-o-${qi}-${oi}`)?.value.trim() || q.opts[oi]);
+    return { q: qText, opts, ans: q.ans };
+  });
+
+  // 검증
+  for (let i = 0; i < questions.length; i++) {
+    if (!questions[i].q) { toast(`문제 ${i+1}의 내용을 입력하세요`); return; }
+    if (questions[i].opts.some(o => !o)) { toast(`문제 ${i+1}의 모든 보기를 입력하세요`); return; }
+  }
+
+  // 앱 메모리에 반영
+  QUIZZES[editingBoothId].questions = questions;
+
+  // localStorage에 저장 (영구 보관)
+  try {
+    const saved = JSON.parse(localStorage.getItem(CUSTOM_QUIZ_KEY) || '{}');
+    saved[editingBoothId] = { questions };
+    localStorage.setItem(CUSTOM_QUIZ_KEY, JSON.stringify(saved));
+  } catch(e) {}
+
+  closeEditOverlay();
+  renderAdminBoothList();
+  toast('퀴즈가 저장됐어요! ✅');
+}
+
+function closeEditOverlay(e) {
+  if (e && e.target !== document.getElementById('edit-overlay')) return;
+  document.getElementById('edit-overlay').classList.remove('open');
+  editingBoothId = null;
+  editDraft = [];
+}
+
+// ============================================================
+// BOOT
+// ============================================================
+window.addEventListener('load', () => {
+  loadCustomQuizzes(); // 저장된 커스텀 퀴즈 먼저 로드
+  init();
+});
+</script>
+</body>
+</html>
