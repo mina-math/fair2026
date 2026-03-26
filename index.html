@@ -294,7 +294,7 @@
     <div id="admin-edit-view" style="display:none;">
       <div class="header">
         <button class="header-back" onclick="adminLogout()">←</button>
-        <div class="header-title">🛠️ 관리자 메뉴</div>
+        <div class="header-title">🔍 학생 참여 확인</div>
         <div class="header-badge">교사용</div>
       </div>
       <div style="overflow-y:auto; flex:1;">
@@ -310,11 +310,6 @@
           </div>
           <div id="admin-verify-result" style="display:none; margin-bottom:14px;"></div>
         </div>
-        <!-- 퀴즈 편집 섹션 -->
-        <div style="padding:0 14px 6px; font-size:13px; color:var(--text-light);">
-          부스를 선택해 퀴즈 문제를 수정하세요
-        </div>
-        <div class="admin-section" id="admin-booth-list"></div>
         <!-- 비밀번호 변경 -->
         <div style="margin:0 14px; padding:14px; background:white; border-radius:14px; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
           <div style="font-size:14px; font-weight:700; margin-bottom:10px;">🔑 비밀번호 변경</div>
@@ -369,20 +364,6 @@
           </div>
         </div>
         <div id="verify-result" style="display:none;"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 퀴즈 편집 오버레이 -->
-  <div class="edit-overlay" id="edit-overlay" onclick="closeEditOverlay(event)">
-    <div class="edit-sheet" id="edit-sheet">
-      <div class="edit-sheet-handle"></div>
-      <div class="edit-sheet-title" id="edit-sheet-title">퀴즈 편집</div>
-      <div id="edit-questions-wrap"></div>
-      <button class="add-q-btn" onclick="addEditQ()">+ 문제 추가</button>
-      <div class="edit-actions">
-        <button class="btn btn-primary" onclick="saveEditQuiz()">저장하기 💾</button>
-        <button class="btn btn-outline btn-sm" onclick="closeEditOverlay()">취소</button>
       </div>
     </div>
   </div>
