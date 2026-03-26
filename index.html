@@ -18,37 +18,31 @@
       <div class="login-subtitle" style="margin-top:6px;">나만의 미래를 설계해요 ✨</div>
     </div>
     <div class="login-card">
-      <div class="login-card-title">👋 학년을 선택하고 시작하세요</div>
+      <div class="login-card-title">👋 학년/반/번호를 입력해주세요</div>
       <div style="margin-bottom:16px;">
-        <label class="input-label">학년 <span style="color:var(--danger);">*필수</span></label>
+        <label class="input-label">학년</label>
         <div class="grade-selector">
           <button class="grade-btn" id="grade1-btn" onclick="selectGrade(1)">1학년</button>
           <button class="grade-btn" id="grade2-btn" onclick="selectGrade(2)">2학년</button>
         </div>
       </div>
-      <div style="margin-bottom:16px;">
-        <label class="input-label">닉네임 <span style="color:var(--text-light); font-weight:400;">(방명록 표시용, 선택)</span></label>
-        <input type="text" id="input-nickname" class="input-field" placeholder="예: 별빛학생 (미입력 시 '익명')" maxlength="20">
-      </div>
-      <div style="padding:10px 14px; background:#f0fffe; border-radius:10px; margin-bottom:16px; font-size:12px; color:var(--text-light); cursor:pointer;" onclick="document.getElementById('optional-fields').style.display=document.getElementById('optional-fields').style.display==='none'?'block':'none'">
-        📋 반/번호 입력 (선택사항, 이 기기에서만 사용) <span style="float:right;">▼</span>
-      </div>
-      <div id="optional-fields" style="display:none; margin-bottom:16px;">
-        <div class="class-row">
-          <div class="field-group">
-            <label class="input-label">반 <span style="color:var(--text-light); font-weight:400;">(선택)</span></label>
-            <input type="number" id="input-class" class="input-field" placeholder="예: 3" min="1" max="12">
-          </div>
-          <div class="field-group">
-            <label class="input-label">번호 <span style="color:var(--text-light); font-weight:400;">(선택)</span></label>
-            <input type="number" id="input-number" class="input-field" placeholder="예: 15" min="1" max="40">
-          </div>
+      <div class="class-row">
+        <div class="field-group">
+          <label class="input-label">반</label>
+          <input type="number" id="input-class" class="input-field" placeholder="예: 3" min="1" max="12">
         </div>
-        <div style="font-size:11px; color:var(--text-light); margin-top:4px;">반/번호는 서버에 전송되지 않으며, 이 기기에서 진행상황 관리용으로만 사용돼요.</div>
+        <div class="field-group">
+          <label class="input-label">번호</label>
+          <input type="number" id="input-number" class="input-field" placeholder="예: 15" min="1" max="40">
+        </div>
+      </div>
+      <div style="margin-bottom:16px; margin-top:4px;">
+        <label class="input-label">닉네임 <span style="color:var(--text-light); font-weight:400;">(선택)</span></label>
+        <input type="text" id="input-nickname" class="input-field" placeholder="미입력 시 '익명'으로 표시" maxlength="20">
       </div>
       <button class="btn btn-primary" onclick="doLogin()">박람회 시작하기 🎉</button>
-      <div style="margin-top:12px; text-align:center; font-size:12px; color:var(--text-light);">
-        개인정보를 수집하지 않는 익명 참여 방식입니다
+      <div style="margin-top:12px; text-align:center; font-size:11px; color:var(--text-light); line-height:1.6;">
+        🔒 반/번호는 이 기기에서만 사용되며, 서버에 전송되지 않습니다.<br>재입장 시 같은 반/번호로 로그인하면 이전 기록이 복원됩니다.
       </div>
     </div>
     <!-- 관리자 모드 진입 (로그인 화면) -->

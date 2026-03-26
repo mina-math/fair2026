@@ -165,23 +165,25 @@ function doLogin() {
   const num = document.getElementById('input-number').value;
   const nickname = document.getElementById('input-nickname').value.trim() || '\uC775\uBA85';
 
-  if (cls && (cls<1 || cls>12)) { toast('\uBC18\uC744 \uC62C\uBC14\uB974\uAC8C \uC785\uB825\uD558\uC138\uC694 (1~12)'); return; }
-  if (num && (num<1 || num>40)) { toast('\uBC88\uD638\uB97C \uC62C\uBC14\uB974\uAC8C \uC785\uB825\uD558\uC138\uC694 (1~40)'); return; }
+  if (!cls || cls<1 || cls>12) { toast('\uBC18\uC744 \uC785\uB825\uD574\uC8FC\uC138\uC694 (1~12)'); return; }
+  if (!num || num<1 || num>40) { toast('\uBC88\uD638\uB97C \uC785\uB825\uD574\uC8FC\uC138\uC694 (1~40)'); return; }
 
+  const clsVal = +cls;
+  const numVal = +num;
+
+  // 같은 학년/반/번호 → 같은 UUID로 데이터 복원
   let uuid;
-  const clsVal = cls ? +cls : 0;
-  const numVal = num ? +num : 0;
-
-  if (clsVal && numVal) {
-    const oldKey = `mgh_student_${selGrade}_${clsVal}_${numVal}`;
-    const oldData = localStorage.getItem(oldKey);
-    if (oldData) {
-      try { const d = JSON.parse(oldData); uuid = d.uuid || generateUUID(); }
-      catch(e) { uuid = generateUUID(); }
-    } else { uuid = generateUUID(); }
+  const studentKey = `mgh_student_${selGrade}_${clsVal}_${numVal}`;
+  const existingData = localStorage.getItem(studentKey);
+  if (existingData) {
+    try { const d = JSON.parse(existingData); uuid = d.uuid || generateUUID(); }
+    catch(e) { uuid = generateUUID(); }
   } else { uuid = generateUUID(); }
 
-  const label = (clsVal && numVal) ? `${selGrade}\uD559\uB144 ${clsVal}\uBC18 ${numVal}\uBC88` : `${selGrade}\uD559\uB144 \uD559\uC0DD`;
+  // 학번 → UUID 매핑 저장 (재입장 시 복원용)
+  localStorage.setItem(studentKey, JSON.stringify({ uuid }));
+
+  const label = `${selGrade}\uD559\uB144 ${clsVal}\uBC18 ${numVal}\uBC88`;
   S.student = { grade:selGrade, cls:clsVal, num:numVal, uuid, nickname, label };
 
   const sk = `mgh_session_${uuid}`;
