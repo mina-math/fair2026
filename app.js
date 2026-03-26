@@ -626,7 +626,52 @@ function changeAdminPW() {
 function adminLogout() {
   document.getElementById('admin-login-view').style.display = '';
   document.getElementById('admin-edit-view').style.display = 'none';
-  goTo('screen-home');
+  goTo('screen-login');
+}
+
+// 관리자용: 학생 QR 확인
+function startQRScan() {
+  // 폰 카메라로 QR을 스캔하면 URL이 브라우저에서 자동으로 열림
+  // 여기서는 안내 메시지 표시 + 수동 UUID 입력 옵션 제공
+  const resultEl = document.getElementById('admin-verify-result');
+  resultEl.style.display = '';
+  resultEl.innerHTML = `
+    <div style="background:white; border-radius:14px; padding:16px; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+      <div style="font-size:14px; font-weight:700; margin-bottom:12px;">\uD83D\uDCF1 QR \uC2A4\uCE94 \uBC29\uBC95</div>
+      <div style="font-size:13px; color:var(--text-light); line-height:1.7; margin-bottom:14px;">
+        <strong>1.</strong> \uD734\uB300\uD3F0 \uAE30\uBCF8 \uCE74\uBA54\uB77C \uC571\uC744 \uC5F4\uC5B4\uC694<br>
+        <strong>2.</strong> \uD559\uC0DD \uD3F0\uC758 QR \uCF54\uB4DC\uB97C \uC2A4\uCE94\uD558\uC138\uC694<br>
+        <strong>3.</strong> \uC790\uB3D9\uC73C\uB85C \uD655\uC778 \uD398\uC774\uC9C0\uAC00 \uC5F4\uB9BD\uB2C8\uB2E4
+      </div>
+      <div style="border-top:1px solid var(--border); padding-top:12px; margin-top:4px;">
+        <div style="font-size:12px; color:var(--text-light); margin-bottom:8px;">QR \uC2A4\uCE94\uC774 \uC548 \uB420 \uACBD\uC6B0, UUID \uC9C1\uC811 \uC785\uB825:</div>
+        <div style="display:flex; gap:8px;">
+          <input type="text" id="admin-uuid-input" class="input-field" placeholder="UUID \uC785\uB825" style="flex:1; font-size:13px; padding:10px 12px;">
+          <button class="btn btn-primary btn-sm" onclick="adminVerifyUUID()">\uD655\uC778</button>
+        </div>
+      </div>
+      <div id="admin-uuid-result" style="margin-top:12px;"></div>
+    </div>`;
+}
+
+function adminVerifyUUID() {
+  const uuid = document.getElementById('admin-uuid-input').value.trim();
+  if (!uuid) { toast('UUID\uB97C \uC785\uB825\uD558\uC138\uC694'); return; }
+  const resultEl = document.getElementById('admin-uuid-result');
+
+  // UUID 해시 검증 (수동 입력이므로 시간 검증 없이 형식만 확인)
+  const isValidFormat = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(uuid);
+
+  if (isValidFormat) {
+    resultEl.innerHTML = `
+      <div class="verify-status success">UUID \uD615\uC2DD \uD655\uC778\uB428 \u2705</div>
+      <div style="font-size:13px; color:var(--text-light); margin-top:8px;">
+        \uD559\uC0DD \uD3F0\uC758 "\uB098\uC758 \uCC38\uC5EC QR" \uD654\uBA74\uC5D0\uC11C<br>\uC2A4\uD0EC\uD504 \uD604\uD669\uACFC \uCC38\uC5EC \uB0B4\uC5ED\uC744 \uC9C1\uC811 \uD655\uC778\uD574\uC8FC\uC138\uC694.
+      </div>`;
+  } else {
+    resultEl.innerHTML = `
+      <div class="verify-status error">\uC720\uD6A8\uD558\uC9C0 \uC54A\uC740 UUID \uD615\uC2DD\uC785\uB2C8\uB2E4 \u26A0\uFE0F</div>`;
+  }
 }
 
 function renderAdminBoothList() {
@@ -764,29 +809,32 @@ function renderMyQR() {
   qrRefreshTimer = setInterval(drawQR, 30000);
 }
 
-function drawQR() {
-  const container = document.getElementById('myqr-canvas-wrap');
-  if (!container) return;
+function getVerifyUrl() {
   const uuid = S.student.uuid;
   const t = Math.floor(Date.now() / 30000);
   const h = simpleHash(uuid + t + 'MGH2026');
   const baseUrl = location.href.split('?')[0];
-  const url = `${baseUrl}?verify=${uuid}&t=${t}&h=${h}`;
+  return `${baseUrl}?verify=${uuid}&t=${t}&h=${h}`;
+}
 
-  // Google Charts QR API로 진짜 QR 코드 이미지 생성
-  const qrImgUrl = `https://chart.googleapis.com/chart?cht=qr&chs=200x200&chl=${encodeURIComponent(url)}&choe=UTF-8`;
+function drawQR() {
+  const container = document.getElementById('myqr-canvas-wrap');
+  if (!container) return;
+  const url = getVerifyUrl();
+
+  // QR Code API (qrserver.com - 무료, 안정적)
+  const qrImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
   container.innerHTML = `<img src="${qrImgUrl}" alt="QR Code" width="200" height="200" style="display:block; border-radius:8px;" onerror="drawQRFallback()">`;
 }
 
 function drawQRFallback() {
-  // Google Charts 접근 불가 시 URL 텍스트 표시
   const container = document.getElementById('myqr-canvas-wrap');
   if (!container) return;
   const uuid = S.student.uuid;
   container.innerHTML = `
-    <div style="width:200px;height:200px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;border-radius:12px;flex-direction:column;gap:8px;">
+    <div style="width:200px;height:200px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;border-radius:12px;flex-direction:column;gap:8px;padding:12px;">
       <div style="font-size:40px;">\uD83C\uDFEB</div>
-      <div style="font-size:11px;color:var(--text-light);word-break:break-all;padding:0 12px;text-align:center;">UUID: ${uuid.substring(0,8)}...</div>
+      <div style="font-size:10px;color:var(--text-light);word-break:break-all;text-align:center;">QR \uC0DD\uC131 \uC2E4\uD328<br>UUID: ${uuid.substring(0,12)}...</div>
     </div>`;
 }
 
@@ -855,20 +903,24 @@ function fetchVerifyData(uuid) {
   if (timeValid) {
     resultEl.innerHTML = `
       <div class="verify-card">
-        <div class="verify-status success">QR \uCF54\uB4DC \uC720\uD6A8\uC131 \uD655\uC778\uB428 \u2705</div>
-        <div style="font-size:13px; color:var(--text-light); text-align:center; margin:10px 0;">
-          \uD559\uC0DD \uD654\uBA74\uC758 "\uB098\uC758 \uCC38\uC5EC QR" \uD398\uC774\uC9C0\uC5D0\uC11C<br>\uC2A4\uD0EC\uD504 \uD604\uD669\uACFC \uCC38\uC5EC \uB0B4\uC5ED\uC744 \uC9C1\uC811 \uD655\uC778\uD574\uC8FC\uC138\uC694.
-        </div>
+        <div class="verify-status success">\u2705 \uB77C\uC774\uBE0C QR \uD655\uC778 \uC644\uB8CC</div>
+        <div class="verify-title">\uD559\uC0DD \uCC38\uC5EC \uC778\uC99D</div>
         <div class="verify-stat-row"><span>UUID</span><span style="font-size:11px;">${uuid.substring(0,12)}...</span></div>
-        <div class="verify-stat-row"><span>\uC0C1\uD0DC</span><span style="color:var(--success); font-weight:700;">\uB77C\uC774\uBE0C QR \uD655\uC778\uB428</span></div>
+        <div class="verify-stat-row"><span>QR \uC0C1\uD0DC</span><span style="color:var(--success); font-weight:700;">\uB77C\uC774\uBE0C \uD655\uC778\uB428 (\uC2A4\uD06C\uB9B0\uC0F7 \uC544\uB2D8)</span></div>
+        <div style="background:var(--primary-light); border-radius:10px; padding:12px; margin-top:14px; font-size:13px; color:var(--primary-dark); line-height:1.6;">
+          \uD83D\uDCA1 \uD559\uC0DD \uD3F0\uC758 "\uB098\uC758 \uCC38\uC5EC QR" \uD654\uBA74\uC5D0\uC11C<br>
+          \uC2A4\uD0EC\uD504 \uD604\uD669\uACFC \uD034\uC988 \uC810\uC218\uB97C \uC9C1\uC811 \uD655\uC778\uD574\uC8FC\uC138\uC694.
+        </div>
       </div>`;
   } else {
     resultEl.innerHTML = `
       <div class="verify-card">
-        <div class="verify-status error">QR \uCF54\uB4DC \uAC80\uC99D \uC2E4\uD328 \u26A0\uFE0F</div>
-        <div style="font-size:13px; color:var(--text-light); text-align:center; margin:10px 0;">
-          \uC2A4\uD06C\uB9B0\uC0F7\uC774\uAC70\uB098 \uB9CC\uB8CC\uB41C QR\uC77C \uC218 \uC788\uC5B4\uC694.<br>\uD559\uC0DD\uC5D0\uAC8C \uC571\uC744 \uC5F4\uC5B4\uC11C QR\uC744 \uB2E4\uC2DC \uBCF4\uC5EC\uB2EC\uB77C\uACE0 \uC694\uCCAD\uD558\uC138\uC694.
+        <div class="verify-status error">\u26A0\uFE0F QR \uAC80\uC99D \uC2E4\uD328</div>
+        <div style="font-size:14px; color:var(--text); text-align:center; margin:14px 0; line-height:1.7;">
+          \uC2A4\uD06C\uB9B0\uC0F7\uC774\uAC70\uB098 \uB9CC\uB8CC\uB41C QR\uC77C \uC218 \uC788\uC5B4\uC694.<br>
+          \uD559\uC0DD\uC5D0\uAC8C <strong>\uC571\uC744 \uC5F4\uC5B4\uC11C QR\uC744 \uB2E4\uC2DC</strong> \uBCF4\uC5EC\uB2EC\uB77C\uACE0 \uC694\uCCAD\uD558\uC138\uC694.
         </div>
+        <div style="font-size:12px; color:var(--text-light); text-align:center;">QR \uCF54\uB4DC\uB294 30\uCD08\uB9C8\uB2E4 \uAC31\uC2E0\uB418\uBA70, \uB77C\uC774\uBE0C \uD654\uBA74\uC5D0\uC11C\uB9CC \uC720\uD6A8\uD569\uB2C8\uB2E4.</div>
       </div>`;
   }
 }
