@@ -31,12 +31,167 @@ function simpleHash(str) {
 // ============================================================
 let S = {
   student: null,
+  googleUser: null, // { email, name, picture }
+  role: null,       // 'admin' | 'teacher' | 'studentAdmin' | 'student'
   stamps: {},
   quizResults: {},
   subjects: { g2:{}, g3:{} },
   gbEntries: [],
   mood: '\u{1F60A}',
 };
+
+// ============================================================
+// PHASE MANAGEMENT
+// ============================================================
+function getPhase() {
+  const override = localStorage.getItem('mgh_phase_override');
+  if (override === 'before' || override === 'during' || override === 'after') return override;
+  const today = new Date().toISOString().slice(0, 10);
+  if (today < FAIR_DATE) return 'before';
+  if (today === FAIR_DATE) return 'during';
+  return 'after';
+}
+
+function setPhaseOverride(phase) {
+  localStorage.setItem('mgh_phase_override', phase);
+  if (S.student) { updateHome(); }
+  toast('Phase가 "' + {before:'박람회 전',during:'당일',after:'이후'}[phase] + '"(으)로 변경되었습니다');
+  renderPhaseAdmin();
+}
+
+function clearPhaseOverride() {
+  localStorage.removeItem('mgh_phase_override');
+  if (S.student) { updateHome(); }
+  toast('자동 모드로 전환되었습니다 (날짜 기반)');
+  renderPhaseAdmin();
+}
+
+const PHASE_LABELS = { before: '박람회 전', during: '박람회 당일', after: '박람회 이후' };
+
+// ============================================================
+// ROLE MANAGEMENT
+// ============================================================
+const ROLES_KEY = 'mgh_roles';
+
+function loadRoles() {
+  let roles = { teachers: [], studentAdmins: [] };
+  try {
+    const saved = localStorage.getItem(ROLES_KEY);
+    if (saved) roles = JSON.parse(saved);
+  } catch(e) {}
+  // 기본 역할 병합
+  DEFAULT_TEACHERS.forEach(e => {
+    if (!roles.teachers.map(x=>x.toLowerCase()).includes(e.toLowerCase())) roles.teachers.push(e);
+  });
+  DEFAULT_STUDENT_ADMINS.forEach(e => {
+    if (!roles.studentAdmins.map(x=>x.toLowerCase()).includes(e.toLowerCase())) roles.studentAdmins.push(e);
+  });
+  return roles;
+}
+
+function saveRoles(roles) {
+  localStorage.setItem(ROLES_KEY, JSON.stringify(roles));
+}
+
+function getUserRole(email) {
+  if (!email) return 'student';
+  const e = email.toLowerCase();
+  if (SUPER_ADMIN_EMAILS.map(x=>x.toLowerCase()).includes(e)) return 'admin';
+  const roles = loadRoles();
+  if (roles.teachers.map(x=>x.toLowerCase()).includes(e)) return 'teacher';
+  if (roles.studentAdmins.map(x=>x.toLowerCase()).includes(e)) return 'studentAdmin';
+  return 'student';
+}
+
+function isAdminLike(role) {
+  return role === 'admin' || role === 'teacher' || role === 'studentAdmin';
+}
+
+// ============================================================
+// GOOGLE AUTH
+// ============================================================
+function initGoogleAuth() {
+  if (typeof google === 'undefined' || !google.accounts) {
+    setTimeout(initGoogleAuth, 200);
+    return;
+  }
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleGoogleCredential,
+    auto_select: true,
+  });
+  google.accounts.id.renderButton(
+    document.getElementById('google-signin-btn'),
+    { theme: 'outline', size: 'large', width: 300, text: 'signin_with', locale: 'ko' }
+  );
+}
+
+function decodeJwt(token) {
+  const base64 = token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');
+  return JSON.parse(decodeURIComponent(atob(base64).split('').map(c =>
+    '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+  ).join('')));
+}
+
+function handleGoogleCredential(response) {
+  const payload = decodeJwt(response.credential);
+  const user = {
+    email: payload.email,
+    name: payload.name || payload.email.split('@')[0],
+    picture: payload.picture || '',
+  };
+
+  S.googleUser = user;
+  S.role = getUserRole(user.email);
+  save();
+
+  if (S.role === 'admin' || S.role === 'teacher') {
+    enterAdminMode();
+  } else if (S.role === 'studentAdmin') {
+    showStudentForm(user);
+  } else {
+    showStudentForm(user);
+  }
+}
+
+function showStudentForm(user) {
+  document.getElementById('login-step-google').style.display = 'none';
+  document.getElementById('login-step-student').style.display = '';
+  document.getElementById('login-greeting').textContent = `👋 ${user.name}님, 환영합니다!`;
+  document.getElementById('login-user-info').textContent = user.email;
+}
+
+function enterAdminMode() {
+  document.getElementById('admin-user-name').textContent = S.googleUser.name;
+  document.getElementById('admin-user-email').textContent = S.googleUser.email;
+  const pic = document.getElementById('admin-user-pic');
+  if (S.googleUser.picture) { pic.src = S.googleUser.picture; pic.style.display = ''; }
+  else pic.style.display = 'none';
+
+  const badge = document.getElementById('admin-role-badge');
+  badge.textContent = S.role === 'admin' ? '관리자' : S.role === 'teacher' ? '교사' : '학생관리자';
+
+  if (S.role === 'admin') {
+    document.getElementById('admin-role-section').style.display = '';
+    renderRoleList();
+  } else {
+    document.getElementById('admin-role-section').style.display = 'none';
+  }
+
+  renderPhaseAdmin();
+  goTo('screen-admin');
+}
+
+function googleLogout() {
+  S.googleUser = null;
+  S.role = null;
+  localStorage.removeItem('mgh_fair26');
+  document.getElementById('login-step-google').style.display = '';
+  document.getElementById('login-step-student').style.display = 'none';
+  if (typeof google !== 'undefined' && google.accounts) {
+    google.accounts.id.disableAutoSelect();
+  }
+}
 
 function migrateSubjects(subj) {
   if (!subj || typeof subj !== 'object') return { g2:{}, g3:{} };
@@ -62,6 +217,7 @@ function init() {
     const saved = localStorage.getItem('mgh_fair26');
     if (saved) {
       const p = JSON.parse(saved);
+      if (p.googleUser) { S.googleUser = p.googleUser; S.role = p.role || getUserRole(p.googleUser.email); }
       if (p.student && p.student.uuid) {
         S.student = p.student;
         const sk = `mgh_session_${p.student.uuid}`;
@@ -80,10 +236,10 @@ function init() {
     }
   } catch(e) { console.error('[MoFair] Init error:', e); }
 
+  initGoogleAuth();
   renderInfoTabs();
   renderDesignGroups();
   renderBoothList();
-  renderHomeStamps();
 
   // URL param: 선생님 QR 확인 모드
   const params = new URLSearchParams(location.search);
@@ -94,7 +250,7 @@ function init() {
     return;
   }
 
-  if (S.student) { goTo('screen-home'); updateHome(); }
+  if (S.student && S.googleUser) { goTo('screen-home'); updateHome(); }
 
   const bId = params.get('booth');
   if (bId && S.student) {
@@ -133,7 +289,7 @@ function save() {
     localStorage.setItem(sessionKey(), JSON.stringify(sd));
   }
   localStorage.setItem('mgh_fair26_global', JSON.stringify({ gbEntries: S.gbEntries }));
-  localStorage.setItem('mgh_fair26', JSON.stringify(S));
+  localStorage.setItem('mgh_fair26', JSON.stringify({ student: S.student, googleUser: S.googleUser, role: S.role }));
 }
 
 // ============================================================
@@ -146,6 +302,7 @@ function goTo(id) {
   if (id === 'screen-booths') renderBoothList();
   if (id === 'screen-design') renderDesignGroups();
   if (id === 'screen-myqr') renderMyQR();
+  if (id === 'screen-curriculum') renderCurriculum();
 }
 
 // ============================================================
@@ -159,11 +316,12 @@ function selectGrade(g) {
 }
 
 function doLogin() {
+  if (!S.googleUser) { toast('Google \uB85C\uADF8\uC778\uC744 \uBA3C\uC800 \uD574\uC8FC\uC138\uC694'); return; }
   if (!selGrade) { toast('\uD559\uB144\uC744 \uC120\uD0DD\uD574\uC8FC\uC138\uC694'); return; }
 
   const cls = document.getElementById('input-class').value;
   const num = document.getElementById('input-number').value;
-  const nickname = document.getElementById('input-nickname').value.trim() || '\uC775\uBA85';
+  const nickname = document.getElementById('input-nickname').value.trim() || S.googleUser.name || '\uC775\uBA85';
 
   if (!cls || cls<1 || cls>12) { toast('\uBC18\uC744 \uC785\uB825\uD574\uC8FC\uC138\uC694 (1~12)'); return; }
   if (!num || num<1 || num>40) { toast('\uBC88\uD638\uB97C \uC785\uB825\uD574\uC8FC\uC138\uC694 (1~40)'); return; }
@@ -218,13 +376,34 @@ function doLogin() {
 // ============================================================
 function updateHome() {
   if (!S.student) return;
+  const phase = getPhase();
   document.getElementById('home-name').textContent = S.student.label;
-  const earned = BOOTHS.filter(b=>!b.noStamp && S.stamps[b.id]).length;
-  const total = BOOTHS.filter(b=>!b.noStamp).length;
-  document.getElementById('progress-text').textContent = `${earned} / ${total}`;
-  document.getElementById('progress-fill').style.width = Math.round(earned/total*100)+'%';
-  document.getElementById('booth-badge').textContent = `${earned}/${total}`;
-  renderHomeStamps();
+  const adminBtn = document.getElementById('home-admin-btn');
+  if (adminBtn) adminBtn.style.display = isAdminLike(S.role) ? '' : 'none';
+
+  // phase badge
+  const phaseBadge = document.getElementById('home-phase-badge');
+  if (phaseBadge) {
+    phaseBadge.textContent = PHASE_LABELS[phase];
+    phaseBadge.className = 'phase-badge phase-' + phase;
+  }
+
+  // progress bar — only visible during phase
+  const progressWrap = document.getElementById('home-progress-wrap');
+  if (progressWrap) progressWrap.style.display = phase === 'during' ? '' : 'none';
+
+  if (phase === 'during') {
+    const earned = BOOTHS.filter(b=>!b.noStamp && S.stamps[b.id]).length;
+    const total = BOOTHS.filter(b=>!b.noStamp).length;
+    document.getElementById('progress-text').textContent = `${earned} / ${total}`;
+    document.getElementById('progress-fill').style.width = Math.round(earned/total*100)+'%';
+    const boothBadge = document.getElementById('booth-badge');
+    if (boothBadge) boothBadge.textContent = `${earned}/${total}`;
+  }
+
+  renderHomeBody(phase);
+  renderHomeNav(phase);
+  if (phase === 'during') renderHomeStamps();
 }
 
 function renderHomeStamps() {
@@ -405,6 +584,7 @@ function switchInfoTab(i) {
 function renderDesignGroups() {
   const el = document.getElementById('design-cats'); if (!el) return;
   const grade = S.student ? S.student.grade : 0;
+  const isReadOnly = getPhase() === 'after';
 
   if (!grade) {
     document.getElementById('design-hint').textContent = '\uD83D\uDCCC \uB85C\uADF8\uC778 \uD6C4 \uB0B4 \uD559\uB144\uC5D0 \uB9DE\uB294 \uACFC\uBAA9\uC774 \uD45C\uC2DC\uB3FC\uC694';
@@ -415,9 +595,14 @@ function renderDesignGroups() {
   const isG1 = grade === 1;
   const gradeKey = isG1 ? 'g2' : 'g3';
   const semData  = isG1 ? SUBJECTS_G2 : SUBJECTS_G3;
-  document.getElementById('design-hint').textContent = isG1
-    ? '\uD83D\uDCCC \uD604 1\uD559\uB144 \u2014 \uB0B4\uB144(2\uD559\uB144) \uC120\uD0DD\uACFC\uBAA9 (2026\uC785\uD559 \uD3B8\uC81C\uD45C \uAE30\uC900)'
-    : '\uD83D\uDCCC \uD604 2\uD559\uB144 \u2014 \uB0B4\uB144(3\uD559\uB144) \uC120\uD0DD\uACFC\uBAA9 (2025\uC785\uD559 \uD3B8\uC81C\uD45C \uAE30\uC900)';
+
+  if (isReadOnly) {
+    document.getElementById('design-hint').innerHTML = '\uD83D\uDD12 \uBC15\uB78C\uD68C\uAC00 \uC885\uB8CC\uB418\uC5B4 \uACFC\uBAA9 \uBCC0\uACBD\uC774 \uBD88\uAC00\uD569\uB2C8\uB2E4 <span style="font-size:12px;color:var(--text-light);">(\uC5F4\uB78C\uB9CC \uAC00\uB2A5)</span>';
+  } else {
+    document.getElementById('design-hint').textContent = isG1
+      ? '\uD83D\uDCCC \uD604 1\uD559\uB144 \u2014 \uB0B4\uB144(2\uD559\uB144) \uC120\uD0DD\uACFC\uBAA9 (2026\uC785\uD559 \uD3B8\uC81C\uD45C \uAE30\uC900)'
+      : '\uD83D\uDCCC \uD604 2\uD559\uB144 \u2014 \uB0B4\uB144(3\uD559\uB144) \uC120\uD0DD\uACFC\uBAA9 (2025\uC785\uD559 \uD3B8\uC81C\uD45C \uAE30\uC900)';
+  }
 
   if (!S.subjects[gradeKey] || typeof S.subjects[gradeKey] !== 'object' || Array.isArray(S.subjects[gradeKey])) {
     S.subjects[gradeKey] = {};
@@ -432,9 +617,9 @@ function renderDesignGroups() {
 
       const chipsHtml = grp.items.map(s => {
         const isSel = sel.includes(s.n);
-        const isDisabled = !isSel && full;
+        const isDisabled = isReadOnly || (!isSel && full);
         return `<button class="chip type-${s.t}${isSel?' selected':''}${isDisabled?' disabled':''}"
-          onclick="selectInGroup('${gradeKey}','${grp.id}','${s.n.replace(/'/g,"\\'")}',this)">
+          ${isReadOnly ? '' : `onclick="selectInGroup('${gradeKey}','${grp.id}','${s.n.replace(/'/g,"\\'")}',this)"`}>
           <span style="font-size:9px;opacity:0.6;margin-right:3px;">${s.subj}</span>${s.n}<span class="type-dot">${s.t==='general'?'\uC77C\uBC18':s.t==='career'?'\uC9C4\uB85C':'\uC735\uD569'}</span>
         </button>`;
       }).join('');
@@ -519,6 +704,201 @@ function saveDesign() {
 }
 
 // ============================================================
+// PHASE-BASED HOME RENDERING
+// ============================================================
+function renderHomeBody(phase) {
+  const el = document.getElementById('home-body-content');
+  if (!el) return;
+
+  if (phase === 'before') {
+    el.innerHTML = `
+      <div class="menu-grid">
+        <div class="menu-card" onclick="goTo('screen-info')">
+          <div class="menu-icon">📖</div>
+          <div class="menu-title">교육과정 안내</div>
+          <div class="menu-sub">고교학점제 이해하기</div>
+        </div>
+        <div class="menu-card" onclick="goTo('screen-design')">
+          <div class="menu-icon">✏️</div>
+          <div class="menu-title">과목 설계</div>
+          <div class="menu-sub">나만의 시간표</div>
+        </div>
+        <div class="menu-card" onclick="goTo('screen-curriculum')">
+          <div class="menu-icon">📊</div>
+          <div class="menu-title">편제표</div>
+          <div class="menu-sub">학년별 과목 편성</div>
+        </div>
+        <div class="menu-card" onclick="goTo('screen-info');setTimeout(()=>switchInfoTab(4),100)">
+          <div class="menu-icon">📗</div>
+          <div class="menu-title">가이드북</div>
+          <div class="menu-sub">PDF 다운로드</div>
+        </div>
+      </div>
+      <!-- 멘토링/상담 신청 배너 -->
+      <div onclick="openMentoringForm()" style="background:linear-gradient(135deg, #6C3483, #8E44AD); border-radius:16px; padding:18px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(108,52,131,0.3);">
+        <span style="font-size:36px;">💬</span>
+        <div>
+          <div style="font-size:15px; font-weight:700;">멘토링 · 진로상담 신청</div>
+          <div style="font-size:12px; opacity:0.85; margin-top:2px;">박람회 당일 선배/선생님과 1:1 상담을 원하면 미리 신청하세요</div>
+        </div>
+        <div style="margin-left:auto; font-size:20px;">›</div>
+      </div>
+      <!-- 상담 신청 배너 -->
+      <div onclick="openConsultForm()" style="background:linear-gradient(135deg, #2DC7C0, #1A9E98); border-radius:16px; padding:18px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(45,199,192,0.3);">
+        <span style="font-size:36px;">🎯</span>
+        <div>
+          <div style="font-size:15px; font-weight:700;">상담 신청하기</div>
+          <div style="font-size:12px; opacity:0.85; margin-top:2px;">진로진학 상담이 필요하면 구글폼으로 신청하세요</div>
+        </div>
+        <div style="margin-left:auto; font-size:20px;">›</div>
+      </div>
+      <div class="notice-card">
+        <div class="notice-title">📢 박람회 안내</div>
+        <div class="notice-item">
+          📅 박람회 날짜: <strong>2026년 7월 7일 (화)</strong><br>
+          ✅ 미리 교육과정 안내와 가이드북을 읽어보세요<br>
+          ✅ 과목 설계에서 원하는 과목을 미리 탐색해보세요<br>
+          ✅ 멘토링/상담이 필요하면 미리 신청해두세요
+        </div>
+      </div>`;
+  } else if (phase === 'during') {
+    el.innerHTML = `
+      <div class="stamp-card">
+        <div class="card-title">🗂️ 스탬프 현황</div>
+        <div class="stamp-grid" id="home-stamp-grid"></div>
+      </div>
+      <div onclick="goTo('screen-myqr')" style="background:linear-gradient(135deg, var(--accent), #4A59D9); border-radius:16px; padding:16px 18px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(91,106,240,0.3);">
+        <span style="font-size:36px;">🎫</span>
+        <div>
+          <div style="font-size:15px; font-weight:700;">나의 참여 QR</div>
+          <div style="font-size:12px; opacity:0.85; margin-top:2px;">박람회 끝나면 선생님께 보여주세요</div>
+        </div>
+        <div style="margin-left:auto; font-size:20px;">›</div>
+      </div>
+      <div class="menu-grid">
+        <div class="menu-card" onclick="goTo('screen-booths')">
+          <div class="menu-icon">🗺️</div>
+          <div class="menu-title">부스 투어</div>
+          <div class="menu-sub">QR 스탬프 찍기</div>
+        </div>
+        <div class="menu-card" onclick="goTo('screen-info')">
+          <div class="menu-icon">📖</div>
+          <div class="menu-title">교육과정 안내</div>
+          <div class="menu-sub">고교학점제</div>
+        </div>
+        <div class="menu-card" onclick="goTo('screen-design')">
+          <div class="menu-icon">✏️</div>
+          <div class="menu-title">과목 설계</div>
+          <div class="menu-sub">나만의 시간표</div>
+        </div>
+        <div class="menu-card" onclick="goTo('screen-forms')">
+          <div class="menu-icon">📋</div>
+          <div class="menu-title">신청 · 소감</div>
+          <div class="menu-sub">상담신청 · 소감문</div>
+        </div>
+      </div>
+      <div class="notice-card">
+        <div class="notice-title">📢 오늘 박람회 이용 안내</div>
+        <div class="notice-item">
+          ✅ 각 부스를 방문하고 QR 코드를 스캔하세요<br>
+          ✅ 퀴즈를 풀면 스탬프를 획득할 수 있어요<br>
+          ✅ 과목 설계 후 결과를 캡처해 두세요<br>
+          ✅ 상담이 필요하면 구글폼으로 신청하세요<br>
+          ✅ 박람회 끝나면 참여 QR을 선생님께 보여주세요 🎫
+        </div>
+      </div>`;
+  } else {
+    // after
+    el.innerHTML = `
+      <!-- 소감문 -->
+      <div onclick="openFeedbackForm()" style="background:linear-gradient(135deg, #2DC7C0, #1A9E98); border-radius:16px; padding:20px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(45,199,192,0.3);">
+        <span style="font-size:40px;">✍️</span>
+        <div>
+          <div style="font-size:16px; font-weight:700;">박람회 소감문 작성</div>
+          <div style="font-size:12px; opacity:0.85; margin-top:4px;">박람회에서 느낀 점, 새롭게 알게 된 것을<br>소감문으로 남겨주세요</div>
+        </div>
+        <div style="margin-left:auto; font-size:20px;">›</div>
+      </div>
+      <!-- 만족도 설문 -->
+      <div onclick="openSatisfactionForm()" style="background:linear-gradient(135deg, #5B6AF0, #4A59D9); border-radius:16px; padding:20px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(91,106,240,0.3);">
+        <span style="font-size:40px;">📊</span>
+        <div>
+          <div style="font-size:16px; font-weight:700;">만족도 설문</div>
+          <div style="font-size:12px; opacity:0.85; margin-top:4px;">박람회 개선을 위해<br>소중한 의견을 남겨주세요</div>
+        </div>
+        <div style="margin-left:auto; font-size:20px;">›</div>
+      </div>
+      <!-- 과목 설계 (읽기전용) -->
+      <div class="menu-grid">
+        <div class="menu-card" onclick="goTo('screen-design')">
+          <div class="menu-icon">✏️</div>
+          <div class="menu-title">과목 설계</div>
+          <div class="menu-sub">내가 선택한 과목 보기</div>
+        </div>
+        <div class="menu-card" onclick="goTo('screen-info')">
+          <div class="menu-icon">📖</div>
+          <div class="menu-title">교육과정 안내</div>
+          <div class="menu-sub">고교학점제</div>
+        </div>
+      </div>
+      <div class="notice-card">
+        <div class="notice-title">📢 박람회가 종료되었습니다</div>
+        <div class="notice-item">
+          ✅ 소감문과 만족도 설문을 꼭 작성해주세요<br>
+          ✅ 과목 설계 내용은 열람할 수 있어요<br>
+          ✅ 참여해주셔서 감사합니다! 🎉
+        </div>
+      </div>`;
+  }
+}
+
+function renderHomeNav(phase) {
+  const nav = document.getElementById('home-nav');
+  if (!nav) return;
+
+  if (phase === 'before') {
+    nav.innerHTML = `
+      <button class="nav-item active" onclick="goTo('screen-home')"><span class="nav-icon">🏠</span>홈</button>
+      <button class="nav-item" onclick="goTo('screen-info')"><span class="nav-icon">📖</span>교육과정</button>
+      <button class="nav-item" onclick="goTo('screen-design')"><span class="nav-icon">✏️</span>과목설계</button>
+      <button class="nav-item" onclick="goTo('screen-curriculum')"><span class="nav-icon">📊</span>편제표</button>`;
+  } else if (phase === 'during') {
+    nav.innerHTML = `
+      <button class="nav-item active" onclick="goTo('screen-home')"><span class="nav-icon">🏠</span>홈</button>
+      <button class="nav-item" onclick="goTo('screen-booths')"><span class="nav-icon">🗺️</span>부스투어</button>
+      <button class="nav-item" onclick="goTo('screen-design')"><span class="nav-icon">✏️</span>과목설계</button>
+      <button class="nav-item" onclick="goTo('screen-forms')"><span class="nav-icon">📋</span>신청·소감</button>`;
+  } else {
+    nav.innerHTML = `
+      <button class="nav-item active" onclick="goTo('screen-home')"><span class="nav-icon">🏠</span>홈</button>
+      <button class="nav-item" onclick="goTo('screen-design')"><span class="nav-icon">✏️</span>과목설계</button>
+      <button class="nav-item" onclick="goTo('screen-info')"><span class="nav-icon">📖</span>교육과정</button>`;
+  }
+}
+
+// ============================================================
+// CURRICULUM (편제표)
+// ============================================================
+let curriculumGrade = 2;
+
+function renderCurriculum() {
+  const tabBar = document.getElementById('curriculum-tab-bar');
+  const content = document.getElementById('curriculum-content');
+  if (!tabBar || !content) return;
+
+  tabBar.innerHTML = `
+    <button class="info-tab ${curriculumGrade===2?'active':''}" onclick="switchCurriculumTab(2)">2학년 편제표</button>
+    <button class="info-tab ${curriculumGrade===3?'active':''}" onclick="switchCurriculumTab(3)">3학년 편제표</button>`;
+
+  content.innerHTML = curriculumGrade === 2 ? CURRICULUM_G2_HTML : CURRICULUM_G3_HTML;
+}
+
+function switchCurriculumTab(grade) {
+  curriculumGrade = grade;
+  renderCurriculum();
+}
+
+// ============================================================
 // GOOGLE FORM LINKS
 // ============================================================
 function openConsultForm() {
@@ -535,6 +915,22 @@ function openFeedbackForm() {
     return;
   }
   window.open(GOOGLE_FORM_FEEDBACK, '_blank');
+}
+
+function openMentoringForm() {
+  if (GOOGLE_FORM_MENTORING === 'YOUR_GOOGLE_FORM_MENTORING_URL') {
+    toast('\uBA58\uD1A0\uB9C1 \uC2E0\uCCAD \uAD6C\uAE00\uD3FC URL\uC774 \uC544\uC9C1 \uC124\uC815\uB418\uC9C0 \uC54A\uC558\uC5B4\uC694');
+    return;
+  }
+  window.open(GOOGLE_FORM_MENTORING, '_blank');
+}
+
+function openSatisfactionForm() {
+  if (GOOGLE_FORM_SATISFACTION === 'YOUR_GOOGLE_FORM_SATISFACTION_URL') {
+    toast('\uB9CC\uC871\uB3C4 \uC124\uBB38 \uAD6C\uAE00\uD3FC URL\uC774 \uC544\uC9C1 \uC124\uC815\uB418\uC9C0 \uC54A\uC558\uC5B4\uC694');
+    return;
+  }
+  window.open(GOOGLE_FORM_SATISFACTION, '_blank');
 }
 
 // ============================================================
@@ -565,8 +961,10 @@ function doLogout() {
   localStorage.setItem('mgh_fair26_global', JSON.stringify({ gbEntries: S.gbEntries }));
   localStorage.removeItem('mgh_fair26');
 
-  S.student = null; S.stamps = {}; S.quizResults = {};
+  S.student = null; S.googleUser = null; S.role = null;
+  S.stamps = {}; S.quizResults = {};
   S.subjects = { g2:{}, g3:{} }; S.mood = '\u{1F60A}';
+  if (typeof google !== 'undefined' && google.accounts) google.accounts.id.disableAutoSelect();
 
   selGrade = 0;
   document.getElementById('grade1-btn').classList.remove('selected');
@@ -574,6 +972,8 @@ function doLogout() {
   document.getElementById('input-class').value = '';
   document.getElementById('input-number').value = '';
   document.getElementById('input-nickname').value = '';
+  document.getElementById('login-step-google').style.display = '';
+  document.getElementById('login-step-student').style.display = 'none';
   goTo('screen-login');
   toast('\uB85C\uADF8\uC544\uC6C3\uB410\uC5B4\uC694. \uB2E4\uC2DC \uC785\uC7A5\uD574\uC8FC\uC138\uC694 \uD83D\uDC4B');
 }
@@ -595,26 +995,11 @@ function loadCustomQuizzes() {
 }
 
 function goToAdmin() {
-  goTo('screen-admin');
-  document.getElementById('admin-login-view').style.display = '';
-  document.getElementById('admin-edit-view').style.display = 'none';
-  document.getElementById('admin-pw').value = '';
-}
-
-function checkAdminPW() {
-  const pw = document.getElementById('admin-pw').value.trim();
-  const storedHash = localStorage.getItem(ADMIN_PW_KEY);
-  const pwHash = simpleHash(pw);
-  const defaultMatch = pw === 'MOKPO2026';
-  if ((storedHash && pwHash === storedHash) || (!storedHash && defaultMatch)) {
-    document.getElementById('admin-login-view').style.display = 'none';
-    document.getElementById('admin-edit-view').style.display = '';
-    renderAdminBoothList();
-  } else {
-    toast('\uBE44\uBC00\uBC88\uD638\uAC00 \uB9DE\uC9C0 \uC54A\uC544\uC694 \uD83D\uDD12');
-    document.getElementById('admin-pw').style.borderColor = 'var(--danger)';
-    setTimeout(() => { document.getElementById('admin-pw').style.borderColor = ''; }, 2000);
+  if (!S.googleUser || !isAdminLike(S.role)) {
+    toast('\uAD00\uB9AC\uC790 \uAD8C\uD55C\uC774 \uD544\uC694\uD569\uB2C8\uB2E4');
+    return;
   }
+  enterAdminMode();
 }
 
 function changeAdminPW() {
@@ -626,9 +1011,8 @@ function changeAdminPW() {
 }
 
 function adminLogout() {
-  document.getElementById('admin-login-view').style.display = '';
-  document.getElementById('admin-edit-view').style.display = 'none';
-  goTo('screen-login');
+  if (S.student) { goTo('screen-home'); }
+  else { goTo('screen-login'); }
 }
 
 // 관리자용: 학생 QR 확인
@@ -868,16 +1252,27 @@ let pendingVerifyUUID = null;
 
 function handleVerifyMode(uuid) {
   pendingVerifyUUID = uuid;
-  document.getElementById('verify-auth').style.display = '';
-  document.getElementById('verify-result').style.display = 'none';
+  // Google 로그인 + 관리자 역할이면 비밀번호 스킵
+  if (S.googleUser && isAdminLike(S.role)) {
+    document.getElementById('verify-auth').style.display = 'none';
+    fetchVerifyData(uuid);
+  } else {
+    document.getElementById('verify-auth').style.display = '';
+    document.getElementById('verify-result').style.display = 'none';
+  }
 }
 
 function verifyAdminAuth() {
+  // \uBE44\uBC00\uBC88\uD638 \uBC29\uC2DD (\uAE30\uC874 \uD638\uD658)
   const pw = document.getElementById('verify-pw').value.trim();
   const storedHash = localStorage.getItem(ADMIN_PW_KEY);
   const pwHash = simpleHash(pw);
   const defaultMatch = pw === 'MOKPO2026';
   if ((storedHash && pwHash === storedHash) || (!storedHash && defaultMatch)) {
+    document.getElementById('verify-auth').style.display = 'none';
+    fetchVerifyData(pendingVerifyUUID);
+  } else if (S.googleUser && isAdminLike(S.role)) {
+    // Google \uB85C\uADF8\uC778 + \uAD00\uB9AC\uC790 \uC5ED\uD560\uC774\uBA74 \uBC14\uB85C \uD1B5\uACFC
     document.getElementById('verify-auth').style.display = 'none';
     fetchVerifyData(pendingVerifyUUID);
   } else {
@@ -925,6 +1320,88 @@ function fetchVerifyData(uuid) {
         <div style="font-size:12px; color:var(--text-light); text-align:center;">QR \uCF54\uB4DC\uB294 30\uCD08\uB9C8\uB2E4 \uAC31\uC2E0\uB418\uBA70, \uB77C\uC774\uBE0C \uD654\uBA74\uC5D0\uC11C\uB9CC \uC720\uD6A8\uD569\uB2C8\uB2E4.</div>
       </div>`;
   }
+}
+
+// ============================================================
+// ROLE MANAGEMENT UI (admin only)
+// ============================================================
+function renderRoleList() {
+  const roles = loadRoles();
+  renderRoleGroup('role-teacher-list', roles.teachers, 'teacher');
+  renderRoleGroup('role-studentadmin-list', roles.studentAdmins, 'studentAdmin');
+}
+
+function renderRoleGroup(elId, emails, type) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  if (!emails.length) {
+    el.innerHTML = '<div style="font-size:12px; color:var(--text-light); padding:4px 0;">등록된 사용자가 없습니다</div>';
+    return;
+  }
+  el.innerHTML = emails.map(e =>
+    `<div style="display:flex; align-items:center; justify-content:space-between; padding:6px 10px; background:var(--bg); border-radius:8px; margin-bottom:4px; font-size:13px;">
+      <span>${sanitizeHtml(e)}</span>
+      <button onclick="removeRole('${type}','${e.replace(/'/g,"\\'")}')" style="border:none; background:none; color:var(--danger); cursor:pointer; font-size:16px; padding:0 4px;">×</button>
+    </div>`
+  ).join('');
+}
+
+function addRole(type) {
+  const inputId = type === 'teacher' ? 'role-teacher-input' : 'role-studentadmin-input';
+  const email = document.getElementById(inputId).value.trim().toLowerCase();
+  if (!email || !email.includes('@')) { toast('유효한 이메일을 입력하세요'); return; }
+  if (SUPER_ADMIN_EMAILS.map(x=>x.toLowerCase()).includes(email)) { toast('슈퍼관리자는 변경할 수 없습니다'); return; }
+
+  const roles = loadRoles();
+  const key = type === 'teacher' ? 'teachers' : 'studentAdmins';
+  if (roles[key].map(x=>x.toLowerCase()).includes(email)) { toast('이미 등록된 이메일입니다'); return; }
+
+  // 중복 역할 제거
+  roles.teachers = roles.teachers.filter(e => e.toLowerCase() !== email);
+  roles.studentAdmins = roles.studentAdmins.filter(e => e.toLowerCase() !== email);
+  roles[key].push(email);
+
+  saveRoles(roles);
+  document.getElementById(inputId).value = '';
+  renderRoleList();
+  toast('역할이 추가되었습니다 ✅');
+}
+
+function removeRole(type, email) {
+  const roles = loadRoles();
+  const key = type === 'teacher' ? 'teachers' : 'studentAdmins';
+  roles[key] = roles[key].filter(e => e.toLowerCase() !== email.toLowerCase());
+  saveRoles(roles);
+  renderRoleList();
+  toast('역할이 제거되었습니다');
+}
+
+// ============================================================
+// ADMIN PHASE OVERRIDE UI
+// ============================================================
+function renderPhaseAdmin() {
+  const el = document.getElementById('admin-phase-section');
+  if (!el) return;
+  const phase = getPhase();
+  const override = localStorage.getItem('mgh_phase_override');
+  const autoPhase = (() => {
+    const today = new Date().toISOString().slice(0, 10);
+    if (today < FAIR_DATE) return 'before';
+    if (today === FAIR_DATE) return 'during';
+    return 'after';
+  })();
+
+  el.innerHTML = `
+    <div style="font-size:14px; font-weight:700; margin-bottom:10px;">📅 Phase 설정</div>
+    <div style="font-size:12px; color:var(--text-light); margin-bottom:10px;">
+      현재: <strong>${PHASE_LABELS[phase]}</strong> ${override ? '(수동)' : `(자동 — ${FAIR_DATE} 기준)`}
+    </div>
+    <div style="display:flex; flex-wrap:wrap; gap:8px;">
+      <button class="phase-btn ${!override ? 'active' : ''}" onclick="clearPhaseOverride()">🔄 자동</button>
+      <button class="phase-btn ${override==='before' ? 'active' : ''}" onclick="setPhaseOverride('before')">박람회 전</button>
+      <button class="phase-btn ${override==='during' ? 'active' : ''}" onclick="setPhaseOverride('during')">당일</button>
+      <button class="phase-btn ${override==='after' ? 'active' : ''}" onclick="setPhaseOverride('after')">이후</button>
+    </div>`;
 }
 
 // ============================================================

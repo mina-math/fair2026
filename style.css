@@ -989,3 +989,23 @@
     .verify-stat-row:last-child { border-bottom: none; }
     .verify-stamps-grid { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
     .verify-stamp-tag { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; background: var(--primary-light); color: var(--primary-dark); }
+
+    /* ===== Phase Badge ===== */
+    .phase-badge { display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:10px; margin-left:6px; vertical-align:middle; }
+    .phase-before { background:rgba(255,255,255,0.3); color:white; }
+    .phase-during { background:#FFB800; color:#fff; }
+    .phase-after { background:rgba(255,255,255,0.25); color:white; }
+
+    /* ===== Phase Admin Buttons ===== */
+    .phase-btn { border:1.5px solid var(--border); background:white; border-radius:10px; padding:8px 14px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; color:var(--text); transition:all .15s; }
+    .phase-btn:hover { border-color:var(--primary); color:var(--primary); }
+    .phase-btn.active { background:var(--primary); color:white; border-color:var(--primary); }
+
+    /* ===== Curriculum Table ===== */
+    .curriculum-table { width:100%; border-collapse:collapse; font-size:13px; margin-bottom:16px; }
+    .curriculum-table th { background:var(--primary); color:white; padding:10px 8px; text-align:left; font-weight:600; font-size:12px; }
+    .curriculum-table td { padding:10px 8px; border-bottom:1px solid var(--border); vertical-align:top; line-height:1.8; }
+    .curriculum-table tr:last-child td { border-bottom:none; }
+    .curriculum-table td:first-child { font-weight:600; white-space:nowrap; color:var(--text); }
+    .curriculum-table td:nth-child(2),
+    .curriculum-table td:nth-child(3) { text-align:center; white-space:nowrap; }

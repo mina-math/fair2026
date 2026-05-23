@@ -2,9 +2,23 @@
 // DATA
 // ============================================================
 
+// Google OAuth 2.0
+const GOOGLE_CLIENT_ID = '406986442327-jq7snp4kk8aqm67vn9c0mh5icbinpt10.apps.googleusercontent.com';
+
+// 역할 설정 — 슈퍼관리자 (변경 불가)
+const SUPER_ADMIN_EMAILS = ['tivemin@gmail.com'];
+// 기본 교사/학생관리자 (코드에서 지정, 관리자 패널에서 추가 가능)
+const DEFAULT_TEACHERS = ['galois911@gmail.com'];
+const DEFAULT_STUDENT_ADMINS = [];
+
+// 박람회 날짜 (Phase 자동 전환 기준)
+const FAIR_DATE = '2026-07-07';
+
 // 구글폼 URL (배포 전 실제 URL로 교체하세요)
 const GOOGLE_FORM_CONSULT = 'https://docs.google.com/forms/d/e/1FAIpQLSe4GFOuXYSWG3Kg3x1OIwJ9_kkijsn2WslM8ZeEv2WIyhRGEg/viewform?usp=publish-editor';  // 상담 신청 구글폼
 const GOOGLE_FORM_FEEDBACK = 'https://docs.google.com/forms/d/e/1FAIpQLSdoG1YG8JXkrKRfMa9CjLtCkTUy93cAlQVk3OwenY1trPx9dg/viewform?usp=dialog'; // 박람회 소감문 구글폼
+const GOOGLE_FORM_MENTORING = 'YOUR_GOOGLE_FORM_MENTORING_URL'; // 멘토링/진로상담 신청
+const GOOGLE_FORM_SATISFACTION = 'YOUR_GOOGLE_FORM_SATISFACTION_URL'; // 만족도 설문
 
 const BOOTHS = [
   { id:'korean',  name:'국어교과',      icon:'📖', color:'#2980B9', bg:'#EBF4FB', code:'KO01', desc:'국어 선택과목 소개 및 진로 연계 안내' },
@@ -430,3 +444,70 @@ const INFO_HTML = [
     Ⅴ. 나의 학업 설계하기</p>
   </div>`,
 ];
+
+// ============================================================
+// 편제표 HTML (교육과정 편성표)
+// ============================================================
+const CURRICULUM_G2_HTML = `
+<div class="info-card">
+  <h3>📊 2학년 교육과정 편제표 (2026입학생)</h3>
+  <div class="highlight-box"><p>현 1학년이 2학년 때 선택하게 될 과목 편성입니다.</p></div>
+
+  <h4>📅 2학년 1학기</h4>
+  <table class="curriculum-table">
+    <thead><tr><th>영역</th><th>선택 수</th><th>학점</th><th>과목</th></tr></thead>
+    <tbody>
+      <tr><td>국어·수학·영어</td><td>1과목</td><td>3</td>
+        <td><span class="badge badge-fusion">독서 토론과 글쓰기</span> <span class="badge badge-career">인공지능 수학</span> <span class="badge badge-fusion">세계 문화와 영어</span></td></tr>
+      <tr><td>사회·과학</td><td>3과목</td><td>9</td>
+        <td><span class="badge badge-general">사회와 문화</span> <span class="badge badge-general">현대사회와 윤리</span> <span class="badge badge-career">동아시아 역사 기행</span> <span class="badge badge-general">물리학</span> <span class="badge badge-general">화학</span> <span class="badge badge-general">생명과학</span> <span class="badge badge-general">지구과학</span></td></tr>
+      <tr><td>제2외국어</td><td>1과목</td><td>3</td>
+        <td><span class="badge badge-general">스페인어</span> <span class="badge badge-general">중국어</span> <span class="badge badge-general">일본어</span></td></tr>
+    </tbody>
+  </table>
+
+  <h4>📅 2학년 2학기</h4>
+  <table class="curriculum-table">
+    <thead><tr><th>영역</th><th>선택 수</th><th>학점</th><th>과목</th></tr></thead>
+    <tbody>
+      <tr><td>국어·수학·영어</td><td>1과목</td><td>3</td>
+        <td><span class="badge badge-career">문학과 영상</span> <span class="badge badge-career">기하</span> <span class="badge badge-career">영어 발표와 토론</span></td></tr>
+      <tr><td>사회·과학</td><td>3과목</td><td>9</td>
+        <td><span class="badge badge-general">세계사</span> <span class="badge badge-general">세계시민과 지리</span> <span class="badge badge-career">법과 사회</span> <span class="badge badge-career">역학과 에너지</span> <span class="badge badge-career">물질과 에너지</span> <span class="badge badge-career">세포와 물질대사</span> <span class="badge badge-career">지구시스템과학</span></td></tr>
+      <tr><td>제2외국어 심화</td><td>1과목</td><td>3</td>
+        <td><span class="badge badge-fusion">심화 스페인어</span> <span class="badge badge-fusion">심화 중국어</span> <span class="badge badge-fusion">심화 일본어</span></td></tr>
+    </tbody>
+  </table>
+</div>`;
+
+const CURRICULUM_G3_HTML = `
+<div class="info-card">
+  <h3>📊 3학년 교육과정 편제표 (2025입학생)</h3>
+  <div class="highlight-box"><p>현 2학년이 3학년 때 선택하게 될 과목 편성입니다.</p></div>
+
+  <h4>📅 3학년 1학기</h4>
+  <table class="curriculum-table">
+    <thead><tr><th>영역</th><th>선택 수</th><th>학점</th><th>과목</th></tr></thead>
+    <tbody>
+      <tr><td>국어·수학·영어</td><td>1과목</td><td>3</td>
+        <td><span class="badge badge-career">주제 탐구 독서</span> <span class="badge badge-fusion">매체 의사소통</span> <span class="badge badge-fusion">언어생활 탐구</span> <span class="badge badge-career">미적분Ⅱ</span> <span class="badge badge-fusion">수학과제 탐구</span> <span class="badge badge-career">심화 영어</span> <span class="badge badge-fusion">미디어 영어</span></td></tr>
+      <tr><td>사회·과학·기타</td><td>4과목</td><td>12</td>
+        <td><span class="badge badge-career">도시의 미래 탐구</span> <span class="badge badge-career">동아시아 역사 기행</span> <span class="badge badge-career">법과 사회</span> <span class="badge badge-career">윤리와 사상</span> <span class="badge badge-fusion">금융과 경제생활</span> <span class="badge badge-fusion">기후변화와 지속가능한 세계</span> <span class="badge badge-fusion">사회문제 탐구</span> <span class="badge badge-fusion">여행지리</span> <span class="badge badge-fusion">역사로 탐구하는 현대 세계</span> <span class="badge badge-career">물질과 에너지</span> <span class="badge badge-career">전자기와 양자</span> <span class="badge badge-career">역학과 에너지</span> <span class="badge badge-career">화학 반응의 세계</span> <span class="badge badge-career">생물의 유전</span> <span class="badge badge-career">세포와 물질대사</span> <span class="badge badge-career">지구시스템과학</span> <span class="badge badge-career">행성우주과학</span> <span class="badge badge-fusion">기후변화와 환경생태</span> <span class="badge badge-career">생활과학 탐구</span> <span class="badge badge-career">인공지능 기초</span> <span class="badge badge-fusion">중국 문화</span> <span class="badge badge-fusion">일본 문화</span></td></tr>
+      <tr><td>교양</td><td>1과목</td><td>2</td>
+        <td><span class="badge badge-career">교육의 이해</span> <span class="badge badge-career">보건</span> <span class="badge badge-career">인간과 심리</span> <span class="badge badge-general">생태와 환경</span> <span class="badge badge-fusion">논술</span> <span class="badge badge-fusion">인간과 경제활동</span></td></tr>
+    </tbody>
+  </table>
+
+  <h4>📅 3학년 2학기</h4>
+  <table class="curriculum-table">
+    <thead><tr><th>영역</th><th>선택 수</th><th>학점</th><th>과목</th></tr></thead>
+    <tbody>
+      <tr><td>국어·수학·영어</td><td>3과목</td><td>9</td>
+        <td><span class="badge badge-career">주제 탐구 독서</span> <span class="badge badge-fusion">매체 의사소통</span> <span class="badge badge-fusion">언어생활 탐구</span> <span class="badge badge-career">미적분Ⅱ</span> <span class="badge badge-fusion">수학과제 탐구</span> <span class="badge badge-career">심화 영어</span> <span class="badge badge-fusion">미디어 영어</span></td></tr>
+      <tr><td>사회·과학·기타</td><td>4과목</td><td>12</td>
+        <td><span class="badge badge-career">도시의 미래 탐구</span> <span class="badge badge-career">동아시아 역사 기행</span> <span class="badge badge-career">법과 사회</span> <span class="badge badge-career">윤리와 사상</span> <span class="badge badge-fusion">금융과 경제생활</span> <span class="badge badge-fusion">기후변화와 지속가능한 세계</span> <span class="badge badge-fusion">사회문제 탐구</span> <span class="badge badge-fusion">여행지리</span> <span class="badge badge-fusion">역사로 탐구하는 현대 세계</span> <span class="badge badge-career">물질과 에너지</span> <span class="badge badge-career">전자기와 양자</span> <span class="badge badge-career">역학과 에너지</span> <span class="badge badge-career">화학 반응의 세계</span> <span class="badge badge-career">생물의 유전</span> <span class="badge badge-career">세포와 물질대사</span> <span class="badge badge-career">지구시스템과학</span> <span class="badge badge-career">행성우주과학</span> <span class="badge badge-fusion">기후변화와 환경생태</span> <span class="badge badge-career">생활과학 탐구</span> <span class="badge badge-career">인공지능 기초</span> <span class="badge badge-fusion">중국 문화</span> <span class="badge badge-fusion">일본 문화</span></td></tr>
+      <tr><td>교양</td><td>1과목</td><td>2</td>
+        <td><span class="badge badge-career">교육의 이해</span> <span class="badge badge-career">보건</span> <span class="badge badge-career">인간과 심리</span> <span class="badge badge-general">생태와 환경</span> <span class="badge badge-fusion">논술</span> <span class="badge badge-fusion">인간과 경제활동</span></td></tr>
+    </tbody>
+  </table>
+</div>`;
