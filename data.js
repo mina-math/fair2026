@@ -21,7 +21,7 @@ const GOOGLE_FORM_MENTORING = 'YOUR_GOOGLE_FORM_MENTORING_URL'; // 멘토링/진
 const GOOGLE_FORM_SATISFACTION = 'YOUR_GOOGLE_FORM_SATISFACTION_URL'; // 만족도 설문
 
 // 2022개정교육과정 과목 네비게이션 외부 사이트
-const CURRICULUM_NAV_URL = 'YOUR_CURRICULUM_NAV_URL'; // 과목 네비게이션 사이트 주소
+const CURRICULUM_NAV_URL = 'https://jne.money3366.workers.dev/subject-navigation'; // 과목 네비게이션 사이트 주소
 
 // 과목선택 일정 (날짜 확정 후 교체하세요)
 const SCHEDULE_ITEMS = [
