@@ -728,24 +728,18 @@ function renderHomeBody(phase) {
         ${scheduleHtml}
       </div>
 
-      <!-- 2. 가이드북 다운로드 -->
-      <a href="고교학점제_가이드북.pdf" download style="text-decoration:none; display:flex; align-items:center; gap:14px; background:linear-gradient(135deg, #2DC7C0, #1A9E98); border-radius:16px; padding:18px; margin-bottom:14px; color:white; box-shadow:0 4px 14px rgba(45,199,192,0.3);">
-        <span style="font-size:36px;">📗</span>
-        <div>
-          <div style="font-size:15px; font-weight:700;">과목선택 가이드북 다운로드하기</div>
-          <div style="font-size:12px; opacity:0.85; margin-top:2px;">2022 개정교육과정과 교과목에 대해 알고싶다면 다운받아 읽어보세요.</div>
+      <!-- 2. 과목선택 가이드북 (책/웹) -->
+      <div style="background:white; border-radius:16px; padding:16px; margin-bottom:14px; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+        <div style="font-size:15px; font-weight:700; margin-bottom:4px;">📗 과목선택 가이드북</div>
+        <div style="font-size:12px; color:var(--text-light); margin-bottom:12px;">2022 개정교육과정과 교과목, 대학 및 학과 정보를 알아보세요.</div>
+        <div style="display:flex; gap:10px;">
+          <a href="고교학점제_가이드북.pdf" download style="flex:1; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:8px; background:linear-gradient(135deg, #2DC7C0, #1A9E98); color:white; border-radius:12px; padding:14px 10px; font-size:14px; font-weight:700; box-shadow:0 3px 10px rgba(45,199,192,0.3);">
+            📄 책으로 보기
+          </a>
+          <div onclick="openCurriculumNav()" style="flex:1; display:flex; align-items:center; justify-content:center; gap:8px; background:linear-gradient(135deg, #5B6AF0, #4A59D9); color:white; border-radius:12px; padding:14px 10px; font-size:14px; font-weight:700; cursor:pointer; box-shadow:0 3px 10px rgba(91,106,240,0.3);">
+            🧭 웹으로 보기
+          </div>
         </div>
-        <div style="margin-left:auto; font-size:16px;">📥</div>
-      </a>
-
-      <!-- 3. 2022개정교육과정 과목 네비게이션 -->
-      <div onclick="openCurriculumNav()" style="background:linear-gradient(135deg, #5B6AF0, #4A59D9); border-radius:16px; padding:18px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(91,106,240,0.3);">
-        <span style="font-size:36px;">🧭</span>
-        <div>
-          <div style="font-size:15px; font-weight:700;">2022 개정교육과정 과목 네비게이션</div>
-          <div style="font-size:12px; opacity:0.85; margin-top:2px;">교과별 선택과목을 한눈에 탐색하고 과목 정보를 확인할 수 있어요</div>
-        </div>
-        <div style="margin-left:auto; font-size:20px;">›</div>
       </div>
 
       <!-- 4. 편제표 -->
