@@ -1002,10 +1002,11 @@
     .phase-btn.active { background:var(--primary); color:white; border-color:var(--primary); }
 
     /* ===== Curriculum Table ===== */
-    .curriculum-table { width:100%; border-collapse:collapse; font-size:13px; margin-bottom:16px; }
-    .curriculum-table th { background:var(--primary); color:white; padding:10px 8px; text-align:left; font-weight:600; font-size:12px; }
-    .curriculum-table td { padding:10px 8px; border-bottom:1px solid var(--border); vertical-align:top; line-height:1.8; }
-    .curriculum-table tr:last-child td { border-bottom:none; }
-    .curriculum-table td:first-child { font-weight:600; white-space:nowrap; color:var(--text); }
+    .curriculum-table { width:100%; border-collapse:collapse; font-size:12px; margin-bottom:16px; border:2px solid var(--primary); border-radius:8px; overflow:hidden; }
+    .curriculum-table th { background:var(--primary); color:white; padding:10px 8px; text-align:center; font-weight:700; font-size:12px; border:1px solid rgba(255,255,255,0.3); }
+    .curriculum-table td { padding:8px; border:1px solid #e2e8f0; vertical-align:middle; line-height:1.6; background:white; }
+    .curriculum-table tr:nth-child(even) td { background:#f8fffe; }
+    .curriculum-table td:first-child { font-weight:700; white-space:nowrap; color:var(--text); text-align:center; background:#f0fffe; }
     .curriculum-table td:nth-child(2),
-    .curriculum-table td:nth-child(3) { text-align:center; white-space:nowrap; }
+    .curriculum-table td:nth-child(3) { text-align:center; white-space:nowrap; font-weight:600; }
+    .curriculum-table .badge { font-size:11px; margin:2px; display:inline-block; }

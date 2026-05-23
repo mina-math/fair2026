@@ -710,107 +710,117 @@ function renderHomeBody(phase) {
   const el = document.getElementById('home-body-content');
   if (!el) return;
 
+  const scheduleHtml = SCHEDULE_ITEMS.map((s, i) => `
+    <div style="display:flex; align-items:center; gap:12px; padding:12px 0; ${i < SCHEDULE_ITEMS.length-1 ? 'border-bottom:1px solid var(--border);' : ''}">
+      <div style="width:36px; height:36px; border-radius:50%; background:${['#2DC7C0','#5B6AF0','#FFB800'][i]}; color:white; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; flex-shrink:0;">${i+1}</div>
+      <div style="flex:1;">
+        <div style="font-size:14px; font-weight:700; color:var(--text);">${s.label}</div>
+        <div style="font-size:12px; color:var(--text-light); margin-top:2px;">${s.desc}</div>
+      </div>
+      <div style="font-size:13px; font-weight:600; color:${s.date === '일정 미정' ? 'var(--text-light)' : 'var(--primary)'}; white-space:nowrap;">${s.date}</div>
+    </div>`).join('');
+
   if (phase === 'before') {
     el.innerHTML = `
-      <div class="menu-grid">
-        <div class="menu-card" onclick="goTo('screen-info')">
-          <div class="menu-icon">📖</div>
-          <div class="menu-title">교육과정 안내</div>
-          <div class="menu-sub">고교학점제 이해하기</div>
-        </div>
-        <div class="menu-card" onclick="goTo('screen-design')">
-          <div class="menu-icon">✏️</div>
-          <div class="menu-title">과목 설계</div>
-          <div class="menu-sub">나만의 시간표</div>
-        </div>
-        <div class="menu-card" onclick="goTo('screen-curriculum')">
-          <div class="menu-icon">📊</div>
-          <div class="menu-title">편제표</div>
-          <div class="menu-sub">학년별 과목 편성</div>
-        </div>
-        <div class="menu-card" onclick="goTo('screen-info');setTimeout(()=>switchInfoTab(4),100)">
-          <div class="menu-icon">📗</div>
-          <div class="menu-title">가이드북</div>
-          <div class="menu-sub">PDF 다운로드</div>
-        </div>
+      <!-- 1. 과목선택 일정 -->
+      <div style="background:white; border-radius:16px; padding:16px; margin-bottom:14px; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+        <div style="font-size:15px; font-weight:700; margin-bottom:10px;">📅 과목선택 일정</div>
+        ${scheduleHtml}
       </div>
-      <!-- 멘토링/상담 신청 배너 -->
-      <div onclick="openMentoringForm()" style="background:linear-gradient(135deg, #6C3483, #8E44AD); border-radius:16px; padding:18px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(108,52,131,0.3);">
+
+      <!-- 2. 가이드북 다운로드 -->
+      <a href="고교학점제_가이드북.pdf" download style="text-decoration:none; display:flex; align-items:center; gap:14px; background:linear-gradient(135deg, #2DC7C0, #1A9E98); border-radius:16px; padding:18px; margin-bottom:14px; color:white; box-shadow:0 4px 14px rgba(45,199,192,0.3);">
+        <span style="font-size:36px;">📗</span>
+        <div>
+          <div style="font-size:15px; font-weight:700;">과목선택 가이드북</div>
+          <div style="font-size:12px; opacity:0.85; margin-top:2px;">2022 개정 교육과정 학업 설계 가이드북 PDF</div>
+        </div>
+        <div style="margin-left:auto; font-size:16px;">📥</div>
+      </a>
+
+      <!-- 3. 2022개정교육과정 과목 네비게이션 -->
+      <div onclick="openCurriculumNav()" style="background:linear-gradient(135deg, #5B6AF0, #4A59D9); border-radius:16px; padding:18px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(91,106,240,0.3);">
+        <span style="font-size:36px;">🧭</span>
+        <div>
+          <div style="font-size:15px; font-weight:700;">2022 개정교육과정 과목 안내</div>
+          <div style="font-size:12px; opacity:0.85; margin-top:2px;">전체 과목을 한눈에 탐색할 수 있어요</div>
+        </div>
+        <div style="margin-left:auto; font-size:20px;">›</div>
+      </div>
+
+      <!-- 4. 편제표 -->
+      <div onclick="goTo('screen-curriculum')" style="background:linear-gradient(135deg, #E67E22, #D35400); border-radius:16px; padding:18px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(230,126,34,0.3);">
+        <span style="font-size:36px;">📊</span>
+        <div>
+          <div style="font-size:15px; font-weight:700;">우리학교 편제표</div>
+          <div style="font-size:12px; opacity:0.85; margin-top:2px;">2학년·3학년 과목이 어떻게 편성되는지 확인하세요</div>
+        </div>
+        <div style="margin-left:auto; font-size:20px;">›</div>
+      </div>
+
+      <!-- 5. 과목 설계 -->
+      <div onclick="goTo('screen-design')" style="background:linear-gradient(135deg, #8E44AD, #6C3483); border-radius:16px; padding:18px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(142,68,173,0.3);">
+        <span style="font-size:36px;">✏️</span>
+        <div>
+          <div style="font-size:15px; font-weight:700;">2027학년도 나만의 과목 설계하기</div>
+          <div style="font-size:12px; opacity:0.85; margin-top:2px;">미리 연습해보세요! 과목을 선택하고 시간표를 만들어봐요</div>
+        </div>
+        <div style="margin-left:auto; font-size:20px;">›</div>
+      </div>
+
+      <!-- 6. 멘토링/상담 신청 -->
+      <div onclick="openMentoringForm()" style="background:linear-gradient(135deg, #1F618D, #2980B9); border-radius:16px; padding:18px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(31,97,141,0.3);">
         <span style="font-size:36px;">💬</span>
         <div>
-          <div style="font-size:15px; font-weight:700;">멘토링 · 진로상담 신청</div>
-          <div style="font-size:12px; opacity:0.85; margin-top:2px;">박람회 당일 선배/선생님과 1:1 상담을 원하면 미리 신청하세요</div>
+          <div style="font-size:15px; font-weight:700;">멘토링 · 상담 신청</div>
+          <div style="font-size:12px; opacity:0.85; margin-top:2px;">박람회 당일 선배/선생님과 1:1 상담을 미리 신청하세요</div>
         </div>
         <div style="margin-left:auto; font-size:20px;">›</div>
       </div>
-      <!-- 상담 신청 배너 -->
-      <div onclick="openConsultForm()" style="background:linear-gradient(135deg, #2DC7C0, #1A9E98); border-radius:16px; padding:18px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(45,199,192,0.3);">
-        <span style="font-size:36px;">🎯</span>
-        <div>
-          <div style="font-size:15px; font-weight:700;">상담 신청하기</div>
-          <div style="font-size:12px; opacity:0.85; margin-top:2px;">진로진학 상담이 필요하면 구글폼으로 신청하세요</div>
-        </div>
-        <div style="margin-left:auto; font-size:20px;">›</div>
-      </div>
+
       <div class="notice-card">
-        <div class="notice-title">📢 박람회 안내</div>
+        <div class="notice-title">📢 교육과정 박람회 안내</div>
         <div class="notice-item">
           📅 박람회 날짜: <strong>2026년 7월 7일 (화)</strong><br>
-          ✅ 미리 교육과정 안내와 가이드북을 읽어보세요<br>
-          ✅ 과목 설계에서 원하는 과목을 미리 탐색해보세요<br>
-          ✅ 멘토링/상담이 필요하면 미리 신청해두세요
+          ✅ 가이드북과 편제표를 미리 살펴보세요<br>
+          ✅ 과목 설계로 나만의 시간표를 연습해보세요<br>
+          ✅ 멘토링/상담이 필요하면 미리 신청하세요
         </div>
       </div>`;
   } else if (phase === 'during') {
     el.innerHTML = `
-      <div class="stamp-card">
-        <div class="card-title">🗂️ 스탬프 현황</div>
-        <div class="stamp-grid" id="home-stamp-grid"></div>
-      </div>
-      <div onclick="goTo('screen-myqr')" style="background:linear-gradient(135deg, var(--accent), #4A59D9); border-radius:16px; padding:16px 18px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(91,106,240,0.3);">
-        <span style="font-size:36px;">🎫</span>
+      <!-- 1. 부스 투어 -->
+      <div onclick="goTo('screen-booths')" style="background:linear-gradient(135deg, var(--primary), #1A9E98); border-radius:16px; padding:20px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(45,199,192,0.3);">
+        <span style="font-size:40px;">🗺️</span>
         <div>
-          <div style="font-size:15px; font-weight:700;">나의 참여 QR</div>
-          <div style="font-size:12px; opacity:0.85; margin-top:2px;">박람회 끝나면 선생님께 보여주세요</div>
+          <div style="font-size:16px; font-weight:700;">부스 투어</div>
+          <div style="font-size:12px; opacity:0.85; margin-top:4px;">각 교과 부스를 방문하고 과목에 대해 알아보세요</div>
         </div>
         <div style="margin-left:auto; font-size:20px;">›</div>
       </div>
-      <div class="menu-grid">
-        <div class="menu-card" onclick="goTo('screen-booths')">
-          <div class="menu-icon">🗺️</div>
-          <div class="menu-title">부스 투어</div>
-          <div class="menu-sub">QR 스탬프 찍기</div>
+
+      <!-- 2. 만족도 설문 -->
+      <div onclick="openSatisfactionForm()" style="background:linear-gradient(135deg, #5B6AF0, #4A59D9); border-radius:16px; padding:20px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(91,106,240,0.3);">
+        <span style="font-size:40px;">📊</span>
+        <div>
+          <div style="font-size:16px; font-weight:700;">만족도 설문조사</div>
+          <div style="font-size:12px; opacity:0.85; margin-top:4px;">박람회에 대한 소중한 의견을 남겨주세요</div>
         </div>
-        <div class="menu-card" onclick="goTo('screen-info')">
-          <div class="menu-icon">📖</div>
-          <div class="menu-title">교육과정 안내</div>
-          <div class="menu-sub">고교학점제</div>
-        </div>
-        <div class="menu-card" onclick="goTo('screen-design')">
-          <div class="menu-icon">✏️</div>
-          <div class="menu-title">과목 설계</div>
-          <div class="menu-sub">나만의 시간표</div>
-        </div>
-        <div class="menu-card" onclick="goTo('screen-forms')">
-          <div class="menu-icon">📋</div>
-          <div class="menu-title">신청 · 소감</div>
-          <div class="menu-sub">상담신청 · 소감문</div>
-        </div>
+        <div style="margin-left:auto; font-size:20px;">›</div>
       </div>
+
       <div class="notice-card">
         <div class="notice-title">📢 오늘 박람회 이용 안내</div>
         <div class="notice-item">
-          ✅ 각 부스를 방문하고 QR 코드를 스캔하세요<br>
-          ✅ 퀴즈를 풀면 스탬프를 획득할 수 있어요<br>
-          ✅ 과목 설계 후 결과를 캡처해 두세요<br>
-          ✅ 상담이 필요하면 구글폼으로 신청하세요<br>
-          ✅ 박람회 끝나면 참여 QR을 선생님께 보여주세요 🎫
+          ✅ 각 부스를 방문하고 과목에 대해 알아보세요<br>
+          ✅ 리플렛에 스탬프를 꼭 찍어주세요<br>
+          ✅ 박람회가 끝나면 만족도 설문을 작성해주세요
         </div>
       </div>`;
   } else {
     // after
     el.innerHTML = `
-      <!-- 소감문 -->
+      <!-- 1. 소감문 작성 -->
       <div onclick="openFeedbackForm()" style="background:linear-gradient(135deg, #2DC7C0, #1A9E98); border-radius:16px; padding:20px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(45,199,192,0.3);">
         <span style="font-size:40px;">✍️</span>
         <div>
@@ -819,33 +829,19 @@ function renderHomeBody(phase) {
         </div>
         <div style="margin-left:auto; font-size:20px;">›</div>
       </div>
-      <!-- 만족도 설문 -->
-      <div onclick="openSatisfactionForm()" style="background:linear-gradient(135deg, #5B6AF0, #4A59D9); border-radius:16px; padding:20px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(91,106,240,0.3);">
-        <span style="font-size:40px;">📊</span>
-        <div>
-          <div style="font-size:16px; font-weight:700;">만족도 설문</div>
-          <div style="font-size:12px; opacity:0.85; margin-top:4px;">박람회 개선을 위해<br>소중한 의견을 남겨주세요</div>
-        </div>
-        <div style="margin-left:auto; font-size:20px;">›</div>
+
+      <!-- 2. 과목선택 일정 재강조 -->
+      <div style="background:white; border-radius:16px; padding:16px; margin-bottom:14px; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+        <div style="font-size:15px; font-weight:700; margin-bottom:4px;">📅 앞으로의 과목선택 일정</div>
+        <div style="font-size:12px; color:var(--text-light); margin-bottom:10px;">아래 일정에 따라 과목선택이 진행됩니다. 꼭 확인하세요!</div>
+        ${scheduleHtml}
       </div>
-      <!-- 과목 설계 (읽기전용) -->
-      <div class="menu-grid">
-        <div class="menu-card" onclick="goTo('screen-design')">
-          <div class="menu-icon">✏️</div>
-          <div class="menu-title">과목 설계</div>
-          <div class="menu-sub">내가 선택한 과목 보기</div>
-        </div>
-        <div class="menu-card" onclick="goTo('screen-info')">
-          <div class="menu-icon">📖</div>
-          <div class="menu-title">교육과정 안내</div>
-          <div class="menu-sub">고교학점제</div>
-        </div>
-      </div>
+
       <div class="notice-card">
         <div class="notice-title">📢 박람회가 종료되었습니다</div>
         <div class="notice-item">
-          ✅ 소감문과 만족도 설문을 꼭 작성해주세요<br>
-          ✅ 과목 설계 내용은 열람할 수 있어요<br>
+          ✅ 소감문을 꼭 작성해주세요<br>
+          ✅ 과목선택 일정을 확인하고 준비하세요<br>
           ✅ 참여해주셔서 감사합니다! 🎉
         </div>
       </div>`;
@@ -859,20 +855,15 @@ function renderHomeNav(phase) {
   if (phase === 'before') {
     nav.innerHTML = `
       <button class="nav-item active" onclick="goTo('screen-home')"><span class="nav-icon">🏠</span>홈</button>
-      <button class="nav-item" onclick="goTo('screen-info')"><span class="nav-icon">📖</span>교육과정</button>
-      <button class="nav-item" onclick="goTo('screen-design')"><span class="nav-icon">✏️</span>과목설계</button>
-      <button class="nav-item" onclick="goTo('screen-curriculum')"><span class="nav-icon">📊</span>편제표</button>`;
+      <button class="nav-item" onclick="goTo('screen-curriculum')"><span class="nav-icon">📊</span>편제표</button>
+      <button class="nav-item" onclick="goTo('screen-design')"><span class="nav-icon">✏️</span>과목설계</button>`;
   } else if (phase === 'during') {
     nav.innerHTML = `
       <button class="nav-item active" onclick="goTo('screen-home')"><span class="nav-icon">🏠</span>홈</button>
-      <button class="nav-item" onclick="goTo('screen-booths')"><span class="nav-icon">🗺️</span>부스투어</button>
-      <button class="nav-item" onclick="goTo('screen-design')"><span class="nav-icon">✏️</span>과목설계</button>
-      <button class="nav-item" onclick="goTo('screen-forms')"><span class="nav-icon">📋</span>신청·소감</button>`;
+      <button class="nav-item" onclick="goTo('screen-booths')"><span class="nav-icon">🗺️</span>부스투어</button>`;
   } else {
     nav.innerHTML = `
-      <button class="nav-item active" onclick="goTo('screen-home')"><span class="nav-icon">🏠</span>홈</button>
-      <button class="nav-item" onclick="goTo('screen-design')"><span class="nav-icon">✏️</span>과목설계</button>
-      <button class="nav-item" onclick="goTo('screen-info')"><span class="nav-icon">📖</span>교육과정</button>`;
+      <button class="nav-item active" onclick="goTo('screen-home')"><span class="nav-icon">🏠</span>홈</button>`;
   }
 }
 
@@ -915,6 +906,14 @@ function openFeedbackForm() {
     return;
   }
   window.open(GOOGLE_FORM_FEEDBACK, '_blank');
+}
+
+function openCurriculumNav() {
+  if (CURRICULUM_NAV_URL === 'YOUR_CURRICULUM_NAV_URL') {
+    toast('과목 네비게이션 사이트 URL이 아직 설정되지 않았어요');
+    return;
+  }
+  window.open(CURRICULUM_NAV_URL, '_blank');
 }
 
 function openMentoringForm() {

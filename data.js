@@ -20,6 +20,16 @@ const GOOGLE_FORM_FEEDBACK = 'https://docs.google.com/forms/d/e/1FAIpQLSdoG1YG8J
 const GOOGLE_FORM_MENTORING = 'YOUR_GOOGLE_FORM_MENTORING_URL'; // 멘토링/진로상담 신청
 const GOOGLE_FORM_SATISFACTION = 'YOUR_GOOGLE_FORM_SATISFACTION_URL'; // 만족도 설문
 
+// 2022개정교육과정 과목 네비게이션 외부 사이트
+const CURRICULUM_NAV_URL = 'YOUR_CURRICULUM_NAV_URL'; // 과목 네비게이션 사이트 주소
+
+// 과목선택 일정 (날짜 확정 후 교체하세요)
+const SCHEDULE_ITEMS = [
+  { label: '1차 수요조사', date: '일정 미정', desc: '희망 과목 수요 조사' },
+  { label: '2차 과목선택', date: '일정 미정', desc: '본 과목 선택' },
+  { label: '3차 과목선택', date: '일정 미정', desc: '최종 과목 확정' },
+];
+
 const BOOTHS = [
   { id:'korean',  name:'국어교과',      icon:'📖', color:'#2980B9', bg:'#EBF4FB', code:'KO01', desc:'국어 선택과목 소개 및 진로 연계 안내' },
   { id:'math',    name:'수학교과',      icon:'📐', color:'#8E44AD', bg:'#F5EEF8', code:'MA02', desc:'수학 선택과목 소개 및 계열별 추천 안내' },
@@ -450,64 +460,108 @@ const INFO_HTML = [
 // ============================================================
 const CURRICULUM_G2_HTML = `
 <div class="info-card">
-  <h3>📊 2학년 교육과정 편제표 (2026입학생)</h3>
-  <div class="highlight-box"><p>현 1학년이 2학년 때 선택하게 될 과목 편성입니다.</p></div>
+  <h3>📊 2학년 교육과정 편제표</h3>
+  <div class="highlight-box"><p>현 1학년(2026입학생)이 <strong>2학년</strong> 때 선택하게 될 과목입니다.</p></div>
 
   <h4>📅 2학년 1학기</h4>
   <table class="curriculum-table">
-    <thead><tr><th>영역</th><th>선택 수</th><th>학점</th><th>과목</th></tr></thead>
+    <thead><tr><th>선택 영역</th><th>선택</th><th>학점</th><th>선택 가능 과목</th></tr></thead>
     <tbody>
-      <tr><td>국어·수학·영어</td><td>1과목</td><td>3</td>
-        <td><span class="badge badge-fusion">독서 토론과 글쓰기</span> <span class="badge badge-career">인공지능 수학</span> <span class="badge badge-fusion">세계 문화와 영어</span></td></tr>
-      <tr><td>사회·과학</td><td>3과목</td><td>9</td>
-        <td><span class="badge badge-general">사회와 문화</span> <span class="badge badge-general">현대사회와 윤리</span> <span class="badge badge-career">동아시아 역사 기행</span> <span class="badge badge-general">물리학</span> <span class="badge badge-general">화학</span> <span class="badge badge-general">생명과학</span> <span class="badge badge-general">지구과학</span></td></tr>
-      <tr><td>제2외국어</td><td>1과목</td><td>3</td>
-        <td><span class="badge badge-general">스페인어</span> <span class="badge badge-general">중국어</span> <span class="badge badge-general">일본어</span></td></tr>
+      <tr>
+        <td>국어·수학<br>·영어</td><td>1</td><td>3</td>
+        <td>독서 토론과 글쓰기<sub style="color:#8E44AD"> 융합</sub> / 인공지능 수학<sub style="color:#6C3483"> 진로</sub> / 세계 문화와 영어<sub style="color:#8E44AD"> 융합</sub></td>
+      </tr>
+      <tr>
+        <td>사회·과학</td><td>3</td><td>9</td>
+        <td>사회와 문화<sub style="color:#2980B9"> 일반</sub> / 현대사회와 윤리<sub style="color:#2980B9"> 일반</sub> / 동아시아 역사 기행<sub style="color:#6C3483"> 진로</sub><br>물리학<sub style="color:#2980B9"> 일반</sub> / 화학<sub style="color:#2980B9"> 일반</sub> / 생명과학<sub style="color:#2980B9"> 일반</sub> / 지구과학<sub style="color:#2980B9"> 일반</sub></td>
+      </tr>
+      <tr>
+        <td>제2외국어</td><td>1</td><td>3</td>
+        <td>스페인어<sub style="color:#2980B9"> 일반</sub> / 중국어<sub style="color:#2980B9"> 일반</sub> / 일본어<sub style="color:#2980B9"> 일반</sub></td>
+      </tr>
     </tbody>
   </table>
 
   <h4>📅 2학년 2학기</h4>
   <table class="curriculum-table">
-    <thead><tr><th>영역</th><th>선택 수</th><th>학점</th><th>과목</th></tr></thead>
+    <thead><tr><th>선택 영역</th><th>선택</th><th>학점</th><th>선택 가능 과목</th></tr></thead>
     <tbody>
-      <tr><td>국어·수학·영어</td><td>1과목</td><td>3</td>
-        <td><span class="badge badge-career">문학과 영상</span> <span class="badge badge-career">기하</span> <span class="badge badge-career">영어 발표와 토론</span></td></tr>
-      <tr><td>사회·과학</td><td>3과목</td><td>9</td>
-        <td><span class="badge badge-general">세계사</span> <span class="badge badge-general">세계시민과 지리</span> <span class="badge badge-career">법과 사회</span> <span class="badge badge-career">역학과 에너지</span> <span class="badge badge-career">물질과 에너지</span> <span class="badge badge-career">세포와 물질대사</span> <span class="badge badge-career">지구시스템과학</span></td></tr>
-      <tr><td>제2외국어 심화</td><td>1과목</td><td>3</td>
-        <td><span class="badge badge-fusion">심화 스페인어</span> <span class="badge badge-fusion">심화 중국어</span> <span class="badge badge-fusion">심화 일본어</span></td></tr>
+      <tr>
+        <td>국어·수학<br>·영어</td><td>1</td><td>3</td>
+        <td>문학과 영상<sub style="color:#6C3483"> 진로</sub> / 기하<sub style="color:#6C3483"> 진로</sub> / 영어 발표와 토론<sub style="color:#6C3483"> 진로</sub></td>
+      </tr>
+      <tr>
+        <td>사회·과학</td><td>3</td><td>9</td>
+        <td>세계사<sub style="color:#2980B9"> 일반</sub> / 세계시민과 지리<sub style="color:#2980B9"> 일반</sub> / 법과 사회<sub style="color:#6C3483"> 진로</sub><br>역학과 에너지<sub style="color:#6C3483"> 진로</sub> / 물질과 에너지<sub style="color:#6C3483"> 진로</sub> / 세포와 물질대사<sub style="color:#6C3483"> 진로</sub> / 지구시스템과학<sub style="color:#6C3483"> 진로</sub></td>
+      </tr>
+      <tr>
+        <td>제2외국어<br>심화</td><td>1</td><td>3</td>
+        <td>심화 스페인어<sub style="color:#8E44AD"> 융합</sub> / 심화 중국어<sub style="color:#8E44AD"> 융합</sub> / 심화 일본어<sub style="color:#8E44AD"> 융합</sub></td>
+      </tr>
     </tbody>
   </table>
+
+  <div style="font-size:11px; color:var(--text-light); padding:6px 0;">
+    <span style="color:#2980B9;">■ 일반선택</span> &nbsp;
+    <span style="color:#6C3483;">■ 진로선택</span> &nbsp;
+    <span style="color:#8E44AD;">■ 융합선택</span>
+  </div>
 </div>`;
 
 const CURRICULUM_G3_HTML = `
 <div class="info-card">
-  <h3>📊 3학년 교육과정 편제표 (2025입학생)</h3>
-  <div class="highlight-box"><p>현 2학년이 3학년 때 선택하게 될 과목 편성입니다.</p></div>
+  <h3>📊 3학년 교육과정 편제표</h3>
+  <div class="highlight-box"><p>현 2학년(2025입학생)이 <strong>3학년</strong> 때 선택하게 될 과목입니다.</p></div>
 
   <h4>📅 3학년 1학기</h4>
   <table class="curriculum-table">
-    <thead><tr><th>영역</th><th>선택 수</th><th>학점</th><th>과목</th></tr></thead>
+    <thead><tr><th>선택 영역</th><th>선택</th><th>학점</th><th>선택 가능 과목</th></tr></thead>
     <tbody>
-      <tr><td>국어·수학·영어</td><td>1과목</td><td>3</td>
-        <td><span class="badge badge-career">주제 탐구 독서</span> <span class="badge badge-fusion">매체 의사소통</span> <span class="badge badge-fusion">언어생활 탐구</span> <span class="badge badge-career">미적분Ⅱ</span> <span class="badge badge-fusion">수학과제 탐구</span> <span class="badge badge-career">심화 영어</span> <span class="badge badge-fusion">미디어 영어</span></td></tr>
-      <tr><td>사회·과학·기타</td><td>4과목</td><td>12</td>
-        <td><span class="badge badge-career">도시의 미래 탐구</span> <span class="badge badge-career">동아시아 역사 기행</span> <span class="badge badge-career">법과 사회</span> <span class="badge badge-career">윤리와 사상</span> <span class="badge badge-fusion">금융과 경제생활</span> <span class="badge badge-fusion">기후변화와 지속가능한 세계</span> <span class="badge badge-fusion">사회문제 탐구</span> <span class="badge badge-fusion">여행지리</span> <span class="badge badge-fusion">역사로 탐구하는 현대 세계</span> <span class="badge badge-career">물질과 에너지</span> <span class="badge badge-career">전자기와 양자</span> <span class="badge badge-career">역학과 에너지</span> <span class="badge badge-career">화학 반응의 세계</span> <span class="badge badge-career">생물의 유전</span> <span class="badge badge-career">세포와 물질대사</span> <span class="badge badge-career">지구시스템과학</span> <span class="badge badge-career">행성우주과학</span> <span class="badge badge-fusion">기후변화와 환경생태</span> <span class="badge badge-career">생활과학 탐구</span> <span class="badge badge-career">인공지능 기초</span> <span class="badge badge-fusion">중국 문화</span> <span class="badge badge-fusion">일본 문화</span></td></tr>
-      <tr><td>교양</td><td>1과목</td><td>2</td>
-        <td><span class="badge badge-career">교육의 이해</span> <span class="badge badge-career">보건</span> <span class="badge badge-career">인간과 심리</span> <span class="badge badge-general">생태와 환경</span> <span class="badge badge-fusion">논술</span> <span class="badge badge-fusion">인간과 경제활동</span></td></tr>
+      <tr>
+        <td>국어·수학<br>·영어</td><td>1</td><td>3</td>
+        <td>주제 탐구 독서<sub style="color:#6C3483"> 진로</sub> / 매체 의사소통<sub style="color:#8E44AD"> 융합</sub> / 언어생활 탐구<sub style="color:#8E44AD"> 융합</sub><br>미적분Ⅱ<sub style="color:#6C3483"> 진로</sub> / 수학과제 탐구<sub style="color:#8E44AD"> 융합</sub> / 심화 영어<sub style="color:#6C3483"> 진로</sub> / 미디어 영어<sub style="color:#8E44AD"> 융합</sub></td>
+      </tr>
+      <tr>
+        <td>사회·과학<br>·기타</td><td>4</td><td>12</td>
+        <td>
+          <strong style="font-size:11px; color:var(--text-light);">사회:</strong> 도시의 미래 탐구<sub style="color:#6C3483"> 진로</sub> / 동아시아 역사 기행<sub style="color:#6C3483"> 진로</sub> / 법과 사회<sub style="color:#6C3483"> 진로</sub> / 윤리와 사상<sub style="color:#6C3483"> 진로</sub> / 금융과 경제생활<sub style="color:#8E44AD"> 융합</sub> / 기후변화와 지속가능한 세계<sub style="color:#8E44AD"> 융합</sub> / 사회문제 탐구<sub style="color:#8E44AD"> 융합</sub> / 여행지리<sub style="color:#8E44AD"> 융합</sub> / 역사로 탐구하는 현대 세계<sub style="color:#8E44AD"> 융합</sub><br>
+          <strong style="font-size:11px; color:var(--text-light);">과학:</strong> 물질과 에너지<sub style="color:#6C3483"> 진로</sub> / 전자기와 양자<sub style="color:#6C3483"> 진로</sub> / 역학과 에너지<sub style="color:#6C3483"> 진로</sub> / 화학 반응의 세계<sub style="color:#6C3483"> 진로</sub> / 생물의 유전<sub style="color:#6C3483"> 진로</sub> / 세포와 물질대사<sub style="color:#6C3483"> 진로</sub> / 지구시스템과학<sub style="color:#6C3483"> 진로</sub> / 행성우주과학<sub style="color:#6C3483"> 진로</sub> / 기후변화와 환경생태<sub style="color:#8E44AD"> 융합</sub><br>
+          <strong style="font-size:11px; color:var(--text-light);">기타:</strong> 생활과학 탐구<sub style="color:#6C3483"> 진로</sub> / 인공지능 기초<sub style="color:#6C3483"> 진로</sub> / 중국 문화<sub style="color:#8E44AD"> 융합</sub> / 일본 문화<sub style="color:#8E44AD"> 융합</sub>
+        </td>
+      </tr>
+      <tr>
+        <td>교양</td><td>1</td><td>2</td>
+        <td>교육의 이해<sub style="color:#6C3483"> 진로</sub> / 보건<sub style="color:#6C3483"> 진로</sub> / 인간과 심리<sub style="color:#6C3483"> 진로</sub> / 생태와 환경<sub style="color:#2980B9"> 일반</sub> / 논술<sub style="color:#8E44AD"> 융합</sub> / 인간과 경제활동<sub style="color:#8E44AD"> 융합</sub></td>
+      </tr>
     </tbody>
   </table>
 
   <h4>📅 3학년 2학기</h4>
   <table class="curriculum-table">
-    <thead><tr><th>영역</th><th>선택 수</th><th>학점</th><th>과목</th></tr></thead>
+    <thead><tr><th>선택 영역</th><th>선택</th><th>학점</th><th>선택 가능 과목</th></tr></thead>
     <tbody>
-      <tr><td>국어·수학·영어</td><td>3과목</td><td>9</td>
-        <td><span class="badge badge-career">주제 탐구 독서</span> <span class="badge badge-fusion">매체 의사소통</span> <span class="badge badge-fusion">언어생활 탐구</span> <span class="badge badge-career">미적분Ⅱ</span> <span class="badge badge-fusion">수학과제 탐구</span> <span class="badge badge-career">심화 영어</span> <span class="badge badge-fusion">미디어 영어</span></td></tr>
-      <tr><td>사회·과학·기타</td><td>4과목</td><td>12</td>
-        <td><span class="badge badge-career">도시의 미래 탐구</span> <span class="badge badge-career">동아시아 역사 기행</span> <span class="badge badge-career">법과 사회</span> <span class="badge badge-career">윤리와 사상</span> <span class="badge badge-fusion">금융과 경제생활</span> <span class="badge badge-fusion">기후변화와 지속가능한 세계</span> <span class="badge badge-fusion">사회문제 탐구</span> <span class="badge badge-fusion">여행지리</span> <span class="badge badge-fusion">역사로 탐구하는 현대 세계</span> <span class="badge badge-career">물질과 에너지</span> <span class="badge badge-career">전자기와 양자</span> <span class="badge badge-career">역학과 에너지</span> <span class="badge badge-career">화학 반응의 세계</span> <span class="badge badge-career">생물의 유전</span> <span class="badge badge-career">세포와 물질대사</span> <span class="badge badge-career">지구시스템과학</span> <span class="badge badge-career">행성우주과학</span> <span class="badge badge-fusion">기후변화와 환경생태</span> <span class="badge badge-career">생활과학 탐구</span> <span class="badge badge-career">인공지능 기초</span> <span class="badge badge-fusion">중국 문화</span> <span class="badge badge-fusion">일본 문화</span></td></tr>
-      <tr><td>교양</td><td>1과목</td><td>2</td>
-        <td><span class="badge badge-career">교육의 이해</span> <span class="badge badge-career">보건</span> <span class="badge badge-career">인간과 심리</span> <span class="badge badge-general">생태와 환경</span> <span class="badge badge-fusion">논술</span> <span class="badge badge-fusion">인간과 경제활동</span></td></tr>
+      <tr>
+        <td>국어·수학<br>·영어</td><td>3</td><td>9</td>
+        <td>주제 탐구 독서<sub style="color:#6C3483"> 진로</sub> / 매체 의사소통<sub style="color:#8E44AD"> 융합</sub> / 언어생활 탐구<sub style="color:#8E44AD"> 융합</sub><br>미적분Ⅱ<sub style="color:#6C3483"> 진로</sub> / 수학과제 탐구<sub style="color:#8E44AD"> 융합</sub> / 심화 영어<sub style="color:#6C3483"> 진로</sub> / 미디어 영어<sub style="color:#8E44AD"> 융합</sub></td>
+      </tr>
+      <tr>
+        <td>사회·과학<br>·기타</td><td>4</td><td>12</td>
+        <td>
+          <strong style="font-size:11px; color:var(--text-light);">사회:</strong> 도시의 미래 탐구<sub style="color:#6C3483"> 진로</sub> / 동아시아 역사 기행<sub style="color:#6C3483"> 진로</sub> / 법과 사회<sub style="color:#6C3483"> 진로</sub> / 윤리와 사상<sub style="color:#6C3483"> 진로</sub> / 금융과 경제생활<sub style="color:#8E44AD"> 융합</sub> / 기후변화와 지속가능한 세계<sub style="color:#8E44AD"> 융합</sub> / 사회문제 탐구<sub style="color:#8E44AD"> 융합</sub> / 여행지리<sub style="color:#8E44AD"> 융합</sub> / 역사로 탐구하는 현대 세계<sub style="color:#8E44AD"> 융합</sub><br>
+          <strong style="font-size:11px; color:var(--text-light);">과학:</strong> 물질과 에너지<sub style="color:#6C3483"> 진로</sub> / 전자기와 양자<sub style="color:#6C3483"> 진로</sub> / 역학과 에너지<sub style="color:#6C3483"> 진로</sub> / 화학 반응의 세계<sub style="color:#6C3483"> 진로</sub> / 생물의 유전<sub style="color:#6C3483"> 진로</sub> / 세포와 물질대사<sub style="color:#6C3483"> 진로</sub> / 지구시스템과학<sub style="color:#6C3483"> 진로</sub> / 행성우주과학<sub style="color:#6C3483"> 진로</sub> / 기후변화와 환경생태<sub style="color:#8E44AD"> 융합</sub><br>
+          <strong style="font-size:11px; color:var(--text-light);">기타:</strong> 생활과학 탐구<sub style="color:#6C3483"> 진로</sub> / 인공지능 기초<sub style="color:#6C3483"> 진로</sub> / 중국 문화<sub style="color:#8E44AD"> 융합</sub> / 일본 문화<sub style="color:#8E44AD"> 융합</sub>
+        </td>
+      </tr>
+      <tr>
+        <td>교양</td><td>1</td><td>2</td>
+        <td>교육의 이해<sub style="color:#6C3483"> 진로</sub> / 보건<sub style="color:#6C3483"> 진로</sub> / 인간과 심리<sub style="color:#6C3483"> 진로</sub> / 생태와 환경<sub style="color:#2980B9"> 일반</sub> / 논술<sub style="color:#8E44AD"> 융합</sub> / 인간과 경제활동<sub style="color:#8E44AD"> 융합</sub></td>
+      </tr>
     </tbody>
   </table>
+
+  <div style="font-size:11px; color:var(--text-light); padding:6px 0;">
+    <span style="color:#2980B9;">■ 일반선택</span> &nbsp;
+    <span style="color:#6C3483;">■ 진로선택</span> &nbsp;
+    <span style="color:#8E44AD;">■ 융합선택</span>
+  </div>
 </div>`;
