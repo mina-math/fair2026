@@ -25,9 +25,9 @@ const CURRICULUM_NAV_URL = 'https://jne.money3366.workers.dev/subject-navigation
 
 // 과목선택 일정 (날짜 확정 후 교체하세요)
 const SCHEDULE_ITEMS = [
-  { label: '1차 수요조사', date: '일정 미정', desc: '희망 과목 수요 조사' },
-  { label: '2차 과목선택', date: '일정 미정', desc: '본 과목 선택' },
-  { label: '3차 과목선택', date: '일정 미정', desc: '최종 과목 확정' },
+  { label: '1차 과목 수요조사', date: '6/17(수)~6/21(일)', desc: '희망 과목 수요 조사' },
+  { label: '2차 교육과정 선택', date: '7/13(월)~7/15(수)', desc: '학생 교육과정 선택' },
+  { label: '3차 교육과정 선택', date: '8/21(금)~8/25(화)', desc: '최종 교육과정 선택' },
 ];
 
 const BOOTHS = [
