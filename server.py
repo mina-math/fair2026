@@ -1,13 +1,26 @@
 import os
 import json
 import httpx
+import google.auth
+import google.auth.transport.requests
 from flask import Flask, request, jsonify, send_from_directory
 
 app = Flask(__name__, static_folder='.', static_url_path='')
 
-ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY', '')
-CLAUDE_MODEL = 'claude-haiku-4-5-20251001'
-API_URL = 'https://api.anthropic.com/v1/messages'
+GCP_PROJECT = os.environ.get('GCP_PROJECT', 'project-be92e7ab-8e6e-4384-a78')
+VERTEX_REGION = 'us-east5'
+CLAUDE_MODEL = 'claude-3-5-haiku@20241022'
+API_URL = f'https://{VERTEX_REGION}-aiplatform.googleapis.com/v1/projects/{GCP_PROJECT}/locations/{VERTEX_REGION}/publishers/anthropic/models/{CLAUDE_MODEL}:rawPredict'
+
+_credentials = None
+
+def get_access_token():
+    global _credentials
+    if _credentials is None:
+        _credentials, _ = google.auth.default()
+    auth_req = google.auth.transport.requests.Request()
+    _credentials.refresh(auth_req)
+    return _credentials.token
 
 SYSTEM_PROMPT = """너는 목포여자고등학교 교육과정 박람회 안내 챗봇 "풍백이"야.
 학생들의 교육과정, 과목선택, 편제표, 박람회 관련 질문에 친절하고 정확하게 답변해줘.
@@ -80,9 +93,6 @@ def static_files(filename):
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
-    if not ANTHROPIC_API_KEY:
-        return jsonify({'answer': '챗봇 API가 아직 설정되지 않았어요. 관리자에게 문의해주세요!'}), 200
-
     data = request.get_json()
     user_msg = data.get('message', '').strip()
     history = data.get('history', [])
@@ -96,15 +106,15 @@ def chat():
     messages.append({'role': 'user', 'content': user_msg})
 
     try:
+        token = get_access_token()
         resp = httpx.post(
             API_URL,
             headers={
-                'x-api-key': ANTHROPIC_API_KEY,
-                'anthropic-version': '2023-06-01',
-                'content-type': 'application/json',
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json',
             },
             json={
-                'model': CLAUDE_MODEL,
+                'anthropic_version': 'vertex-2023-10-16',
                 'max_tokens': 512,
                 'system': SYSTEM_PROMPT,
                 'messages': messages,
