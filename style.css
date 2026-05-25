@@ -236,7 +236,7 @@
       width: 160px;
       height: 160px;
       background: url('logo.png') center/contain no-repeat;
-      opacity: 0.1;
+      opacity: 0.15;
       pointer-events: none;
     }
     .home-hero::after {
@@ -556,10 +556,10 @@
     .info-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
     .info-table tr:nth-child(even) td { background: #f5f8fd; }
     .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; margin: 2px; }
-    .badge-common { background: #e8f4fd; color: #2980b9; }
-    .badge-general { background: #fff3e0; color: #e67e22; }
-    .badge-career { background: #f3e5f5; color: #8e44ad; }
-    .badge-fusion { background: #e8f5e9; color: #27ae60; }
+    .badge-common { background: #E3F2FD; color: #1565C0; }
+    .badge-general { background: #E3F2FD; color: #1565C0; }
+    .badge-career { background: #FFEBEE; color: #C62828; }
+    .badge-fusion { background: #FFF8E1; color: #B8922E; }
 
     /* ===========================
        SCREEN 7: COURSE DESIGN
@@ -637,11 +637,11 @@
       font-family: inherit;
     }
     .chip:active { transform: scale(0.95); }
-    .chip.type-career { border-color: #c9b1e0; }
-    .chip.type-fusion { border-color: #a8d5b0; }
+    .chip.type-career { border-color: #FFCDD2; }
+    .chip.type-fusion { border-color: #FFE082; }
     .chip.selected { background: var(--primary-light); border-color: var(--primary); color: var(--primary-dark); }
-    .chip.type-career.selected { background: rgba(142,68,173,0.1); border-color: #8e44ad; color: #6c3483; }
-    .chip.type-fusion.selected { background: rgba(39,174,96,0.1); border-color: #27ae60; color: #1e8449; }
+    .chip.type-career.selected { background: rgba(198,40,40,0.1); border-color: #C62828; color: #B71C1C; }
+    .chip.type-fusion.selected { background: rgba(212,168,67,0.1); border-color: #D4A843; color: #B8922E; }
     .type-dot { font-size: 9px; opacity: 0.65; margin-left: 2px; }
     .design-summary-card {
       background: white;
@@ -1094,7 +1094,7 @@
       transform: translateX(-50%);
       width: 100%;
       max-width: 430px;
-      height: 75vh;
+      height: 60vh;
       background: white;
       border-radius: 20px 20px 0 0;
       box-shadow: 0 -4px 30px rgba(0,0,0,0.15);
