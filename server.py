@@ -1,26 +1,13 @@
 import os
 import json
 import httpx
-import google.auth
-import google.auth.transport.requests
 from flask import Flask, request, jsonify, send_from_directory
 
 app = Flask(__name__, static_folder='.', static_url_path='')
 
-GCP_PROJECT = os.environ.get('GCP_PROJECT', 'project-be92e7ab-8e6e-4384-a78')
-VERTEX_REGION = 'us-east5'
-CLAUDE_MODEL = 'claude-3-5-haiku@20241022'
-API_URL = f'https://{VERTEX_REGION}-aiplatform.googleapis.com/v1/projects/{GCP_PROJECT}/locations/{VERTEX_REGION}/publishers/anthropic/models/{CLAUDE_MODEL}:rawPredict'
-
-_credentials = None
-
-def get_access_token():
-    global _credentials
-    if _credentials is None:
-        _credentials, _ = google.auth.default()
-    auth_req = google.auth.transport.requests.Request()
-    _credentials.refresh(auth_req)
-    return _credentials.token
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
+GEMINI_MODEL = 'gemini-2.5-flash'
+API_URL = f'https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent'
 
 SYSTEM_PROMPT = """너는 목포여자고등학교 교육과정 박람회 안내 챗봇 "풍백이"야.
 학생들의 교육과정, 과목선택, 편제표, 박람회 관련 질문에 친절하고 정확하게 답변해줘.
@@ -93,6 +80,9 @@ def static_files(filename):
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
+    if not GEMINI_API_KEY:
+        return jsonify({'answer': '챗봇 API가 아직 설정되지 않았어요. 관리자에게 문의해주세요!'}), 200
+
     data = request.get_json()
     user_msg = data.get('message', '').strip()
     history = data.get('history', [])
@@ -100,30 +90,29 @@ def chat():
     if not user_msg or len(user_msg) > 500:
         return jsonify({'answer': '메시지를 입력해주세요 (최대 500자)'}), 200
 
-    messages = []
+    contents = []
     for h in history[-6:]:
-        messages.append({'role': h['role'], 'content': h['content']})
-    messages.append({'role': 'user', 'content': user_msg})
+        role = 'model' if h['role'] == 'assistant' else 'user'
+        contents.append({'role': role, 'parts': [{'text': h['content']}]})
+    contents.append({'role': 'user', 'parts': [{'text': user_msg}]})
 
     try:
-        token = get_access_token()
         resp = httpx.post(
-            API_URL,
-            headers={
-                'Authorization': f'Bearer {token}',
-                'Content-Type': 'application/json',
-            },
+            f'{API_URL}?key={GEMINI_API_KEY}',
+            headers={'Content-Type': 'application/json'},
             json={
-                'anthropic_version': 'vertex-2023-10-16',
-                'max_tokens': 512,
-                'system': SYSTEM_PROMPT,
-                'messages': messages,
+                'system_instruction': {'parts': [{'text': SYSTEM_PROMPT}]},
+                'contents': contents,
+                'generationConfig': {
+                    'maxOutputTokens': 512,
+                    'temperature': 0.7,
+                },
             },
             timeout=15.0,
         )
         resp.raise_for_status()
         result = resp.json()
-        answer = result['content'][0]['text']
+        answer = result['candidates'][0]['content']['parts'][0]['text']
         return jsonify({'answer': answer})
     except Exception as e:
         print(f'[Chatbot Error] {e}')
