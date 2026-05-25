@@ -1,5 +1,8 @@
 .git
 .github
 .claude
+node_modules
 google_apps_script.js
 *.md
+*.xlsx
+*.jpg
