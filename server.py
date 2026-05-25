@@ -6,7 +6,7 @@ from flask import Flask, request, jsonify, send_from_directory
 app = Flask(__name__, static_folder='.', static_url_path='')
 
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
-GEMINI_MODEL = 'gemini-2.5-flash'
+GEMINI_MODEL = 'gemini-3.5-flash'
 API_URL = f'https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent'
 
 SYSTEM_PROMPT = """너는 목포여자고등학교 교육과정 박람회 안내 챗봇 "풍백이"야.
