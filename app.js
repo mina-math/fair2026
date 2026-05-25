@@ -299,8 +299,10 @@ function goTo(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   if (id === 'screen-home') updateHome();
-  if (id === 'screen-booths') renderBoothList();
-  if (id === 'screen-design') renderDesignGroups();
+  if (id === 'screen-booths') { renderBoothList(); renderPhaseNav('booths-nav', 'screen-booths'); }
+  if (id === 'screen-info') renderPhaseNav('info-nav', 'screen-info');
+  if (id === 'screen-design') { renderDesignGroups(); renderPhaseNav('design-nav', 'screen-design'); }
+  if (id === 'screen-forms') renderPhaseNav('forms-nav', 'screen-forms');
   if (id === 'screen-myqr') renderMyQR();
   if (id === 'screen-curriculum') renderCurriculum();
 }
@@ -404,6 +406,7 @@ function updateHome() {
   renderHomeBody(phase);
   renderHomeNav(phase);
   if (phase === 'during') renderHomeStamps();
+  updateChatFab();
 }
 
 function renderHomeStamps() {
@@ -608,34 +611,38 @@ function renderDesignGroups() {
     S.subjects[gradeKey] = {};
   }
 
-  el.innerHTML = semData.map(semObj => {
-    const groupsHtml = semObj.groups.map(grp => {
+  let html = '';
+  semData.forEach(semObj => {
+    html += `<div class="sem-section-title">${semObj.sem}</div>`;
+    html += '<table class="curriculum-table design-table"><thead><tr><th>\uAD50\uACFC</th><th>\uACFC\uBAA9\uBA85</th><th>\uC720\uD615</th><th>\uD559\uC810</th><th>\uC120\uD0DD\uADF8\uB8F9</th></tr></thead><tbody>';
+
+    semObj.groups.forEach(grp => {
       const sel = S.subjects[gradeKey][grp.id] || [];
       const cnt = sel.length;
       const full = cnt >= grp.pick;
-      const badgeCls = full ? 'complete' : (cnt > grp.pick ? 'over' : '');
+      const groupCls = cnt === grp.pick ? 'ct-group-full' : cnt > grp.pick ? 'ct-group-over' : '';
+      const perCredit = grp.credits / grp.pick;
 
-      const chipsHtml = grp.items.map(s => {
+      grp.items.forEach((s, idx) => {
         const isSel = sel.includes(s.n);
-        const isDisabled = isReadOnly || (!isSel && full);
-        return `<button class="chip type-${s.t}${isSel?' selected':''}${isDisabled?' disabled':''}"
-          ${isReadOnly ? '' : `onclick="selectInGroup('${gradeKey}','${grp.id}','${s.n.replace(/'/g,"\\'")}',this)"`}>
-          <span style="font-size:9px;opacity:0.6;margin-right:3px;">${s.subj}</span>${s.n}<span class="type-dot">${s.t==='general'?'\uC77C\uBC18':s.t==='career'?'\uC9C4\uB85C':'\uC735\uD569'}</span>
-        </button>`;
-      }).join('');
+        const disabled = isReadOnly || (!isSel && full);
+        const rowCls = (isSel ? 'dt-selected' : '') + (disabled && !isSel ? ' dt-disabled' : '');
+        const click = isReadOnly ? '' : ` onclick="selectInGroup('${gradeKey}','${grp.id}','${s.n.replace(/'/g,"\\'")}',this)"`;
+        const typeLabel = s.t === 'general' ? '\uC77C\uBC18' : s.t === 'career' ? '\uC9C4\uB85C' : '\uC735\uD569';
 
-      return `<div class="group-card">
-        <div class="group-header">
-          <span class="group-label">\uD83D\uDCCC ${grp.label}</span>
-          <span class="group-pick-badge ${badgeCls}">${cnt}/${grp.pick} \uC120\uD0DD \u00B7 ${grp.credits}\uD559\uC810</span>
-        </div>
-        <div class="chips">${chipsHtml}</div>
-      </div>`;
-    }).join('');
+        html += `<tr class="${rowCls}"${click}>`;
+        html += `<td>${s.subj}</td><td>${s.n}</td><td class="ct-${s.t}">${typeLabel}</td><td>${perCredit}</td>`;
+        if (idx === 0) {
+          html += `<td rowspan="${grp.items.length}" class="ct-group ${groupCls}">[${cnt}/${grp.pick}]<br><b>${grp.credits}\uD559\uC810</b></td>`;
+        }
+        html += '</tr>';
+      });
+    });
 
-    return `<div class="sem-section-title">${semObj.sem}</div>${groupsHtml}`;
-  }).join('');
+    html += '</tbody></table>';
+  });
 
+  el.innerHTML = html;
   updateSummary();
 }
 
@@ -671,17 +678,42 @@ function updateSummary() {
     return;
   }
 
-  const chips = [];
+  let totalCredits = 0, totalNeedCredits = 0;
+  let semBlocks = '';
+
   semData.forEach(sem => {
+    let semCredits = 0, semNeedCredits = 0;
+    let groupRows = '';
+
     sem.groups.forEach(grp => {
       const sel = S.subjects[gradeKey][grp.id] || [];
-      sel.forEach(n => chips.push(`<span class="selected-chip">${n}</span>`));
+      const perCredit = grp.credits / grp.pick;
+      semCredits += sel.length * perCredit;
+      semNeedCredits += grp.credits;
+
+      const names = sel.length ? sel.map(n => `<span class="selected-chip">${n}</span>`).join('') : '<span style="font-size:12px;color:var(--text-light);">\uBBF8\uC120\uD0DD</span>';
+      groupRows += `<div class="dt-summary-row" style="flex-direction:column;align-items:flex-start;gap:4px;">
+        <span class="dt-summary-label">${grp.label} <span style="font-size:11px;">[\uD0DD${grp.pick}] ${grp.credits}\uD559\uC810</span></span>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;">${names}</div>
+      </div>`;
     });
+
+    totalCredits += semCredits;
+    totalNeedCredits += semNeedCredits;
+
+    semBlocks += `<div style="margin-bottom:12px;">
+      <div style="font-size:13px;font-weight:700;color:var(--primary-dark);margin-bottom:6px;">${sem.sem}</div>
+      ${groupRows}
+      <div style="text-align:right;font-size:12px;font-weight:600;color:${semCredits===semNeedCredits?'#1e8449':'var(--text-light)'};margin-top:4px;">${semCredits}/${semNeedCredits}\uD559\uC810</div>
+    </div>`;
   });
 
-  el.innerHTML = chips.length
-    ? chips.join('')
-    : '<div class="empty-msg">\uACFC\uBAA9\uC744 \uC120\uD0DD\uD558\uBA74 \uC5EC\uAE30\uC5D0 \uD45C\uC2DC\uB3FC\uC694</div>';
+  const allDone = totalCredits === totalNeedCredits;
+  el.innerHTML = `<div class="dt-summary">
+    <div class="dt-summary-title">\uD83D\uDCCB \uB098\uC758 \uC120\uD0DD \uD604\uD669</div>
+    ${semBlocks}
+    <div class="dt-total"><span>\uCD1D \uD559\uC810</span><span style="color:${allDone ? '#1e8449' : '#c0392b'}">${totalCredits} / ${totalNeedCredits}\uD559\uC810</span></div>
+  </div>`;
 }
 
 function saveDesign() {
@@ -712,7 +744,7 @@ function renderHomeBody(phase) {
 
   const scheduleHtml = SCHEDULE_ITEMS.map((s, i) => `
     <div style="display:flex; align-items:center; gap:12px; padding:12px 0; ${i < SCHEDULE_ITEMS.length-1 ? 'border-bottom:1px solid var(--border);' : ''}">
-      <div style="width:36px; height:36px; border-radius:50%; background:${['#2DC7C0','#5B6AF0','#FFB800'][i]}; color:white; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; flex-shrink:0;">${i+1}</div>
+      <div style="width:36px; height:36px; border-radius:50%; background:${['#1565C0','#C62828','#D4A843'][i]}; color:white; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; flex-shrink:0;">${i+1}</div>
       <div style="flex:1;">
         <div style="font-size:14px; font-weight:700; color:var(--text);">${s.label}</div>
         <div style="font-size:12px; color:var(--text-light); margin-top:2px;">${s.desc}</div>
@@ -733,26 +765,26 @@ function renderHomeBody(phase) {
         <div style="font-size:15px; font-weight:700; margin-bottom:4px;">📗 과목선택 가이드북</div>
         <div style="font-size:12px; color:var(--text-light); margin-bottom:12px;">2022 개정교육과정과 교과목, 대학 및 학과 정보를 알아보세요.</div>
         <div style="display:flex; gap:10px;">
-          <a href="고교학점제_가이드북.pdf" download style="flex:1; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:8px; background:linear-gradient(135deg, #2DC7C0, #1A9E98); color:white; border-radius:12px; padding:14px 10px; font-size:14px; font-weight:700; box-shadow:0 3px 10px rgba(45,199,192,0.3);">
+          <a href="고교학점제_가이드북.pdf" download style="flex:1; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:8px; background:linear-gradient(135deg, #1565C0, #0D47A1); color:white; border-radius:12px; padding:14px 10px; font-size:14px; font-weight:700; box-shadow:0 3px 10px rgba(21,101,192,0.3);">
             📄 책으로 보기
           </a>
-          <div onclick="openCurriculumNav()" style="flex:1; display:flex; align-items:center; justify-content:center; gap:8px; background:linear-gradient(135deg, #5B6AF0, #4A59D9); color:white; border-radius:12px; padding:14px 10px; font-size:14px; font-weight:700; cursor:pointer; box-shadow:0 3px 10px rgba(91,106,240,0.3);">
+          <div onclick="openCurriculumNav()" style="flex:1; display:flex; align-items:center; justify-content:center; gap:8px; background:linear-gradient(135deg, #C62828, #B71C1C); color:white; border-radius:12px; padding:14px 10px; font-size:14px; font-weight:700; cursor:pointer; box-shadow:0 3px 10px rgba(198,40,40,0.3);">
             🧭 웹으로 보기
           </div>
         </div>
       </div>
 
-      <!-- 4. 편제표 -->
+      <!-- 3. 편제표 -->
       <div onclick="goTo('screen-curriculum')" style="background:linear-gradient(135deg, #E67E22, #D35400); border-radius:16px; padding:18px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(230,126,34,0.3);">
         <span style="font-size:36px;">📊</span>
         <div>
           <div style="font-size:15px; font-weight:700;">우리학교 편제표</div>
-          <div style="font-size:12px; opacity:0.85; margin-top:2px;">2학년·3학년 과목이 어떻게 편성되는지 확인하세요</div>
+          <div style="font-size:12px; opacity:0.85; margin-top:2px;">내년, 내후년에 어떤 과목을 배우는지 확인하세요</div>
         </div>
         <div style="margin-left:auto; font-size:20px;">›</div>
       </div>
 
-      <!-- 5. 과목 설계 -->
+      <!-- 4. 과목 설계 -->
       <div onclick="goTo('screen-design')" style="background:linear-gradient(135deg, #8E44AD, #6C3483); border-radius:16px; padding:18px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(142,68,173,0.3);">
         <span style="font-size:36px;">✏️</span>
         <div>
@@ -784,7 +816,7 @@ function renderHomeBody(phase) {
   } else if (phase === 'during') {
     el.innerHTML = `
       <!-- 1. 부스 투어 -->
-      <div onclick="goTo('screen-booths')" style="background:linear-gradient(135deg, var(--primary), #1A9E98); border-radius:16px; padding:20px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(45,199,192,0.3);">
+      <div onclick="goTo('screen-booths')" style="background:linear-gradient(135deg, var(--primary), #0D47A1); border-radius:16px; padding:20px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(21,101,192,0.3);">
         <span style="font-size:40px;">🗺️</span>
         <div>
           <div style="font-size:16px; font-weight:700;">부스 투어</div>
@@ -794,7 +826,7 @@ function renderHomeBody(phase) {
       </div>
 
       <!-- 2. 만족도 설문 -->
-      <div onclick="openSatisfactionForm()" style="background:linear-gradient(135deg, #5B6AF0, #4A59D9); border-radius:16px; padding:20px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(91,106,240,0.3);">
+      <div onclick="openSatisfactionForm()" style="background:linear-gradient(135deg, #D4A843, #B8922E); border-radius:16px; padding:20px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(212,168,67,0.3);">
         <span style="font-size:40px;">📊</span>
         <div>
           <div style="font-size:16px; font-weight:700;">만족도 설문조사</div>
@@ -815,7 +847,7 @@ function renderHomeBody(phase) {
     // after
     el.innerHTML = `
       <!-- 1. 소감문 작성 -->
-      <div onclick="openFeedbackForm()" style="background:linear-gradient(135deg, #2DC7C0, #1A9E98); border-radius:16px; padding:20px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(45,199,192,0.3);">
+      <div onclick="openFeedbackForm()" style="background:linear-gradient(135deg, #1565C0, #0D47A1); border-radius:16px; padding:20px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(21,101,192,0.3);">
         <span style="font-size:40px;">✍️</span>
         <div>
           <div style="font-size:16px; font-weight:700;">박람회 소감문 작성</div>
@@ -842,45 +874,39 @@ function renderHomeBody(phase) {
   }
 }
 
-function renderHomeNav(phase) {
-  const nav = document.getElementById('home-nav');
-  if (!nav) return;
-
+function getPhaseNavItems(phase) {
   if (phase === 'before') {
-    nav.innerHTML = `
-      <button class="nav-item active" onclick="goTo('screen-home')"><span class="nav-icon">🏠</span>홈</button>
-      <button class="nav-item" onclick="goTo('screen-curriculum')"><span class="nav-icon">📊</span>편제표</button>
-      <button class="nav-item" onclick="goTo('screen-design')"><span class="nav-icon">✏️</span>과목설계</button>`;
+    return [
+      { id:'screen-home',       icon:'🏠', label:'홈' },
+      { id:'screen-curriculum', icon:'📊', label:'편제표' },
+      { id:'screen-design',    icon:'✏️', label:'과목설계' },
+    ];
   } else if (phase === 'during') {
-    nav.innerHTML = `
-      <button class="nav-item active" onclick="goTo('screen-home')"><span class="nav-icon">🏠</span>홈</button>
-      <button class="nav-item" onclick="goTo('screen-booths')"><span class="nav-icon">🗺️</span>부스투어</button>`;
+    return [
+      { id:'screen-home',   icon:'🏠', label:'홈' },
+      { id:'screen-booths', icon:'🗺️', label:'부스투어' },
+      { id:'screen-design', icon:'✏️', label:'과목설계' },
+      { id:'screen-forms',  icon:'📋', label:'신청·소감' },
+    ];
   } else {
-    nav.innerHTML = `
-      <button class="nav-item active" onclick="goTo('screen-home')"><span class="nav-icon">🏠</span>홈</button>`;
+    return [
+      { id:'screen-home',   icon:'🏠', label:'홈' },
+      { id:'screen-design', icon:'✏️', label:'과목설계' },
+    ];
   }
 }
 
-// ============================================================
-// CURRICULUM (편제표)
-// ============================================================
-let curriculumGrade = 2;
-
-function renderCurriculum() {
-  const tabBar = document.getElementById('curriculum-tab-bar');
-  const content = document.getElementById('curriculum-content');
-  if (!tabBar || !content) return;
-
-  tabBar.innerHTML = `
-    <button class="info-tab ${curriculumGrade===2?'active':''}" onclick="switchCurriculumTab(2)">2학년 편제표</button>
-    <button class="info-tab ${curriculumGrade===3?'active':''}" onclick="switchCurriculumTab(3)">3학년 편제표</button>`;
-
-  content.innerHTML = curriculumGrade === 2 ? CURRICULUM_G2_HTML : CURRICULUM_G3_HTML;
+function renderPhaseNav(navId, activeScreen) {
+  const nav = document.getElementById(navId);
+  if (!nav) return;
+  const items = getPhaseNavItems(getPhase());
+  nav.innerHTML = items.map(it =>
+    `<button class="nav-item${it.id===activeScreen?' active':''}" onclick="goTo('${it.id}')"><span class="nav-icon">${it.icon}</span>${it.label}</button>`
+  ).join('');
 }
 
-function switchCurriculumTab(grade) {
-  curriculumGrade = grade;
-  renderCurriculum();
+function renderHomeNav(phase) {
+  renderPhaseNav('home-nav', 'screen-home');
 }
 
 // ============================================================
@@ -908,6 +934,24 @@ function openCurriculumNav() {
     return;
   }
   window.open(CURRICULUM_NAV_URL, '_blank');
+}
+
+// ============================================================
+// CURRICULUM (편제표) — 학년별 표시
+// ============================================================
+function renderCurriculum() {
+  const content = document.getElementById('curriculum-content');
+  if (!content) return;
+  const grade = S.student ? S.student.grade : 0;
+  if (!grade) {
+    content.innerHTML = '<div class="info-card" style="text-align:center;padding:32px 16px;"><p>로그인 후 내 학년에 맞는 편제표가 표시됩니다 🔒</p></div>';
+    return;
+  }
+  if (grade === 1) {
+    content.innerHTML = CURRICULUM_G2_HTML + CURRICULUM_G3_2026_HTML;
+  } else {
+    content.innerHTML = CURRICULUM_G3_HTML;
+  }
 }
 
 function openMentoringForm() {
@@ -968,6 +1012,9 @@ function doLogout() {
   document.getElementById('login-step-google').style.display = '';
   document.getElementById('login-step-student').style.display = 'none';
   goTo('screen-login');
+  updateChatFab();
+  if (chatOpen) toggleChatbot();
+  chatInited = false;
   toast('\uB85C\uADF8\uC544\uC6C3\uB410\uC5B4\uC694. \uB2E4\uC2DC \uC785\uC7A5\uD574\uC8FC\uC138\uC694 \uD83D\uDC4B');
 }
 
@@ -1395,6 +1442,152 @@ function renderPhaseAdmin() {
       <button class="phase-btn ${override==='during' ? 'active' : ''}" onclick="setPhaseOverride('during')">당일</button>
       <button class="phase-btn ${override==='after' ? 'active' : ''}" onclick="setPhaseOverride('after')">이후</button>
     </div>`;
+}
+
+// ============================================================
+// CHATBOT (FAQ 키워드 매칭)
+// ============================================================
+let chatOpen = false;
+let chatInited = false;
+let chatHistory = [];
+let chatSending = false;
+
+function toggleChatbot() {
+  chatOpen = !chatOpen;
+  document.getElementById('chat-panel').classList.toggle('open', chatOpen);
+  document.getElementById('chat-overlay').classList.toggle('open', chatOpen);
+  if (chatOpen && !chatInited) {
+    chatInited = true;
+    initChatbot();
+  }
+  if (chatOpen) {
+    setTimeout(() => document.getElementById('chat-input').focus(), 300);
+  }
+}
+
+function initChatbot() {
+  const msgs = document.getElementById('chat-messages');
+  msgs.innerHTML = '';
+  chatHistory = [];
+  addBotMessage('안녕하세요! 저는 풍백이예요 🌳\n교육과정, 편제표, 과목선택, 박람회 일정 등 궁금한 것을 자유롭게 물어보세요!');
+  renderSuggestions(['고교학점제가 뭐야?','과목 유형 알려줘','과목선택 일정','편제표 보고 싶어','내 진로에 맞는 과목은?']);
+}
+
+function addBotMessage(text) {
+  const msgs = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'chat-msg bot';
+  div.textContent = text;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function addUserMessage(text) {
+  const msgs = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'chat-msg user';
+  div.textContent = text;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function addTypingIndicator() {
+  const msgs = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'chat-msg bot';
+  div.id = 'chat-typing';
+  div.textContent = '풍백이가 생각 중...';
+  div.style.opacity = '0.6';
+  div.style.fontStyle = 'italic';
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function removeTypingIndicator() {
+  const el = document.getElementById('chat-typing');
+  if (el) el.remove();
+}
+
+function renderSuggestions(items) {
+  const el = document.getElementById('chat-suggestions');
+  el.innerHTML = items.map(s =>
+    `<button class="chat-suggest-btn" onclick="askSuggestion('${s.replace(/'/g,"\\'")}')">${s}</button>`
+  ).join('');
+}
+
+function askSuggestion(text) {
+  document.getElementById('chat-input').value = text;
+  sendChat();
+}
+
+async function sendChat() {
+  if (chatSending) return;
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  chatSending = true;
+
+  addUserMessage(text);
+  chatHistory.push({ role: 'user', content: text });
+  addTypingIndicator();
+  renderSuggestions([]);
+
+  try {
+    const resp = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text, history: chatHistory.slice(-6) }),
+    });
+    const data = await resp.json();
+    removeTypingIndicator();
+    addBotMessage(data.answer);
+    chatHistory.push({ role: 'assistant', content: data.answer });
+    renderSuggestions(pickFollowUps());
+  } catch (e) {
+    removeTypingIndicator();
+    const fallback = matchFAQ(text);
+    addBotMessage(fallback.answer);
+    chatHistory.push({ role: 'assistant', content: fallback.answer });
+    renderSuggestions(fallback.followUp);
+  }
+  chatSending = false;
+}
+
+function matchFAQ(input) {
+  const normalized = input.toLowerCase().replace(/[?！!.,\s]+/g, ' ').trim();
+  const tokens = normalized.split(' ').filter(t => t.length > 0);
+  let bestMatch = null, bestScore = 0;
+  for (const faq of CHATBOT_FAQ) {
+    let score = 0;
+    for (const kw of faq.keywords) {
+      const kwLow = kw.toLowerCase();
+      if (normalized.includes(kwLow)) score += kwLow.length;
+      else for (const token of tokens) {
+        if (kwLow.includes(token) || token.includes(kwLow)) score += Math.min(token.length, kwLow.length) * 0.5;
+      }
+    }
+    if (score > bestScore) { bestScore = score; bestMatch = faq; }
+  }
+  if (bestMatch && bestScore >= 2) return { answer: bestMatch.answer, followUp: pickFollowUps() };
+  return {
+    answer: '죄송해요, 지금 답변이 어려워요 😅\n박람회 당일(7/7) 진로상담 부스를 방문하거나 멘토링 신청을 해주세요!',
+    followUp: ['고교학점제가 뭐야?','과목선택 일정','편제표 보고 싶어','멘토링 신청하고 싶어']
+  };
+}
+
+function pickFollowUps() {
+  const topics = ['고교학점제가 뭐야?','과목 유형 알려줘','성적은 어떻게 기록돼?','대입에서 뭐가 중요해?',
+    '박람회 언제야?','과목선택 일정','편제표 보고 싶어','이과 추천 과목','의대 가려면?','문과 추천 과목',
+    '과목설계 해보고 싶어','멘토링 신청하고 싶어','제2외국어 뭐가 있어?','1학년은 내년에 뭘 배워?'];
+  return topics.sort(() => Math.random() - 0.5).slice(0, 4);
+}
+
+function updateChatFab() {
+  const fab = document.getElementById('chat-fab');
+  if (!fab) return;
+  const phase = getPhase();
+  fab.style.display = (S.student && phase === 'before') ? '' : 'none';
 }
 
 // ============================================================

@@ -1,7 +1,8 @@
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800;900&display=swap');
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
-      font-family: -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', BlinkMacSystemFont, sans-serif;
-      background: #e8f4f4;
+      font-family: 'Noto Sans KR', -apple-system, 'Apple SD Gothic Neo', BlinkMacSystemFont, sans-serif;
+      background: #e8edf3;
       min-height: 100vh;
       display: flex;
       justify-content: center;
@@ -18,17 +19,17 @@
     .screen { display: none; width: 100%; min-height: 100vh; flex-direction: column; }
     .screen.active { display: flex; }
     :root {
-      --primary: #2DC7C0;
-      --primary-dark: #1A9E98;
-      --primary-light: #E8FAF9;
-      --secondary: #FFB800;
-      --accent: #5B6AF0;
+      --primary: #1565C0;
+      --primary-dark: #0D47A1;
+      --primary-light: #E3F2FD;
+      --secondary: #D4A843;
+      --accent: #C62828;
       --danger: #FF4757;
       --success: #2ECC71;
       --text: #1A2332;
       --text-light: #718096;
-      --bg: #F7FAFA;
-      --border: #E2EEF0;
+      --bg: #F5F7FA;
+      --border: #DCE3EA;
     }
 
     /* === HEADER === */
@@ -42,7 +43,7 @@
       position: sticky;
       top: 0;
       z-index: 100;
-      box-shadow: 0 2px 8px rgba(45,199,192,0.3);
+      box-shadow: 0 2px 8px rgba(21,101,192,0.3);
     }
     .header-back {
       background: rgba(255,255,255,0.2);
@@ -149,16 +150,18 @@
        SCREEN 1: LOGIN
     =========================== */
     #screen-login {
-      background: linear-gradient(160deg, #1A9E98 0%, #2DC7C0 40%, #48D9D2 100%);
+      background: linear-gradient(160deg, #0D47A1 0%, #1565C0 40%, #1E88E5 100%);
       justify-content: center;
       padding: 40px 24px 60px;
       min-height: 100vh;
     }
     .login-top { text-align: center; margin-bottom: 32px; }
     .login-school-icon {
-      font-size: 64px;
       display: block;
-      margin-bottom: 12px;
+      margin: 0 auto 12px;
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
       filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
     }
     .login-year {
@@ -223,6 +226,18 @@
       color: white;
       position: relative;
       overflow: hidden;
+    }
+    .home-hero::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 160px;
+      height: 160px;
+      background: url('logo.png') center/contain no-repeat;
+      opacity: 0.1;
+      pointer-events: none;
     }
     .home-hero::after {
       content: '';
@@ -325,8 +340,8 @@
     .menu-title { font-size: 13px; font-weight: 700; color: var(--text); }
     .menu-sub { font-size: 11px; color: var(--text-light); margin-top: 3px; }
     .notice-card {
-      background: linear-gradient(135deg, #f0fafa, #e8f9f8);
-      border: 1px solid rgba(45,199,192,0.2);
+      background: linear-gradient(135deg, #edf2fa, #e3ecf8);
+      border: 1px solid rgba(21,101,192,0.2);
       border-radius: 16px;
       padding: 16px;
       margin-bottom: 14px;
@@ -539,7 +554,7 @@
     .info-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 10px 0; }
     .info-table th { background: var(--primary); color: white; padding: 8px 10px; text-align: left; font-weight: 600; }
     .info-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
-    .info-table tr:nth-child(even) td { background: #f7fdfd; }
+    .info-table tr:nth-child(even) td { background: #f5f8fd; }
     .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; margin: 2px; }
     .badge-common { background: #e8f4fd; color: #2980b9; }
     .badge-general { background: #fff3e0; color: #e67e22; }
@@ -941,10 +956,10 @@
       pointer-events: none;
     }
     @keyframes liveness-pulse {
-      0% { border-color: var(--primary); box-shadow: 0 0 0 0 rgba(45,199,192,0.4); }
-      33% { border-color: var(--secondary); box-shadow: 0 0 12px 4px rgba(255,184,0,0.3); }
-      66% { border-color: var(--accent); box-shadow: 0 0 12px 4px rgba(91,106,240,0.3); }
-      100% { border-color: var(--primary); box-shadow: 0 0 0 0 rgba(45,199,192,0.4); }
+      0% { border-color: var(--primary); box-shadow: 0 0 0 0 rgba(21,101,192,0.4); }
+      33% { border-color: var(--secondary); box-shadow: 0 0 12px 4px rgba(212,168,67,0.3); }
+      66% { border-color: var(--accent); box-shadow: 0 0 12px 4px rgba(198,40,40,0.3); }
+      100% { border-color: var(--primary); box-shadow: 0 0 0 0 rgba(21,101,192,0.4); }
     }
     #myqr-canvas { display: block; }
     .myqr-refresh { font-size: 11px; color: var(--text-light); margin-top: 10px; }
@@ -1005,8 +1020,227 @@
     .curriculum-table { width:100%; border-collapse:collapse; font-size:12px; margin-bottom:16px; border:2px solid var(--primary); border-radius:8px; overflow:hidden; }
     .curriculum-table th { background:var(--primary); color:white; padding:10px 8px; text-align:center; font-weight:700; font-size:12px; border:1px solid rgba(255,255,255,0.3); }
     .curriculum-table td { padding:8px; border:1px solid #e2e8f0; vertical-align:middle; line-height:1.6; background:white; }
-    .curriculum-table tr:nth-child(even) td { background:#f8fffe; }
-    .curriculum-table td:first-child { font-weight:700; white-space:nowrap; color:var(--text); text-align:center; background:#f0fffe; }
+    .curriculum-table tr:nth-child(even) td { background:#f5f8fd; }
+    .curriculum-table td:first-child { font-weight:700; white-space:nowrap; color:var(--text); text-align:center; background:#edf2fa; }
     .curriculum-table td:nth-child(2),
     .curriculum-table td:nth-child(3) { text-align:center; white-space:nowrap; font-weight:600; }
     .curriculum-table .badge { font-size:11px; margin:2px; display:inline-block; }
+    .ct-general { color:#2980B9; font-weight:700; }
+    .ct-career { color:#6C3483; font-weight:700; }
+    .ct-fusion { color:#8E44AD; font-weight:700; }
+    .ct-group { background:#edf2fa; text-align:center; font-size:12px; font-weight:700; color:var(--primary-dark); vertical-align:middle; white-space:nowrap; border-left:2px solid var(--primary); }
+
+    /* ===== Design Table (interactive 과목설계) ===== */
+    .design-table tr { cursor:pointer; transition:background .15s; }
+    .design-table tr.dt-selected td { background:rgba(21,101,192,0.12) !important; }
+    .design-table tr.dt-selected td:nth-child(2)::before { content:'✓ '; color:var(--primary-dark); font-weight:800; }
+    .design-table tr.dt-disabled { opacity:0.45; cursor:default; }
+    .design-table tr.dt-disabled.dt-selected { opacity:1; }
+    .design-table .ct-group-full { background:#e6fff5 !important; color:#1e8449; }
+    .design-table .ct-group-over { background:#fff0f0 !important; color:#c0392b; }
+    .design-table thead tr { cursor:default; }
+    .dt-summary { background:white; border-radius:14px; padding:16px; margin-top:14px; box-shadow:0 2px 10px rgba(0,0,0,0.06); }
+    .dt-summary-title { font-size:15px; font-weight:700; margin-bottom:10px; }
+    .dt-summary-row { display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid var(--border); font-size:13px; }
+    .dt-summary-row:last-child { border-bottom:none; }
+    .dt-summary-label { color:var(--text-light); }
+    .dt-summary-value { font-weight:700; }
+    .dt-summary-value.complete { color:#1e8449; }
+    .dt-summary-value.incomplete { color:#c0392b; }
+    .dt-total { display:flex; justify-content:space-between; padding:10px 0 0; margin-top:6px; border-top:2px solid var(--primary); font-size:15px; font-weight:800; color:var(--primary-dark); }
+
+    /* ===========================
+       CHATBOT
+    =========================== */
+    .chat-fab {
+      position: fixed;
+      bottom: 80px;
+      right: max(calc((100% - 430px)/2 + 12px), 12px);
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      border: none;
+      font-size: 26px;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(21,101,192,0.4);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s;
+    }
+    .chat-fab:active { transform: scale(0.92); }
+    .chat-fab-badge {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+
+    .chat-panel {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 430px;
+      height: 75vh;
+      background: white;
+      border-radius: 20px 20px 0 0;
+      box-shadow: 0 -4px 30px rgba(0,0,0,0.15);
+      z-index: 300;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .chat-panel.open { display: flex; }
+
+    .chat-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 299;
+      display: none;
+    }
+    .chat-overlay.open { display: block; }
+
+    .chat-header {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .chat-header-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: contain;
+      background: rgba(255,255,255,0.2);
+      padding: 3px;
+    }
+    .chat-header-info { flex: 1; }
+    .chat-header-name { font-size: 15px; font-weight: 700; }
+    .chat-header-status { font-size: 11px; opacity: 0.8; }
+    .chat-close {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: #f5f7fa;
+    }
+
+    .chat-msg {
+      max-width: 82%;
+      padding: 10px 14px;
+      border-radius: 16px;
+      font-size: 13px;
+      line-height: 1.7;
+      white-space: pre-line;
+      word-break: break-word;
+    }
+    .chat-msg.bot {
+      background: white;
+      color: var(--text);
+      border-bottom-left-radius: 4px;
+      align-self: flex-start;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .chat-msg.user {
+      background: var(--primary);
+      color: white;
+      border-bottom-right-radius: 4px;
+      align-self: flex-end;
+    }
+
+    .chat-suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 0 14px 10px;
+      background: #f5f7fa;
+      flex-shrink: 0;
+    }
+    .chat-suggest-btn {
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1.5px solid var(--primary);
+      background: white;
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .chat-suggest-btn:active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .chat-input-bar {
+      display: flex;
+      gap: 8px;
+      padding: 10px 14px;
+      border-top: 1px solid var(--border);
+      background: white;
+      flex-shrink: 0;
+      padding-bottom: max(10px, env(safe-area-inset-bottom));
+    }
+    .chat-input {
+      flex: 1;
+      border: 1.5px solid var(--border);
+      border-radius: 22px;
+      padding: 9px 16px;
+      font-size: 14px;
+      outline: none;
+      font-family: inherit;
+      color: var(--text);
+      transition: border-color 0.2s;
+    }
+    .chat-input:focus { border-color: var(--primary); }
+    .chat-send {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--primary);
+      border: none;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .chat-send:active { background: var(--primary-dark); }
