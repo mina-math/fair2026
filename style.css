@@ -1008,7 +1008,7 @@
     /* ===== Phase Badge ===== */
     .phase-badge { display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:10px; margin-left:6px; vertical-align:middle; }
     .phase-before { background:rgba(255,255,255,0.3); color:white; }
-    .phase-during { background:#FFB800; color:#fff; }
+    .phase-during { background:#D4A843; color:#fff; }
     .phase-after { background:rgba(255,255,255,0.25); color:white; }
 
     /* ===== Phase Admin Buttons ===== */
@@ -1025,9 +1025,9 @@
     .curriculum-table td:nth-child(2),
     .curriculum-table td:nth-child(3) { text-align:center; white-space:nowrap; font-weight:600; }
     .curriculum-table .badge { font-size:11px; margin:2px; display:inline-block; }
-    .ct-general { color:#2980B9; font-weight:700; }
-    .ct-career { color:#6C3483; font-weight:700; }
-    .ct-fusion { color:#8E44AD; font-weight:700; }
+    .ct-general { color:var(--primary); font-weight:700; }
+    .ct-career { color:#C62828; font-weight:700; }
+    .ct-fusion { color:#D4A843; font-weight:700; }
     .ct-group { background:#edf2fa; text-align:center; font-size:12px; font-weight:700; color:var(--primary-dark); vertical-align:middle; white-space:nowrap; border-left:2px solid var(--primary); }
 
     /* ===== Design Table (interactive 과목설계) ===== */
@@ -1036,7 +1036,7 @@
     .design-table tr.dt-selected td:nth-child(2)::before { content:'✓ '; color:var(--primary-dark); font-weight:800; }
     .design-table tr.dt-disabled { opacity:0.45; cursor:default; }
     .design-table tr.dt-disabled.dt-selected { opacity:1; }
-    .design-table .ct-group-full { background:#e6fff5 !important; color:#1e8449; }
+    .design-table .ct-group-full { background:#E3F2FD !important; color:var(--primary-dark); }
     .design-table .ct-group-over { background:#fff0f0 !important; color:#c0392b; }
     .design-table thead tr { cursor:default; }
     .dt-summary { background:white; border-radius:14px; padding:16px; margin-top:14px; box-shadow:0 2px 10px rgba(0,0,0,0.06); }
@@ -1124,12 +1124,12 @@
       flex-shrink: 0;
     }
     .chat-header-avatar {
-      width: 36px;
-      height: 36px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
       object-fit: contain;
       background: rgba(255,255,255,0.2);
-      padding: 3px;
+      padding: 2px;
     }
     .chat-header-info { flex: 1; }
     .chat-header-name { font-size: 15px; font-weight: 700; }

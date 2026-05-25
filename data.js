@@ -129,15 +129,15 @@ const SCHEDULE_ITEMS = [
 ];
 
 const BOOTHS = [
-  { id:'korean',  name:'국어교과',      icon:'📖', color:'#2980B9', bg:'#EBF4FB', code:'KO01', desc:'국어 선택과목 소개 및 진로 연계 안내' },
-  { id:'math',    name:'수학교과',      icon:'📐', color:'#8E44AD', bg:'#F5EEF8', code:'MA02', desc:'수학 선택과목 소개 및 계열별 추천 안내' },
-  { id:'english', name:'영어교과',      icon:'🌍', color:'#16A085', bg:'#E8F8F5', code:'EN03', desc:'영어 선택과목 소개 및 활용 안내' },
-  { id:'social',  name:'사회교과',      icon:'🌏', color:'#D35400', bg:'#FEF5EC', code:'SO04', desc:'사회·역사·도덕 교과 선택과목 안내' },
-  { id:'science', name:'과학교과',      icon:'🔬', color:'#1E8449', bg:'#EAFAF1', code:'SC05', desc:'과학 선택과목 소개 및 계열별 추천' },
-  { id:'arts',    name:'체육·예술교과', icon:'🎨', color:'#C0392B', bg:'#FDEDEC', code:'AP06', desc:'체육·음악·미술 교과 선택과목 안내' },
-  { id:'life',    name:'생활·교양교과', icon:'🌱', color:'#B7950B', bg:'#FEF9E7', code:'LI07', desc:'기술가정·정보·제2외국어·교양 안내' },
-  { id:'career',  name:'진로진학상담',  icon:'🎯', color:'#6C3483', bg:'#F4ECF7', code:'CA08', desc:'진로·진학·대입 정보 상담' },
-  { id:'mentor',  name:'멘토상담',      icon:'💬', color:'#1F618D', bg:'#EAF2F8', code:'ME09', desc:'선배 멘토와 함께하는 과목 선택 상담' },
+  { id:'korean',  name:'국어교과',      icon:'📖', color:'#1565C0', bg:'#E3F2FD', code:'KO01', desc:'국어 선택과목 소개 및 진로 연계 안내' },
+  { id:'math',    name:'수학교과',      icon:'📐', color:'#0D47A1', bg:'#E3F2FD', code:'MA02', desc:'수학 선택과목 소개 및 계열별 추천 안내' },
+  { id:'english', name:'영어교과',      icon:'🌍', color:'#1E88E5', bg:'#E3F2FD', code:'EN03', desc:'영어 선택과목 소개 및 활용 안내' },
+  { id:'social',  name:'사회교과',      icon:'🌏', color:'#C62828', bg:'#FFEBEE', code:'SO04', desc:'사회·역사·도덕 교과 선택과목 안내' },
+  { id:'science', name:'과학교과',      icon:'🔬', color:'#B71C1C', bg:'#FFEBEE', code:'SC05', desc:'과학 선택과목 소개 및 계열별 추천' },
+  { id:'arts',    name:'체육·예술교과', icon:'🎨', color:'#D4A843', bg:'#FFF8E1', code:'AP06', desc:'체육·음악·미술 교과 선택과목 안내' },
+  { id:'life',    name:'생활·교양교과', icon:'🌱', color:'#B8922E', bg:'#FFF8E1', code:'LI07', desc:'기술가정·정보·제2외국어·교양 안내' },
+  { id:'career',  name:'진로진학상담',  icon:'🎯', color:'#0D47A1', bg:'#E3F2FD', code:'CA08', desc:'진로·진학·대입 정보 상담' },
+  { id:'mentor',  name:'멘토상담',      icon:'💬', color:'#C62828', bg:'#FFEBEE', code:'ME09', desc:'선배 멘토와 함께하는 과목 선택 상담' },
   { id:'info',    name:'인포메이션',    icon:'ℹ️', color:'#717D7E', bg:'#F2F3F4', code:'IN00', desc:'전체 박람회 안내 데스크', noStamp:true },
 ];
 
@@ -369,7 +369,7 @@ const INFO_HTML = [
     ✅ <strong>192학점 취득 후 졸업</strong> — 3년간 192학점 이상 쌓아야 졸업할 수 있어요.</p>
 
     <h4>⚙️ 고교학점제 운영 7단계</h4>
-    <div style="background:#f0fffe;border-radius:10px;padding:12px;font-size:13px;line-height:2;">
+    <div style="background:#E3F2FD;border-radius:10px;padding:12px;font-size:13px;line-height:2;">
       <b>1단계</b> 교육과정 편성 → <b>2단계</b> 진로·학업 설계 → <b>3단계</b> 수강신청<br>
       → <b>4단계</b> 수업 운영 → <b>5단계</b> 학생 평가 → <b>6단계</b> 학점 취득 → <b>7단계</b> 졸업
     </div>
@@ -378,15 +378,15 @@ const INFO_HTML = [
     <p>과목 이수를 돕기 위해 <strong>예방지도</strong>(이수 기준 미달 예상 학생 사전 지도)와 <strong>보충지도</strong>(미달 학생 대상 이수 지도)가 함께 운영돼요.</p>
 
     <h4>❓ 자주 묻는 질문 Q&amp;A</h4>
-    <div style="background:#fffbf0;border-left:3px solid #FFB800;padding:10px 12px;border-radius:0 8px 8px 0;margin-bottom:8px;">
+    <div style="background:#fffbf0;border-left:3px solid #D4A843;padding:10px 12px;border-radius:0 8px 8px 0;margin-bottom:8px;">
       <p><strong>Q. 192학점을 빨리 채우면 조기 졸업이 되나요?</strong></p>
       <p>아니요. 고등학교는 3년 과정을 균형 있게 이수해야 해요. 학점을 다 채워도 바로 졸업할 수 없어요.</p>
     </div>
-    <div style="background:#fffbf0;border-left:3px solid #FFB800;padding:10px 12px;border-radius:0 8px 8px 0;margin-bottom:8px;">
+    <div style="background:#fffbf0;border-left:3px solid #D4A843;padding:10px 12px;border-radius:0 8px 8px 0;margin-bottom:8px;">
       <p><strong>Q. 이수 기준을 못 채운 과목은 어떻게 되나요?</strong></p>
       <p>보충 학습(보충지도 프로그램)을 통해 다시 이수할 기회가 주어져요. 포기하지 마세요!</p>
     </div>
-    <div style="background:#fffbf0;border-left:3px solid #FFB800;padding:10px 12px;border-radius:0 8px 8px 0;">
+    <div style="background:#fffbf0;border-left:3px solid #D4A843;padding:10px 12px;border-radius:0 8px 8px 0;">
       <p><strong>Q. 2025년부터 창의적 체험활동도 이수 기준이 있나요?</strong></p>
       <p>네! 고등학교 3년 동안 운영된 수업 횟수의 2/3 이상 출석하면 학점을 인정받아요.</p>
     </div>
@@ -427,10 +427,10 @@ const INFO_HTML = [
     <h4>📊 성취도 기준 (A~E)</h4>
     <table class="info-table">
       <tr><th>성취도</th><th>성취율</th><th>의미</th></tr>
-      <tr><td><b style="color:#2DC7C0">A</b></td><td>90% 이상</td><td>매우 우수</td></tr>
-      <tr><td><b style="color:#5B6AF0">B</b></td><td>80% 이상</td><td>우수</td></tr>
+      <tr><td><b style="color:#1565C0">A</b></td><td>90% 이상</td><td>매우 우수</td></tr>
+      <tr><td><b style="color:#0D47A1">B</b></td><td>80% 이상</td><td>우수</td></tr>
       <tr><td><b style="color:#2ECC71">C</b></td><td>70% 이상</td><td>보통</td></tr>
-      <tr><td><b style="color:#FFB800">D</b></td><td>60% 이상</td><td>미흡</td></tr>
+      <tr><td><b style="color:#D4A843">D</b></td><td>60% 이상</td><td>미흡</td></tr>
       <tr><td><b style="color:#FF4757">E</b></td><td>40% 이상</td><td>매우 미흡(이수 인정)</td></tr>
     </table>
     <p style="font-size:12px;color:#718096;margin-top:6px;">※ 성취율 40% 미만은 미이수 → 보충지도 대상</p>
@@ -526,9 +526,9 @@ const INFO_HTML = [
     <div style="display:flex;flex-direction:column;gap:14px;margin-top:16px;">
       <a href="고교학점제_가이드북.pdf" download style="
         display:flex;align-items:center;gap:14px;
-        background:linear-gradient(135deg,#2DC7C0,#1A9E98);
+        background:linear-gradient(135deg,#1565C0,#0D47A1);
         color:white;border-radius:14px;padding:16px 18px;
-        text-decoration:none;box-shadow:0 4px 14px rgba(45,199,192,0.4);">
+        text-decoration:none;box-shadow:0 4px 14px rgba(21,101,192,0.4);">
         <span style="font-size:36px;">📗</span>
         <div>
           <div style="font-size:16px;font-weight:700;">2022 개정 교육과정 학업 설계 가이드북</div>
@@ -538,7 +538,7 @@ const INFO_HTML = [
       </a>
     </div>
 
-    <div style="background:#f0f4ff;border-radius:10px;padding:12px 14px;margin-top:16px;font-size:13px;color:#5B6AF0;">
+    <div style="background:#E3F2FD;border-radius:10px;padding:12px 14px;margin-top:16px;font-size:13px;color:#0D47A1;">
       💡 <strong>다운로드 안 되는 경우</strong><br>
       가이드북 파일이 앱과 같은 폴더에 있어야 해요.<br>
       선생님께 파일을 받거나 진로진학상담 부스에서 문의해 주세요!
@@ -624,9 +624,9 @@ const CURRICULUM_G2_HTML = `
   </table>
 
   <div style="font-size:11px; color:var(--text-light); padding:6px 0;">
-    <span style="color:#2980B9;">■ 일반선택</span> &nbsp;
-    <span style="color:#6C3483;">■ 진로선택</span> &nbsp;
-    <span style="color:#8E44AD;">■ 융합선택</span>
+    <span style="color:#1565C0;">■ 일반선택</span> &nbsp;
+    <span style="color:#C62828;">■ 진로선택</span> &nbsp;
+    <span style="color:#D4A843;">■ 융합선택</span>
   </div>
 </div>`;
 
@@ -737,9 +737,9 @@ const CURRICULUM_G3_HTML = `
   </table>
 
   <div style="font-size:11px; color:var(--text-light); padding:6px 0;">
-    <span style="color:#2980B9;">■ 일반선택</span> &nbsp;
-    <span style="color:#6C3483;">■ 진로선택</span> &nbsp;
-    <span style="color:#8E44AD;">■ 융합선택</span>
+    <span style="color:#1565C0;">■ 일반선택</span> &nbsp;
+    <span style="color:#C62828;">■ 진로선택</span> &nbsp;
+    <span style="color:#D4A843;">■ 융합선택</span>
   </div>
 </div>`;
 
@@ -817,8 +817,8 @@ const CURRICULUM_G3_2026_HTML = `
   </table>
 
   <div style="font-size:11px; color:var(--text-light); padding:6px 0;">
-    <span style="color:#2980B9;">■ 일반선택</span> &nbsp;
-    <span style="color:#6C3483;">■ 진로선택</span> &nbsp;
-    <span style="color:#8E44AD;">■ 융합선택</span>
+    <span style="color:#1565C0;">■ 일반선택</span> &nbsp;
+    <span style="color:#C62828;">■ 진로선택</span> &nbsp;
+    <span style="color:#D4A843;">■ 융합선택</span>
   </div>
 </div>`;

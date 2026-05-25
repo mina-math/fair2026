@@ -775,7 +775,7 @@ function renderHomeBody(phase) {
       </div>
 
       <!-- 3. 편제표 -->
-      <div onclick="goTo('screen-curriculum')" style="background:linear-gradient(135deg, #E67E22, #D35400); border-radius:16px; padding:18px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(230,126,34,0.3);">
+      <div onclick="goTo('screen-curriculum')" style="background:linear-gradient(135deg, #1565C0, #0D47A1); border-radius:16px; padding:18px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(21,101,192,0.3);">
         <span style="font-size:36px;">📊</span>
         <div>
           <div style="font-size:15px; font-weight:700;">우리학교 편제표</div>
@@ -785,7 +785,7 @@ function renderHomeBody(phase) {
       </div>
 
       <!-- 4. 과목 설계 -->
-      <div onclick="goTo('screen-design')" style="background:linear-gradient(135deg, #8E44AD, #6C3483); border-radius:16px; padding:18px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(142,68,173,0.3);">
+      <div onclick="goTo('screen-design')" style="background:linear-gradient(135deg, #D4A843, #B8922E); border-radius:16px; padding:18px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(212,168,67,0.3);">
         <span style="font-size:36px;">✏️</span>
         <div>
           <div style="font-size:15px; font-weight:700;">2027학년도 나만의 과목 설계하기</div>
@@ -795,7 +795,7 @@ function renderHomeBody(phase) {
       </div>
 
       <!-- 6. 멘토링/상담 신청 -->
-      <div onclick="openMentoringForm()" style="background:linear-gradient(135deg, #1F618D, #2980B9); border-radius:16px; padding:18px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(31,97,141,0.3);">
+      <div onclick="openMentoringForm()" style="background:linear-gradient(135deg, #C62828, #9B1B1B); border-radius:16px; padding:18px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(198,40,40,0.3);">
         <span style="font-size:36px;">💬</span>
         <div>
           <div style="font-size:15px; font-weight:700;">멘토링 · 상담 신청</div>
@@ -1587,7 +1587,8 @@ function updateChatFab() {
   const fab = document.getElementById('chat-fab');
   if (!fab) return;
   const phase = getPhase();
-  fab.style.display = (S.student && phase === 'before') ? '' : 'none';
+  const onHome = document.getElementById('screen-home')?.classList.contains('active');
+  fab.style.display = (S.student && phase === 'before' && onHome) ? '' : 'none';
 }
 
 // ============================================================
