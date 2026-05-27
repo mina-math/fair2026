@@ -45,17 +45,20 @@ let S = {
 // ============================================================
 function getPhase() {
   const override = localStorage.getItem('mgh_phase_override');
-  if (override === 'before' || override === 'during' || override === 'after') return override;
+  if (override === 'before' || override === 'during') return override;
   const today = new Date().toISOString().slice(0, 10);
   if (today < FAIR_DATE) return 'before';
-  if (today === FAIR_DATE) return 'during';
-  return 'after';
+  return 'during';
+}
+
+function allQuizzesDone() {
+  return BOOTHS.filter(b => !b.noStamp).every(b => S.stamps[b.id]);
 }
 
 function setPhaseOverride(phase) {
   localStorage.setItem('mgh_phase_override', phase);
   if (S.student) { updateHome(); }
-  toast('Phase가 "' + {before:'박람회 전',during:'당일',after:'이후'}[phase] + '"(으)로 변경되었습니다');
+  toast('Phase가 "' + {before:'박람회 전',during:'당일'}[phase] + '"(으)로 변경되었습니다');
   renderPhaseAdmin();
 }
 
@@ -66,7 +69,7 @@ function clearPhaseOverride() {
   renderPhaseAdmin();
 }
 
-const PHASE_LABELS = { before: '박람회 전', during: '박람회 당일', after: '박람회 이후' };
+const PHASE_LABELS = { before: '박람회 전', during: '박람회 당일' };
 
 // ============================================================
 // ROLE MANAGEMENT
@@ -256,7 +259,7 @@ function init() {
   if (bId && S.student) {
     qrBoothId = bId;
     if (!S.stamps[bId]) { goTo('screen-quiz'); startQuiz(bId); }
-    else { goTo('screen-home'); toast(BOOTHS.find(b=>b.id===bId)?.name + ' \uC2A4\uD0EC\uD504 \uC774\uBBF8 \uD68D\uB4DD! \u2705'); }
+    else { goTo('screen-home'); toast(BOOTHS.find(b=>b.id===bId)?.name + ' \uD034\uC988 \uC774\uBBF8 \uC644\uB8CC! \u2705'); }
   }
 }
 
@@ -302,7 +305,7 @@ function goTo(id) {
   if (id === 'screen-booths') { renderBoothList(); renderPhaseNav('booths-nav', 'screen-booths'); }
   if (id === 'screen-info') renderPhaseNav('info-nav', 'screen-info');
   if (id === 'screen-design') { renderDesignGroups(); renderPhaseNav('design-nav', 'screen-design'); }
-  if (id === 'screen-forms') renderPhaseNav('forms-nav', 'screen-forms');
+  if (id === 'screen-forms') { renderFormsContent(); renderPhaseNav('forms-nav', 'screen-forms'); }
   if (id === 'screen-myqr') renderMyQR();
   if (id === 'screen-curriculum') renderCurriculum();
 }
@@ -360,7 +363,7 @@ function doLogin() {
           S.quizResults = d.data.quizResults || {};
           S.subjects = migrateSubjects(d.data.subjects);
           const cnt = Object.keys(S.stamps).length;
-          if (cnt > 0) setTimeout(()=>toast(`\uC774\uC804 \uAE30\uB85D\uC744 \uBD88\uB7EC\uC654\uC5B4\uC694! \uC2A4\uD0EC\uD504 ${cnt}\uAC1C \u2705`), 400);
+          if (cnt > 0) setTimeout(()=>toast(`\uC774\uC804 \uAE30\uB85D\uC744 \uBD88\uB7EC\uC654\uC5B4\uC694! \uD034\uC988 ${cnt}\uAC1C \uC644\uB8CC \u2705`), 400);
         }
       }
     } catch(e) { S.stamps={}; S.quizResults={}; S.subjects={g2:{},g3:{}}; }
@@ -397,7 +400,7 @@ function updateHome() {
   if (phase === 'during') {
     const earned = BOOTHS.filter(b=>!b.noStamp && S.stamps[b.id]).length;
     const total = BOOTHS.filter(b=>!b.noStamp).length;
-    document.getElementById('progress-text').textContent = `${earned} / ${total}`;
+    document.getElementById('progress-text').textContent = `퀴즈 참여 ${earned} / ${total}`;
     document.getElementById('progress-fill').style.width = Math.round(earned/total*100)+'%';
     const boothBadge = document.getElementById('booth-badge');
     if (boothBadge) boothBadge.textContent = `${earned}/${total}`;
@@ -442,7 +445,7 @@ function renderBoothList() {
 }
 
 function openQR(id) {
-  if (S.stamps[id]) { toast(BOOTHS.find(b=>b.id===id).name + ' \uC2A4\uD0EC\uD504 \uC774\uBBF8 \uD68D\uB4DD\uD588\uC5B4\uC694! \u2705'); return; }
+  if (S.stamps[id]) { toast(BOOTHS.find(b=>b.id===id).name + ' \uD034\uC988 \uC774\uBBF8 \uC644\uB8CC\uD588\uC5B4\uC694! \u2705'); return; }
   qrBoothId = id;
   document.getElementById('qr-title').textContent = BOOTHS.find(b=>b.id===id).name;
   document.getElementById('qr-input').value = '';
@@ -549,6 +552,7 @@ function showResult() {
   const emoji = pct===100?'\uD83C\uDFC6':pct>=67?'\uD83C\uDF1F':'\uD83D\uDCDA';
   const msg = pct===100?'\uC644\uBCBD! \uBAA8\uB450 \uB9DE\uD600\uC5B4\uC694!':pct>=67?'\uD6CC\uB96D\uD574\uC694! \uAC70\uC758 \uB2E4 \uB9DE\uD600\uC5B4\uC694!':'\uC870\uAE08 \uB354 \uACF5\uBD80\uD574\uBD10\uC694!';
 
+  const allDone = allQuizzesDone();
   document.getElementById('quiz-wrap').innerHTML = `
     <div class="quiz-result-wrap">
       <span class="result-big-emoji">${emoji}</span>
@@ -557,8 +561,14 @@ function showResult() {
       <div class="result-msg">${msg}</div>
       <div class="stamp-earned-box">
         <span class="stamp-earned-icon">${booth.icon}</span>
-        <div class="stamp-earned-text">${booth.name} \uC2A4\uD0EC\uD504 \uD68D\uB4DD! \uD83C\uDF89</div>
+        <div class="stamp-earned-text">${booth.name} \uD034\uC988 \uC644\uB8CC! \uD83C\uDF89</div>
       </div>
+      ${allDone ? `
+      <div style="background:linear-gradient(135deg, #2ECC71, #27AE60); border-radius:16px; padding:16px; margin-bottom:14px; color:white; text-align:center;">
+        <div style="font-size:24px; margin-bottom:4px;">\uD83C\uDF8A</div>
+        <div style="font-size:15px; font-weight:700;">\uCD95\uD558\uD574\uC694! \uBAA8\uB4E0 \uD034\uC988\uB97C \uC644\uB8CC\uD588\uC5B4\uC694!</div>
+        <div style="font-size:13px; opacity:0.9; margin-top:4px;">\uD648 \uD654\uBA74\uC5D0\uC11C \uC18C\uAC10\uBB38\uACFC \uB9CC\uC871\uB3C4 \uC124\uBB38\uC744 \uC791\uC131\uD574\uC8FC\uC138\uC694</div>
+      </div>` : ''}
       <button class="btn btn-primary" style="margin-bottom:10px" onclick="goTo('screen-booths')">\uB2E4\uB978 \uBD80\uC2A4 \uBC29\uBB38\uD558\uAE30</button>
       <button class="btn btn-outline" onclick="goTo('screen-home')">\uD648\uC73C\uB85C</button>
     </div>`;
@@ -587,8 +597,6 @@ function switchInfoTab(i) {
 function renderDesignGroups() {
   const el = document.getElementById('design-cats'); if (!el) return;
   const grade = S.student ? S.student.grade : 0;
-  const isReadOnly = getPhase() === 'after';
-
   if (!grade) {
     document.getElementById('design-hint').textContent = '\uD83D\uDCCC \uB85C\uADF8\uC778 \uD6C4 \uB0B4 \uD559\uB144\uC5D0 \uB9DE\uB294 \uACFC\uBAA9\uC774 \uD45C\uC2DC\uB3FC\uC694';
     el.innerHTML = '<div class="empty-msg" style="padding:24px;text-align:center;">\uB85C\uADF8\uC778\uC774 \uD544\uC694\uD569\uB2C8\uB2E4 \uD83D\uDD12</div>';
@@ -599,13 +607,9 @@ function renderDesignGroups() {
   const gradeKey = isG1 ? 'g2' : 'g3';
   const semData  = isG1 ? SUBJECTS_G2 : SUBJECTS_G3;
 
-  if (isReadOnly) {
-    document.getElementById('design-hint').innerHTML = '\uD83D\uDD12 \uBC15\uB78C\uD68C\uAC00 \uC885\uB8CC\uB418\uC5B4 \uACFC\uBAA9 \uBCC0\uACBD\uC774 \uBD88\uAC00\uD569\uB2C8\uB2E4 <span style="font-size:12px;color:var(--text-light);">(\uC5F4\uB78C\uB9CC \uAC00\uB2A5)</span>';
-  } else {
-    document.getElementById('design-hint').textContent = isG1
-      ? '\uD83D\uDCCC \uD604 1\uD559\uB144 \u2014 \uB0B4\uB144(2\uD559\uB144) \uC120\uD0DD\uACFC\uBAA9 (2026\uC785\uD559 \uD3B8\uC81C\uD45C \uAE30\uC900)'
-      : '\uD83D\uDCCC \uD604 2\uD559\uB144 \u2014 \uB0B4\uB144(3\uD559\uB144) \uC120\uD0DD\uACFC\uBAA9 (2025\uC785\uD559 \uD3B8\uC81C\uD45C \uAE30\uC900)';
-  }
+  document.getElementById('design-hint').textContent = isG1
+    ? '\uD83D\uDCCC \uD604 1\uD559\uB144 \u2014 \uB0B4\uB144(2\uD559\uB144) \uC120\uD0DD\uACFC\uBAA9 (2026\uC785\uD559 \uD3B8\uC81C\uD45C \uAE30\uC900)'
+    : '\uD83D\uDCCC \uD604 2\uD559\uB144 \u2014 \uB0B4\uB144(3\uD559\uB144) \uC120\uD0DD\uACFC\uBAA9 (2025\uC785\uD559 \uD3B8\uC81C\uD45C \uAE30\uC900)';
 
   if (!S.subjects[gradeKey] || typeof S.subjects[gradeKey] !== 'object' || Array.isArray(S.subjects[gradeKey])) {
     S.subjects[gradeKey] = {};
@@ -625,9 +629,9 @@ function renderDesignGroups() {
 
       grp.items.forEach((s, idx) => {
         const isSel = sel.includes(s.n);
-        const disabled = isReadOnly || (!isSel && full);
+        const disabled = !isSel && full;
         const rowCls = (isSel ? 'dt-selected' : '') + (disabled && !isSel ? ' dt-disabled' : '');
-        const click = isReadOnly ? '' : ` onclick="selectInGroup('${gradeKey}','${grp.id}','${s.n.replace(/'/g,"\\'")}',this)"`;
+        const click = ` onclick="selectInGroup('${gradeKey}','${grp.id}','${s.n.replace(/'/g,"\\'")}',this)"`;
         const typeLabel = s.t === 'general' ? '\uC77C\uBC18' : s.t === 'career' ? '\uC9C4\uB85C' : '\uC735\uD569';
 
         html += `<tr class="${rowCls}"${click}>`;
@@ -765,7 +769,7 @@ function renderHomeBody(phase) {
         <div style="font-size:15px; font-weight:700; margin-bottom:4px;">📗 과목선택 가이드북</div>
         <div style="font-size:12px; color:var(--text-light); margin-bottom:12px;">2022 개정교육과정과 교과목, 대학 및 학과 정보를 알아보세요.</div>
         <div style="display:flex; gap:10px;">
-          <a href="고교학점제_가이드북.pdf" download style="flex:1; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:8px; background:linear-gradient(135deg, #1565C0, #0D47A1); color:white; border-radius:12px; padding:14px 10px; font-size:14px; font-weight:700; box-shadow:0 3px 10px rgba(21,101,192,0.3);">
+          <a href="2022 개정 교육과정 고등학교 과목선택 안내서(개정판).pdf" download style="flex:1; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:8px; background:linear-gradient(135deg, #1565C0, #0D47A1); color:white; border-radius:12px; padding:14px 10px; font-size:14px; font-weight:700; box-shadow:0 3px 10px rgba(21,101,192,0.3);">
             📄 책으로 보기
           </a>
           <div onclick="openCurriculumNav()" style="flex:1; display:flex; align-items:center; justify-content:center; gap:8px; background:linear-gradient(135deg, #C62828, #B71C1C); color:white; border-radius:12px; padding:14px 10px; font-size:14px; font-weight:700; cursor:pointer; box-shadow:0 3px 10px rgba(198,40,40,0.3);">
@@ -813,9 +817,17 @@ function renderHomeBody(phase) {
           ✅ 멘토링/상담이 필요하면 미리 신청하세요
         </div>
       </div>`;
-  } else if (phase === 'during') {
+  } else {
+    // during
+    const done = allQuizzesDone();
     el.innerHTML = `
-      <!-- 1. 부스 투어 -->
+      <!-- 퀴즈 참여 현황 -->
+      <div class="stamp-card">
+        <div style="font-size:14px; font-weight:700; margin-bottom:10px;">📝 퀴즈 참여 현황</div>
+        <div class="stamp-grid" id="home-stamp-grid"></div>
+      </div>
+
+      <!-- 부스 투어 -->
       <div onclick="goTo('screen-booths')" style="background:linear-gradient(135deg, var(--primary), #0D47A1); border-radius:16px; padding:20px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(21,101,192,0.3);">
         <span style="font-size:40px;">🗺️</span>
         <div>
@@ -825,7 +837,21 @@ function renderHomeBody(phase) {
         <div style="margin-left:auto; font-size:20px;">›</div>
       </div>
 
-      <!-- 2. 만족도 설문 -->
+      ${done ? `
+      <!-- 전체 완료: 축하 + 소감문 + 만족도 설문 -->
+      <div style="background:linear-gradient(135deg, #2ECC71, #27AE60); border-radius:16px; padding:16px; margin-bottom:14px; color:white; text-align:center;">
+        <div style="font-size:32px; margin-bottom:6px;">🎉</div>
+        <div style="font-size:16px; font-weight:700;">모든 퀴즈를 완료했어요!</div>
+        <div style="font-size:13px; opacity:0.9; margin-top:4px;">아래 소감문과 만족도 설문을 작성해주세요</div>
+      </div>
+      <div onclick="openFeedbackForm()" style="background:linear-gradient(135deg, #1565C0, #0D47A1); border-radius:16px; padding:20px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(21,101,192,0.3);">
+        <span style="font-size:40px;">✍️</span>
+        <div>
+          <div style="font-size:16px; font-weight:700;">박람회 소감문 작성</div>
+          <div style="font-size:12px; opacity:0.85; margin-top:4px;">박람회에서 느낀 점을 소감문으로 남겨주세요</div>
+        </div>
+        <div style="margin-left:auto; font-size:20px;">›</div>
+      </div>
       <div onclick="openSatisfactionForm()" style="background:linear-gradient(135deg, #D4A843, #B8922E); border-radius:16px; padding:20px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(212,168,67,0.3);">
         <span style="font-size:40px;">📊</span>
         <div>
@@ -833,42 +859,20 @@ function renderHomeBody(phase) {
           <div style="font-size:12px; opacity:0.85; margin-top:4px;">박람회에 대한 소중한 의견을 남겨주세요</div>
         </div>
         <div style="margin-left:auto; font-size:20px;">›</div>
-      </div>
+      </div>` : `
+      <!-- 미완료: 격려 -->
+      <div style="background:white; border-radius:16px; padding:16px; margin-bottom:14px; box-shadow:0 2px 8px rgba(0,0,0,0.05); text-align:center;">
+        <div style="font-size:28px; margin-bottom:6px;">💪</div>
+        <div style="font-size:14px; font-weight:700; color:var(--text);">아직 방문하지 않은 부스가 있어요!</div>
+        <div style="font-size:13px; color:var(--text-light); margin-top:4px;">모든 부스의 퀴즈를 완료하면<br>소감문과 만족도 설문을 작성할 수 있어요</div>
+      </div>`}
 
       <div class="notice-card">
         <div class="notice-title">📢 오늘 박람회 이용 안내</div>
         <div class="notice-item">
           ✅ 각 부스를 방문하고 과목에 대해 알아보세요<br>
-          ✅ 리플렛에 스탬프를 꼭 찍어주세요<br>
-          ✅ 박람회가 끝나면 만족도 설문을 작성해주세요
-        </div>
-      </div>`;
-  } else {
-    // after
-    el.innerHTML = `
-      <!-- 1. 소감문 작성 -->
-      <div onclick="openFeedbackForm()" style="background:linear-gradient(135deg, #1565C0, #0D47A1); border-radius:16px; padding:20px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(21,101,192,0.3);">
-        <span style="font-size:40px;">✍️</span>
-        <div>
-          <div style="font-size:16px; font-weight:700;">박람회 소감문 작성</div>
-          <div style="font-size:12px; opacity:0.85; margin-top:4px;">박람회에서 느낀 점, 새롭게 알게 된 것을<br>소감문으로 남겨주세요</div>
-        </div>
-        <div style="margin-left:auto; font-size:20px;">›</div>
-      </div>
-
-      <!-- 2. 과목선택 일정 재강조 -->
-      <div style="background:white; border-radius:16px; padding:16px; margin-bottom:14px; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
-        <div style="font-size:15px; font-weight:700; margin-bottom:4px;">📅 앞으로의 과목선택 일정</div>
-        <div style="font-size:12px; color:var(--text-light); margin-bottom:10px;">아래 일정에 따라 과목선택이 진행됩니다. 꼭 확인하세요!</div>
-        ${scheduleHtml}
-      </div>
-
-      <div class="notice-card">
-        <div class="notice-title">📢 박람회가 종료되었습니다</div>
-        <div class="notice-item">
-          ✅ 소감문을 꼭 작성해주세요<br>
-          ✅ 과목선택 일정을 확인하고 준비하세요<br>
-          ✅ 참여해주셔서 감사합니다! 🎉
+          ✅ 각 부스에서 퀴즈에 참여해주세요<br>
+          ✅ 모든 퀴즈 완료 후 소감문과 만족도 설문을 작성해주세요
         </div>
       </div>`;
   }
@@ -887,11 +891,6 @@ function getPhaseNavItems(phase) {
       { id:'screen-booths', icon:'🗺️', label:'부스투어' },
       { id:'screen-design', icon:'✏️', label:'과목설계' },
       { id:'screen-forms',  icon:'📋', label:'신청·소감' },
-    ];
-  } else {
-    return [
-      { id:'screen-home',   icon:'🏠', label:'홈' },
-      { id:'screen-design', icon:'✏️', label:'과목설계' },
     ];
   }
 }
@@ -971,6 +970,53 @@ function openSatisfactionForm() {
 }
 
 // ============================================================
+// FORMS CONTENT (동적 렌더링)
+// ============================================================
+function renderFormsContent() {
+  const el = document.getElementById('forms-content');
+  if (!el) return;
+  const done = allQuizzesDone();
+  const earned = BOOTHS.filter(b=>!b.noStamp && S.stamps[b.id]).length;
+  const total = BOOTHS.filter(b=>!b.noStamp).length;
+
+  el.innerHTML = `
+    <div onclick="openConsultForm()" style="background:linear-gradient(135deg, #0D47A1, #1565C0); border-radius:16px; padding:20px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(13,71,161,0.3);">
+      <span style="font-size:40px;">🎯</span>
+      <div>
+        <div style="font-size:16px; font-weight:700;">상담 신청하기</div>
+        <div style="font-size:12px; opacity:0.85; margin-top:4px;">진로진학상담 · 멘토상담 부스에서<br>1:1 상담을 받고 싶다면 신청하세요</div>
+      </div>
+      <div style="margin-left:auto; font-size:20px;">›</div>
+    </div>
+    ${done ? `
+    <div onclick="openFeedbackForm()" style="background:linear-gradient(135deg, #C62828, #B71C1C); border-radius:16px; padding:20px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(198,40,40,0.3);">
+      <span style="font-size:40px;">✍️</span>
+      <div>
+        <div style="font-size:16px; font-weight:700;">박람회 소감문 작성</div>
+        <div style="font-size:12px; opacity:0.85; margin-top:4px;">오늘 박람회에서 느낀 점, 새롭게<br>알게 된 것을 소감문으로 남겨주세요</div>
+      </div>
+      <div style="margin-left:auto; font-size:20px;">›</div>
+    </div>
+    <div onclick="openSatisfactionForm()" style="background:linear-gradient(135deg, #D4A843, #B8922E); border-radius:16px; padding:20px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(212,168,67,0.3);">
+      <span style="font-size:40px;">📊</span>
+      <div>
+        <div style="font-size:16px; font-weight:700;">만족도 설문조사</div>
+        <div style="font-size:12px; opacity:0.85; margin-top:4px;">박람회에 대한 소중한 의견을 남겨주세요</div>
+      </div>
+      <div style="margin-left:auto; font-size:20px;">›</div>
+    </div>` : `
+    <div style="background:white; border-radius:16px; padding:20px; margin-bottom:14px; box-shadow:0 2px 8px rgba(0,0,0,0.05); text-align:center;">
+      <div style="font-size:36px; margin-bottom:8px;">🔒</div>
+      <div style="font-size:15px; font-weight:700; color:var(--text);">소감문과 만족도 설문은<br>모든 퀴즈를 완료하면 열려요</div>
+      <div style="font-size:13px; color:var(--text-light); margin-top:8px;">현재 ${earned} / ${total} 부스 퀴즈 완료</div>
+    </div>`}
+    <div style="background:var(--primary-light); border-radius:12px; padding:14px; font-size:13px; color:var(--primary-dark);">
+      💡 상담 신청과 소감문은 구글폼으로 연결됩니다.<br>
+      이 앱에서는 개인정보를 수집하지 않아요.
+    </div>`;
+}
+
+// ============================================================
 // TOAST
 // ============================================================
 let toastTimer;
@@ -988,7 +1034,7 @@ function toast(msg) {
 function confirmLogout() {
   const earned = BOOTHS.filter(b=>!b.noStamp && S.stamps[b.id]).length;
   const msg = earned > 0
-    ? `\uD604\uC7AC \uC2A4\uD0EC\uD504 ${earned}\uAC1C\uB97C \uD68D\uB4DD\uD55C \uC0C1\uD0DC\uC608\uC694.\n\n\uB85C\uADF8\uC544\uC6C3\uD574\uB3C4 \uC774 \uAE30\uAE30\uC5D0 \uC9C4\uD589 \uB370\uC774\uD130\uAC00 \uC800\uC7A5\uB3FC\uC694.\n\uAC19\uC740 \uD559\uBC88\uC73C\uB85C \uB2E4\uC2DC \uC785\uC7A5\uD558\uBA74 \uC774\uC5B4\uC11C \uD560 \uC218 \uC788\uC5B4\uC694! \uD83D\uDE0A\n\n\uCC98\uC74C \uD654\uBA74\uC73C\uB85C \uB3CC\uC544\uAC08\uAE4C\uC694?`
+    ? `\uD604\uC7AC \uD034\uC988 ${earned}\uAC1C\uB97C \uC644\uB8CC\uD55C \uC0C1\uD0DC\uC608\uC694.\n\n\uB85C\uADF8\uC544\uC6C3\uD574\uB3C4 \uC774 \uAE30\uAE30\uC5D0 \uC9C4\uD589 \uB370\uC774\uD130\uAC00 \uC800\uC7A5\uB3FC\uC694.\n\uAC19\uC740 \uD559\uBC88\uC73C\uB85C \uB2E4\uC2DC \uC785\uC7A5\uD558\uBA74 \uC774\uC5B4\uC11C \uD560 \uC218 \uC788\uC5B4\uC694! \uD83D\uDE0A\n\n\uCC98\uC74C \uD654\uBA74\uC73C\uB85C \uB3CC\uC544\uAC08\uAE4C\uC694?`
     : '\uCC98\uC74C \uD654\uBA74\uC73C\uB85C \uB3CC\uC544\uAC00\uC11C \uB2E4\uC2DC \uC785\uC7A5\uD560 \uC218 \uC788\uC5B4\uC694.\n\uACC4\uC18D\uD560\uAE4C\uC694?';
   if (confirm(msg)) doLogout();
 }
@@ -1092,7 +1138,7 @@ function adminVerifyUUID() {
     resultEl.innerHTML = `
       <div class="verify-status success">UUID \uD615\uC2DD \uD655\uC778\uB428 \u2705</div>
       <div style="font-size:13px; color:var(--text-light); margin-top:8px;">
-        \uD559\uC0DD \uD3F0\uC758 "\uB098\uC758 \uCC38\uC5EC QR" \uD654\uBA74\uC5D0\uC11C<br>\uC2A4\uD0EC\uD504 \uD604\uD669\uACFC \uCC38\uC5EC \uB0B4\uC5ED\uC744 \uC9C1\uC811 \uD655\uC778\uD574\uC8FC\uC138\uC694.
+        \uD559\uC0DD \uD3F0\uC758 "\uB098\uC758 \uCC38\uC5EC QR" \uD654\uBA74\uC5D0\uC11C<br>\uD034\uC988 \uCC38\uC5EC \uD604\uD669\uACFC \uB0B4\uC5ED\uC744 \uC9C1\uC811 \uD655\uC778\uD574\uC8FC\uC138\uC694.
       </div>`;
   } else {
     resultEl.innerHTML = `
@@ -1280,7 +1326,7 @@ function renderMyQRStats() {
   const gradeKey = grade === 1 ? 'g2' : 'g3';
   const hasDesign = S.subjects[gradeKey] && Object.values(S.subjects[gradeKey]).some(arr => arr.length > 0);
   el.innerHTML = `
-    <div class="myqr-stat"><span class="myqr-stat-label">\uC2A4\uD0EC\uD504</span><span class="myqr-stat-value">${earned} / ${total} \uC644\uB8CC</span></div>
+    <div class="myqr-stat"><span class="myqr-stat-label">\uD034\uC988 \uCC38\uC5EC</span><span class="myqr-stat-value">${earned} / ${total} \uC644\uB8CC</span></div>
     <div class="myqr-stat"><span class="myqr-stat-label">\uD034\uC988</span><span class="myqr-stat-value">${quizScores.length > 0 ? quizScores.join(', ') : '\uC544\uC9C1 \uC5C6\uC74C'}</span></div>
     <div class="myqr-stat"><span class="myqr-stat-label">\uACFC\uBAA9 \uC124\uACC4</span><span class="myqr-stat-value">${hasDesign ? '\uC644\uB8CC \u2705' : '\uBBF8\uC644\uB8CC'}</span></div>`;
 }
@@ -1346,7 +1392,7 @@ function fetchVerifyData(uuid) {
         <div class="verify-stat-row"><span>QR \uC0C1\uD0DC</span><span style="color:var(--success); font-weight:700;">\uB77C\uC774\uBE0C \uD655\uC778\uB428 (\uC2A4\uD06C\uB9B0\uC0F7 \uC544\uB2D8)</span></div>
         <div style="background:var(--primary-light); border-radius:10px; padding:12px; margin-top:14px; font-size:13px; color:var(--primary-dark); line-height:1.6;">
           \uD83D\uDCA1 \uD559\uC0DD \uD3F0\uC758 "\uB098\uC758 \uCC38\uC5EC QR" \uD654\uBA74\uC5D0\uC11C<br>
-          \uC2A4\uD0EC\uD504 \uD604\uD669\uACFC \uD034\uC988 \uC810\uC218\uB97C \uC9C1\uC811 \uD655\uC778\uD574\uC8FC\uC138\uC694.
+          \uD034\uC988 \uCC38\uC5EC \uD604\uD669\uACFC \uC810\uC218\uB97C \uC9C1\uC811 \uD655\uC778\uD574\uC8FC\uC138\uC694.
         </div>
       </div>`;
   } else {
@@ -1422,15 +1468,10 @@ function removeRole(type, email) {
 function renderPhaseAdmin() {
   const el = document.getElementById('admin-phase-section');
   if (!el) return;
+  if (S.role !== 'admin') { el.parentElement.style.display = 'none'; return; }
+  el.parentElement.style.display = '';
   const phase = getPhase();
   const override = localStorage.getItem('mgh_phase_override');
-  const autoPhase = (() => {
-    const today = new Date().toISOString().slice(0, 10);
-    if (today < FAIR_DATE) return 'before';
-    if (today === FAIR_DATE) return 'during';
-    return 'after';
-  })();
-
   el.innerHTML = `
     <div style="font-size:14px; font-weight:700; margin-bottom:10px;">📅 Phase 설정</div>
     <div style="font-size:12px; color:var(--text-light); margin-bottom:10px;">
@@ -1440,7 +1481,6 @@ function renderPhaseAdmin() {
       <button class="phase-btn ${!override ? 'active' : ''}" onclick="clearPhaseOverride()">🔄 자동</button>
       <button class="phase-btn ${override==='before' ? 'active' : ''}" onclick="setPhaseOverride('before')">박람회 전</button>
       <button class="phase-btn ${override==='during' ? 'active' : ''}" onclick="setPhaseOverride('during')">당일</button>
-      <button class="phase-btn ${override==='after' ? 'active' : ''}" onclick="setPhaseOverride('after')">이후</button>
     </div>`;
 }
 
@@ -1473,11 +1513,18 @@ function initChatbot() {
   renderSuggestions(['고교학점제가 뭐야?','과목 유형 알려줘','과목선택 일정','편제표 보고 싶어','내 진로에 맞는 과목은?']);
 }
 
+function linkify(text) {
+  const escaped = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return escaped
+    .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" style="color:#1565C0; text-decoration:underline; word-break:break-all;">바로가기 🔗</a>')
+    .replace(/\n/g, '<br>');
+}
+
 function addBotMessage(text) {
   const msgs = document.getElementById('chat-messages');
   const div = document.createElement('div');
   div.className = 'chat-msg bot';
-  div.textContent = text;
+  div.innerHTML = linkify(text);
   msgs.appendChild(div);
   msgs.scrollTop = msgs.scrollHeight;
 }

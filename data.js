@@ -17,7 +17,7 @@ const FAIR_DATE = '2026-07-07';
 // 구글폼 URL (배포 전 실제 URL로 교체하세요)
 const GOOGLE_FORM_CONSULT = 'https://docs.google.com/forms/d/e/1FAIpQLSe4GFOuXYSWG3Kg3x1OIwJ9_kkijsn2WslM8ZeEv2WIyhRGEg/viewform?usp=publish-editor';  // 상담 신청 구글폼
 const GOOGLE_FORM_FEEDBACK = 'https://docs.google.com/forms/d/e/1FAIpQLSdoG1YG8JXkrKRfMa9CjLtCkTUy93cAlQVk3OwenY1trPx9dg/viewform?usp=dialog'; // 박람회 소감문 구글폼
-const GOOGLE_FORM_MENTORING = 'YOUR_GOOGLE_FORM_MENTORING_URL'; // 멘토링/진로상담 신청
+const GOOGLE_FORM_MENTORING = 'https://docs.google.com/forms/d/e/1FAIpQLSf8HG16z6c8Ol5GHNHuwRM7K3EppNCmyJ6nv4WKXecMd7yeuQ/viewform'; // 멘토링/진로상담 신청
 const GOOGLE_FORM_SATISFACTION = 'YOUR_GOOGLE_FORM_SATISFACTION_URL'; // 만족도 설문
 
 // 2022개정교육과정 과목 네비게이션 외부 사이트
@@ -53,7 +53,7 @@ const CHATBOT_FAQ = [
   },
   {
     keywords: ['박람회','언제','날짜','일정','7월','당일'],
-    answer: '📅 교육과정 박람회는 2026년 7월 7일(화)에 진행돼요!\n\n박람회 당일에는 각 교과 부스를 방문해서 과목에 대해 알아보고, 스탬프도 모을 수 있어요.'
+    answer: '📅 교육과정 박람회는 2026년 7월 7일(화)에 진행돼요!\n\n박람회 당일에는 각 교과 부스를 방문해서 과목에 대해 알아보고, 퀴즈에 참여할 수 있어요.'
   },
   {
     keywords: ['과목선택','수요조사','선택 일정','신청','언제까지'],
@@ -109,11 +109,11 @@ const CHATBOT_FAQ = [
   },
   {
     keywords: ['멘토','상담','진로','선배','신청'],
-    answer: '💬 멘토링·진로상담을 원하시면 홈 화면의 "멘토링·상담 신청" 버튼을 눌러 구글폼으로 신청해주세요!\n\n박람회 당일(7/7)에 선배 멘토나 진로상담 선생님과 1:1 상담을 받을 수 있어요.'
+    answer: '💬 멘토링·진로상담을 원하시면 아래 링크에서 신청해주세요!\n\n📋 신청하기: https://docs.google.com/forms/d/e/1FAIpQLSf8HG16z6c8Ol5GHNHuwRM7K3EppNCmyJ6nv4WKXecMd7yeuQ/viewform\n\n박람회 당일(7/7)에 선배 멘토나 진로상담 선생님과 1:1 상담을 받을 수 있어요.'
   },
   {
-    keywords: ['부스','스탬프','투어','방문'],
-    answer: '🗺️ 박람회 당일(7/7)에는 9개 교과 부스를 방문할 수 있어요!\n\n국어, 수학, 영어, 사회, 과학, 체육·예술, 생활·교양, 진로진학상담, 멘토상담 부스가 있고, 각 부스에서 퀴즈를 풀면 스탬프를 받을 수 있어요.'
+    keywords: ['부스','퀴즈','투어','방문'],
+    answer: '🗺️ 박람회 당일(7/7)에는 9개 교과 부스를 방문할 수 있어요!\n\n국어, 수학, 영어, 사회, 과학, 체육·예술, 생활·교양, 진로진학상담, 멘토상담 부스가 있고, 각 부스에서 퀴즈에 참여할 수 있어요.'
   },
   {
     keywords: ['쉬운 과목','쉬운','추천','어떤 과목','뭘 들어야','고민','모르겠'],
@@ -524,7 +524,7 @@ const INFO_HTML = [
     </div>
 
     <div style="display:flex;flex-direction:column;gap:14px;margin-top:16px;">
-      <a href="고교학점제_가이드북.pdf" download style="
+      <a href="2022 개정 교육과정 고등학교 과목선택 안내서(개정판).pdf" download style="
         display:flex;align-items:center;gap:14px;
         background:linear-gradient(135deg,#1565C0,#0D47A1);
         color:white;border-radius:14px;padding:16px 18px;

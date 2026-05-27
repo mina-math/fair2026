@@ -75,7 +75,7 @@
       <div class="home-name" id="home-name">학생</div>
       <div id="home-progress-wrap" class="progress-wrapper" style="display:none;">
         <div class="progress-label">
-          <span>스탬프 투어 진행률</span>
+          <span>퀴즈 참여 현황</span>
           <span id="progress-text">0 / 9</span>
         </div>
         <div class="progress-bar">
@@ -187,31 +187,7 @@
       <div class="header-title">📋 신청 · 소감</div>
     </div>
     <div style="overflow-y:auto; flex:1; padding-bottom:72px;">
-      <div style="padding:16px;">
-        <!-- 상담 신청 -->
-        <div onclick="openConsultForm()" style="background:linear-gradient(135deg, #0D47A1, #1565C0); border-radius:16px; padding:20px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(13,71,161,0.3);">
-          <span style="font-size:40px;">🎯</span>
-          <div>
-            <div style="font-size:16px; font-weight:700;">상담 신청하기</div>
-            <div style="font-size:12px; opacity:0.85; margin-top:4px;">진로진학상담 · 멘토상담 부스에서<br>1:1 상담을 받고 싶다면 신청하세요</div>
-          </div>
-          <div style="margin-left:auto; font-size:20px;">›</div>
-        </div>
-        <!-- 소감문 -->
-        <div onclick="openFeedbackForm()" style="background:linear-gradient(135deg, #C62828, #B71C1C); border-radius:16px; padding:20px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(198,40,40,0.3);">
-          <span style="font-size:40px;">✍️</span>
-          <div>
-            <div style="font-size:16px; font-weight:700;">박람회 소감문 작성</div>
-            <div style="font-size:12px; opacity:0.85; margin-top:4px;">오늘 박람회에서 느낀 점, 새롭게<br>알게 된 것을 소감문으로 남겨주세요</div>
-          </div>
-          <div style="margin-left:auto; font-size:20px;">›</div>
-        </div>
-        <!-- 안내 -->
-        <div style="background:var(--primary-light); border-radius:12px; padding:14px; font-size:13px; color:var(--primary-dark);">
-          💡 상담 신청과 소감문은 구글폼으로 연결됩니다.<br>
-          이 앱에서는 개인정보를 수집하지 않아요.
-        </div>
-      </div>
+      <div id="forms-content" style="padding:16px;"></div>
     </div>
     <div class="bottom-nav" id="forms-nav"></div>
   </div>
