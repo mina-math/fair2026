@@ -16,9 +16,9 @@ const FAIR_DATE = '2026-07-07';
 
 // 구글폼 URL (배포 전 실제 URL로 교체하세요)
 const GOOGLE_FORM_CONSULT = 'https://docs.google.com/forms/d/e/1FAIpQLSe4GFOuXYSWG3Kg3x1OIwJ9_kkijsn2WslM8ZeEv2WIyhRGEg/viewform?usp=publish-editor';  // 상담 신청 구글폼
-const GOOGLE_FORM_FEEDBACK = 'https://docs.google.com/forms/d/e/1FAIpQLSdoG1YG8JXkrKRfMa9CjLtCkTUy93cAlQVk3OwenY1trPx9dg/viewform?usp=dialog'; // 박람회 소감문 구글폼
+const GOOGLE_FORM_FEEDBACK = 'https://docs.google.com/forms/d/e/1FAIpQLSfnNss0nKUIrwa2p0cIZgzAs5A5JSI38Y7nNDrwUQlALw9zmA/viewform?usp=dialog'; // 박람회 소감문 구글폼
 const GOOGLE_FORM_MENTORING = 'https://docs.google.com/forms/d/e/1FAIpQLSf8HG16z6c8Ol5GHNHuwRM7K3EppNCmyJ6nv4WKXecMd7yeuQ/viewform'; // 멘토링/진로상담 신청
-const GOOGLE_FORM_SATISFACTION = 'YOUR_GOOGLE_FORM_SATISFACTION_URL'; // 만족도 설문
+const GOOGLE_FORM_SATISFACTION = 'https://docs.google.com/forms/d/e/1FAIpQLSdoG1YG8JXkrKRfMa9CjLtCkTUy93cAlQVk3OwenY1trPx9dg/viewform?usp=dialog'; // 만족도 설문
 
 // 2022개정교육과정 과목 네비게이션 외부 사이트
 const CURRICULUM_NAV_URL = 'https://jne.money3366.workers.dev/subject-navigation'; // 과목 네비게이션 사이트 주소
