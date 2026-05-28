@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 // UTILS
 // ============================================================
 function sanitizeHtml(str) {
@@ -246,17 +246,9 @@ function init() {
   renderDesignGroups();
   renderBoothList();
 
-  // URL param: 선생님 QR 확인 모드
-  const params = new URLSearchParams(location.search);
-  const verifyUUID = params.get('verify');
-  if (verifyUUID) {
-    goTo('screen-verify');
-    handleVerifyMode(verifyUUID);
-    return;
-  }
-
   if (S.student && S.googleUser) { goTo('screen-home'); updateHome(); }
 
+  const params = new URLSearchParams(location.search);
   const bId = params.get('booth');
   if (bId && S.student) {
     qrBoothId = bId;
@@ -308,7 +300,6 @@ function goTo(id) {
   if (id === 'screen-info') renderPhaseNav('info-nav', 'screen-info');
   if (id === 'screen-design') { renderDesignGroups(); renderPhaseNav('design-nav', 'screen-design'); }
   if (id === 'screen-forms') { renderFormsContent(); renderPhaseNav('forms-nav', 'screen-forms'); }
-  if (id === 'screen-myqr') renderMyQR();
   if (id === 'screen-curriculum') renderCurriculum();
 }
 
@@ -1132,50 +1123,6 @@ function exitPreviewMode() {
   enterAdminMode();
 }
 
-// 관리자용: 학생 QR 확인
-function startQRScan() {
-  // 폰 카메라로 QR을 스캔하면 URL이 브라우저에서 자동으로 열림
-  // 여기서는 안내 메시지 표시 + 수동 UUID 입력 옵션 제공
-  const resultEl = document.getElementById('admin-verify-result');
-  resultEl.style.display = '';
-  resultEl.innerHTML = `
-    <div style="background:white; border-radius:14px; padding:16px; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
-      <div style="font-size:14px; font-weight:700; margin-bottom:12px;">\uD83D\uDCF1 QR \uC2A4\uCE94 \uBC29\uBC95</div>
-      <div style="font-size:13px; color:var(--text-light); line-height:1.7; margin-bottom:14px;">
-        <strong>1.</strong> \uD734\uB300\uD3F0 \uAE30\uBCF8 \uCE74\uBA54\uB77C \uC571\uC744 \uC5F4\uC5B4\uC694<br>
-        <strong>2.</strong> \uD559\uC0DD \uD3F0\uC758 QR \uCF54\uB4DC\uB97C \uC2A4\uCE94\uD558\uC138\uC694<br>
-        <strong>3.</strong> \uC790\uB3D9\uC73C\uB85C \uD655\uC778 \uD398\uC774\uC9C0\uAC00 \uC5F4\uB9BD\uB2C8\uB2E4
-      </div>
-      <div style="border-top:1px solid var(--border); padding-top:12px; margin-top:4px;">
-        <div style="font-size:12px; color:var(--text-light); margin-bottom:8px;">QR \uC2A4\uCE94\uC774 \uC548 \uB420 \uACBD\uC6B0, UUID \uC9C1\uC811 \uC785\uB825:</div>
-        <div style="display:flex; gap:8px;">
-          <input type="text" id="admin-uuid-input" class="input-field" placeholder="UUID \uC785\uB825" style="flex:1; font-size:13px; padding:10px 12px;">
-          <button class="btn btn-primary btn-sm" onclick="adminVerifyUUID()">\uD655\uC778</button>
-        </div>
-      </div>
-      <div id="admin-uuid-result" style="margin-top:12px;"></div>
-    </div>`;
-}
-
-function adminVerifyUUID() {
-  const uuid = document.getElementById('admin-uuid-input').value.trim();
-  if (!uuid) { toast('UUID\uB97C \uC785\uB825\uD558\uC138\uC694'); return; }
-  const resultEl = document.getElementById('admin-uuid-result');
-
-  // UUID 해시 검증 (수동 입력이므로 시간 검증 없이 형식만 확인)
-  const isValidFormat = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(uuid);
-
-  if (isValidFormat) {
-    resultEl.innerHTML = `
-      <div class="verify-status success">UUID \uD615\uC2DD \uD655\uC778\uB428 \u2705</div>
-      <div style="font-size:13px; color:var(--text-light); margin-top:8px;">
-        \uD559\uC0DD \uD3F0\uC758 "\uB098\uC758 \uCC38\uC5EC QR" \uD654\uBA74\uC5D0\uC11C<br>\uD034\uC988 \uCC38\uC5EC \uD604\uD669\uACFC \uB0B4\uC5ED\uC744 \uC9C1\uC811 \uD655\uC778\uD574\uC8FC\uC138\uC694.
-      </div>`;
-  } else {
-    resultEl.innerHTML = `
-      <div class="verify-status error">\uC720\uD6A8\uD558\uC9C0 \uC54A\uC740 UUID \uD615\uC2DD\uC785\uB2C8\uB2E4 \u26A0\uFE0F</div>`;
-  }
-}
 
 function renderAdminBoothList() {
   const el = document.getElementById('admin-booth-list'); if (!el) return;
@@ -1300,144 +1247,8 @@ function closeEditOverlay(e) {
 }
 
 // ============================================================
-// MY QR - Google Charts API로 진짜 스캔 가능한 QR 생성
-// ============================================================
-let qrRefreshTimer = null;
-
-function renderMyQR() {
-  if (!S.student?.uuid) { toast('\uB85C\uADF8\uC778\uC774 \uD544\uC694\uD574\uC694'); goTo('screen-login'); return; }
-  clearInterval(qrRefreshTimer);
-  drawQR();
-  renderMyQRStats();
-  qrRefreshTimer = setInterval(drawQR, 30000);
-}
-
-function getVerifyUrl() {
-  const uuid = S.student.uuid;
-  const t = Math.floor(Date.now() / 30000);
-  const h = simpleHash(uuid + t + 'MGH2026');
-  const baseUrl = location.href.split('?')[0];
-  return `${baseUrl}?verify=${uuid}&t=${t}&h=${h}`;
-}
-
-function drawQR() {
-  const container = document.getElementById('myqr-canvas-wrap');
-  if (!container) return;
-  const url = getVerifyUrl();
-
-  // QR Code API (qrserver.com - 무료, 안정적)
-  const qrImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
-  container.innerHTML = `<img src="${qrImgUrl}" alt="QR Code" width="200" height="200" style="display:block; border-radius:8px;" onerror="drawQRFallback()">`;
-}
-
-function drawQRFallback() {
-  const container = document.getElementById('myqr-canvas-wrap');
-  if (!container) return;
-  const uuid = S.student.uuid;
-  container.innerHTML = `
-    <div style="width:200px;height:200px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;border-radius:12px;flex-direction:column;gap:8px;padding:12px;">
-      <div style="font-size:40px;">\uD83C\uDFEB</div>
-      <div style="font-size:10px;color:var(--text-light);word-break:break-all;text-align:center;">QR \uC0DD\uC131 \uC2E4\uD328<br>UUID: ${uuid.substring(0,12)}...</div>
-    </div>`;
-}
-
-function renderMyQRStats() {
-  const el = document.getElementById('myqr-stats');
-  if (!el) return;
-  const stampBooths = BOOTHS.filter(b => !b.noStamp);
-  const earned = stampBooths.filter(b => S.stamps[b.id]).length;
-  const total = stampBooths.length;
-
-  const quizScores = Object.entries(S.quizResults).map(([id, r]) => {
-    const b = BOOTHS.find(b => b.id === id);
-    return b ? `${b.name}: ${r.score}/${r.total}` : '';
-  }).filter(Boolean);
-
-  const grade = S.student?.grade || 0;
-  const gradeKey = grade === 1 ? 'g2' : 'g3';
-  const hasDesign = S.subjects[gradeKey] && Object.values(S.subjects[gradeKey]).some(arr => arr.length > 0);
-  el.innerHTML = `
-    <div class="myqr-stat"><span class="myqr-stat-label">\uD034\uC988 \uCC38\uC5EC</span><span class="myqr-stat-value">${earned} / ${total} \uC644\uB8CC</span></div>
-    <div class="myqr-stat"><span class="myqr-stat-label">\uD034\uC988</span><span class="myqr-stat-value">${quizScores.length > 0 ? quizScores.join(', ') : '\uC544\uC9C1 \uC5C6\uC74C'}</span></div>
-    <div class="myqr-stat"><span class="myqr-stat-label">\uACFC\uBAA9 \uC124\uACC4</span><span class="myqr-stat-value">${hasDesign ? '\uC644\uB8CC \u2705' : '\uBBF8\uC644\uB8CC'}</span></div>`;
-}
 
 // ============================================================
-// VERIFY (선생님 확인 화면)
-// ============================================================
-let pendingVerifyUUID = null;
-
-function handleVerifyMode(uuid) {
-  pendingVerifyUUID = uuid;
-  // Google 로그인 + 관리자 역할이면 비밀번호 스킵
-  if (S.googleUser && isAdminLike(S.role)) {
-    document.getElementById('verify-auth').style.display = 'none';
-    fetchVerifyData(uuid);
-  } else {
-    document.getElementById('verify-auth').style.display = '';
-    document.getElementById('verify-result').style.display = 'none';
-  }
-}
-
-function verifyAdminAuth() {
-  // \uBE44\uBC00\uBC88\uD638 \uBC29\uC2DD (\uAE30\uC874 \uD638\uD658)
-  const pw = document.getElementById('verify-pw').value.trim();
-  const storedHash = localStorage.getItem(ADMIN_PW_KEY);
-  const pwHash = simpleHash(pw);
-  const defaultMatch = pw === 'MOKPO2026';
-  if ((storedHash && pwHash === storedHash) || (!storedHash && defaultMatch)) {
-    document.getElementById('verify-auth').style.display = 'none';
-    fetchVerifyData(pendingVerifyUUID);
-  } else if (S.googleUser && isAdminLike(S.role)) {
-    // Google \uB85C\uADF8\uC778 + \uAD00\uB9AC\uC790 \uC5ED\uD560\uC774\uBA74 \uBC14\uB85C \uD1B5\uACFC
-    document.getElementById('verify-auth').style.display = 'none';
-    fetchVerifyData(pendingVerifyUUID);
-  } else {
-    toast('\uBE44\uBC00\uBC88\uD638\uAC00 \uB9DE\uC9C0 \uC54A\uC544\uC694 \uD83D\uDD12');
-  }
-}
-
-function fetchVerifyData(uuid) {
-  const resultEl = document.getElementById('verify-result');
-  resultEl.style.display = '';
-
-  const params = new URLSearchParams(location.search);
-  const t = params.get('t');
-  const h = params.get('h');
-  const now = Math.floor(Date.now() / 30000);
-
-  let timeValid = false;
-  if (t && h) {
-    for (let offset = 0; offset <= 2; offset++) {
-      const expected = simpleHash(uuid + (now - offset) + 'MGH2026');
-      if (h === expected) { timeValid = true; break; }
-    }
-  }
-
-  if (timeValid) {
-    resultEl.innerHTML = `
-      <div class="verify-card">
-        <div class="verify-status success">\u2705 \uB77C\uC774\uBE0C QR \uD655\uC778 \uC644\uB8CC</div>
-        <div class="verify-title">\uD559\uC0DD \uCC38\uC5EC \uC778\uC99D</div>
-        <div class="verify-stat-row"><span>UUID</span><span style="font-size:11px;">${uuid.substring(0,12)}...</span></div>
-        <div class="verify-stat-row"><span>QR \uC0C1\uD0DC</span><span style="color:var(--success); font-weight:700;">\uB77C\uC774\uBE0C \uD655\uC778\uB428 (\uC2A4\uD06C\uB9B0\uC0F7 \uC544\uB2D8)</span></div>
-        <div style="background:var(--primary-light); border-radius:10px; padding:12px; margin-top:14px; font-size:13px; color:var(--primary-dark); line-height:1.6;">
-          \uD83D\uDCA1 \uD559\uC0DD \uD3F0\uC758 "\uB098\uC758 \uCC38\uC5EC QR" \uD654\uBA74\uC5D0\uC11C<br>
-          \uD034\uC988 \uCC38\uC5EC \uD604\uD669\uACFC \uC810\uC218\uB97C \uC9C1\uC811 \uD655\uC778\uD574\uC8FC\uC138\uC694.
-        </div>
-      </div>`;
-  } else {
-    resultEl.innerHTML = `
-      <div class="verify-card">
-        <div class="verify-status error">\u26A0\uFE0F QR \uAC80\uC99D \uC2E4\uD328</div>
-        <div style="font-size:14px; color:var(--text); text-align:center; margin:14px 0; line-height:1.7;">
-          \uC2A4\uD06C\uB9B0\uC0F7\uC774\uAC70\uB098 \uB9CC\uB8CC\uB41C QR\uC77C \uC218 \uC788\uC5B4\uC694.<br>
-          \uD559\uC0DD\uC5D0\uAC8C <strong>\uC571\uC744 \uC5F4\uC5B4\uC11C QR\uC744 \uB2E4\uC2DC</strong> \uBCF4\uC5EC\uB2EC\uB77C\uACE0 \uC694\uCCAD\uD558\uC138\uC694.
-        </div>
-        <div style="font-size:12px; color:var(--text-light); text-align:center;">QR \uCF54\uB4DC\uB294 30\uCD08\uB9C8\uB2E4 \uAC31\uC2E0\uB418\uBA70, \uB77C\uC774\uBE0C \uD654\uBA74\uC5D0\uC11C\uB9CC \uC720\uD6A8\uD569\uB2C8\uB2E4.</div>
-      </div>`;
-  }
-}
 
 // ============================================================
 // ROLE MANAGEMENT UI (admin only)
