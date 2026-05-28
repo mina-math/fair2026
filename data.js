@@ -113,7 +113,7 @@ const CHATBOT_FAQ = [
   },
   {
     keywords: ['부스','퀴즈','투어','방문'],
-    answer: '🗺️ 박람회 당일(7/7)에는 9개 교과 부스를 방문할 수 있어요!\n\n국어, 수학, 영어, 사회, 과학, 체육·예술, 생활·교양, 진로진학상담, 멘토상담 부스가 있고, 각 부스에서 퀴즈에 참여할 수 있어요.'
+    answer: '🗺️ 박람회 당일(7/7)에는 9개 교과 부스를 방문할 수 있어요!\n\n국어, 수학, 영어, 사회, 과학, 체육·예술, 생활·교양 부스에서 퀴즈에 참여할 수 있고, 진로진학상담·멘토상담 부스는 별도 신청으로 운영돼요.'
   },
   {
     keywords: ['쉬운 과목','쉬운','추천','어떤 과목','뭘 들어야','고민','모르겠'],
@@ -136,8 +136,8 @@ const BOOTHS = [
   { id:'science', name:'과학교과',      icon:'🔬', color:'#B71C1C', bg:'#FFEBEE', code:'SC05', desc:'과학 선택과목 소개 및 계열별 추천' },
   { id:'arts',    name:'체육·예술교과', icon:'🎨', color:'#D4A843', bg:'#FFF8E1', code:'AP06', desc:'체육·음악·미술 교과 선택과목 안내' },
   { id:'life',    name:'생활·교양교과', icon:'🌱', color:'#B8922E', bg:'#FFF8E1', code:'LI07', desc:'기술가정·정보·제2외국어·교양 안내' },
-  { id:'career',  name:'진로진학상담',  icon:'🎯', color:'#0D47A1', bg:'#E3F2FD', code:'CA08', desc:'진로·진학·대입 정보 상담' },
-  { id:'mentor',  name:'멘토상담',      icon:'💬', color:'#C62828', bg:'#FFEBEE', code:'ME09', desc:'선배 멘토와 함께하는 과목 선택 상담' },
+  { id:'career',  name:'진로진학상담',  icon:'🎯', color:'#0D47A1', bg:'#E3F2FD', code:'CA08', desc:'진로·진학·대입 정보 상담 (신청제)', noStamp:true },
+  { id:'mentor',  name:'멘토상담',      icon:'💬', color:'#C62828', bg:'#FFEBEE', code:'ME09', desc:'선배 멘토와 함께하는 과목 선택 상담 (신청제)', noStamp:true },
   { id:'info',    name:'인포메이션',    icon:'ℹ️', color:'#717D7E', bg:'#F2F3F4', code:'IN00', desc:'전체 박람회 안내 데스크', noStamp:true },
 ];
 
