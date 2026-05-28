@@ -176,9 +176,11 @@ function enterAdminMode() {
 
   if (S.role === 'admin') {
     document.getElementById('admin-role-section').style.display = '';
+    document.getElementById('admin-student-preview-section').style.display = '';
     renderRoleList();
   } else {
     document.getElementById('admin-role-section').style.display = 'none';
+    document.getElementById('admin-student-preview-section').style.display = 'none';
   }
 
   renderPhaseAdmin();
@@ -384,7 +386,7 @@ function updateHome() {
   const phase = getPhase();
   document.getElementById('home-name').textContent = S.student.label;
   const adminBtn = document.getElementById('home-admin-btn');
-  if (adminBtn) adminBtn.style.display = isAdminLike(S.role) ? '' : 'none';
+  if (adminBtn) adminBtn.style.display = (isAdminLike(S.role) && !studentPreviewMode) ? '' : 'none';
 
   // phase badge
   const phaseBadge = document.getElementById('home-phase-badge');
@@ -1032,6 +1034,7 @@ function toast(msg) {
 // LOGOUT
 // ============================================================
 function confirmLogout() {
+  if (studentPreviewMode) { exitPreviewMode(); return; }
   const earned = BOOTHS.filter(b=>!b.noStamp && S.stamps[b.id]).length;
   const msg = earned > 0
     ? `\uD604\uC7AC \uD034\uC988 ${earned}\uAC1C\uB97C \uC644\uB8CC\uD55C \uC0C1\uD0DC\uC608\uC694.\n\n\uB85C\uADF8\uC544\uC6C3\uD574\uB3C4 \uC774 \uAE30\uAE30\uC5D0 \uC9C4\uD589 \uB370\uC774\uD130\uAC00 \uC800\uC7A5\uB3FC\uC694.\n\uAC19\uC740 \uD559\uBC88\uC73C\uB85C \uB2E4\uC2DC \uC785\uC7A5\uD558\uBA74 \uC774\uC5B4\uC11C \uD560 \uC218 \uC788\uC5B4\uC694! \uD83D\uDE0A\n\n\uCC98\uC74C \uD654\uBA74\uC73C\uB85C \uB3CC\uC544\uAC08\uAE4C\uC694?`
@@ -1099,6 +1102,42 @@ function changeAdminPW() {
 function adminLogout() {
   if (S.student) { goTo('screen-home'); }
   else { goTo('screen-login'); }
+}
+
+let studentPreviewMode = false;
+function previewStudentMode() {
+  studentPreviewMode = true;
+  if (!S.student) {
+    S.student = { grade:1, cls:1, num:0, uuid:'preview_admin', nickname:'미리보기', label:'관리자 미리보기' };
+    S.stamps = {}; S.quizResults = {}; S.subjects = { g2:{}, g3:{} };
+  }
+  goTo('screen-home');
+  updateHome();
+  document.getElementById('home-admin-btn').style.display = 'none';
+  showPreviewBanner();
+}
+
+function showPreviewBanner() {
+  let banner = document.getElementById('preview-back-banner');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'preview-back-banner';
+    banner.style.cssText = 'position:fixed; top:0; left:0; right:0; z-index:9999; background:linear-gradient(135deg,#43A047,#2E7D32); color:white; display:flex; align-items:center; justify-content:center; gap:12px; padding:10px 16px; font-size:14px; font-weight:600; box-shadow:0 2px 12px rgba(0,0,0,0.3);';
+    banner.innerHTML = '<span>👁️ 학생 화면 미리보기 중</span><button onclick="exitPreviewMode()" style="background:white; color:#2E7D32; border:none; border-radius:8px; padding:6px 14px; font-size:13px; font-weight:700; cursor:pointer;">관리자로 돌아가기</button>';
+    document.body.appendChild(banner);
+  }
+  banner.style.display = 'flex';
+}
+
+function exitPreviewMode() {
+  studentPreviewMode = false;
+  const banner = document.getElementById('preview-back-banner');
+  if (banner) banner.style.display = 'none';
+  if (S.student?.uuid === 'preview_admin') {
+    S.student = null;
+    S.stamps = {}; S.quizResults = {}; S.subjects = { g2:{}, g3:{} };
+  }
+  enterAdminMode();
 }
 
 // 관리자용: 학생 QR 확인
