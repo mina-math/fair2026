@@ -982,14 +982,6 @@ function renderFormsContent() {
   const total = BOOTHS.filter(b=>!b.noStamp).length;
 
   el.innerHTML = `
-    <div onclick="openConsultForm()" style="background:linear-gradient(135deg, #0D47A1, #1565C0); border-radius:16px; padding:20px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(13,71,161,0.3);">
-      <span style="font-size:40px;">🎯</span>
-      <div>
-        <div style="font-size:16px; font-weight:700;">상담 신청하기</div>
-        <div style="font-size:12px; opacity:0.85; margin-top:4px;">진로진학상담 · 멘토상담 부스에서<br>1:1 상담을 받고 싶다면 신청하세요</div>
-      </div>
-      <div style="margin-left:auto; font-size:20px;">›</div>
-    </div>
     ${done ? `
     <div onclick="openFeedbackForm()" style="background:linear-gradient(135deg, #C62828, #B71C1C); border-radius:16px; padding:20px; margin-bottom:14px; cursor:pointer; display:flex; align-items:center; gap:14px; color:white; box-shadow:0 4px 14px rgba(198,40,40,0.3);">
       <span style="font-size:40px;">✍️</span>
@@ -1013,7 +1005,7 @@ function renderFormsContent() {
       <div style="font-size:13px; color:var(--text-light); margin-top:8px;">현재 ${earned} / ${total} 부스 퀴즈 완료</div>
     </div>`}
     <div style="background:var(--primary-light); border-radius:12px; padding:14px; font-size:13px; color:var(--primary-dark);">
-      💡 상담 신청과 소감문은 구글폼으로 연결됩니다.<br>
+      💡 소감문과 설문은 구글폼으로 연결됩니다.<br>
       이 앱에서는 개인정보를 수집하지 않아요.
     </div>`;
 }
