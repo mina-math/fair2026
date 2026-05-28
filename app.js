@@ -996,7 +996,28 @@ function openCurriculumNav() {
 function renderCurriculum() {
   const content = document.getElementById('curriculum-content');
   if (!content) return;
+  const isTeacher = S.student && S.student.isTeacher;
   const grade = S.student ? S.student.grade : 0;
+
+  if (isTeacher) {
+    const activeTab = content.dataset.curTab || '1';
+    content.innerHTML = `
+      <div style="display:flex; gap:8px; margin-bottom:16px;">
+        <button onclick="switchCurrTab('1')" style="flex:1; padding:10px; border-radius:10px; font-size:14px; font-weight:700; border:none; cursor:pointer;
+          ${activeTab === '1' ? 'background:var(--primary); color:white;' : 'background:#f0f0f0; color:var(--text);'}">
+          1학년 (2학년 편제)
+        </button>
+        <button onclick="switchCurrTab('2')" style="flex:1; padding:10px; border-radius:10px; font-size:14px; font-weight:700; border:none; cursor:pointer;
+          ${activeTab === '2' ? 'background:var(--primary); color:white;' : 'background:#f0f0f0; color:var(--text);'}">
+          2학년 (3학년 편제)
+        </button>
+      </div>
+      <div id="curr-tab-content">
+        ${activeTab === '1' ? CURRICULUM_G2_HTML + CURRICULUM_G3_2026_HTML : CURRICULUM_G3_HTML}
+      </div>`;
+    return;
+  }
+
   if (!grade) {
     content.innerHTML = '<div class="info-card" style="text-align:center;padding:32px 16px;"><p>로그인 후 내 학년에 맞는 편제표가 표시됩니다 🔒</p></div>';
     return;
@@ -1006,6 +1027,13 @@ function renderCurriculum() {
   } else {
     content.innerHTML = CURRICULUM_G3_HTML;
   }
+}
+
+function switchCurrTab(tab) {
+  const content = document.getElementById('curriculum-content');
+  if (!content) return;
+  content.dataset.curTab = tab;
+  renderCurriculum();
 }
 
 function openMentoringForm() {
