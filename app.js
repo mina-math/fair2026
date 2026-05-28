@@ -107,7 +107,7 @@ function getUserRole(email) {
 }
 
 function isAdminLike(role) {
-  return role === 'admin' || role === 'teacher' || role === 'studentAdmin';
+  return role === 'admin' || role === 'studentAdmin';
 }
 
 // ============================================================
@@ -148,17 +148,58 @@ function handleGoogleCredential(response) {
   S.role = getUserRole(user.email);
   save();
 
-  if (S.role === 'admin' || S.role === 'teacher') {
+  if (S.role === 'admin') {
     enterAdminMode();
-  } else if (S.role === 'studentAdmin') {
-    showStudentForm(user);
   } else {
-    showStudentForm(user);
+    showRoleSelect(user);
+  }
+}
+
+function showRoleSelect(user) {
+  document.getElementById('login-step-google').style.display = 'none';
+  document.getElementById('login-step-role').style.display = '';
+  document.getElementById('role-greeting').textContent = `👋 ${user.name}님, 환영합니다!`;
+  document.getElementById('role-user-info').textContent = user.email;
+}
+
+function selectRole(role) {
+  if (role === 'student') {
+    showStudentForm(S.googleUser);
+  } else {
+    document.getElementById('login-step-role').style.display = 'none';
+    document.getElementById('login-step-teacher').style.display = '';
+  }
+}
+
+function backToRoleSelect() {
+  document.getElementById('login-step-teacher').style.display = 'none';
+  document.getElementById('login-step-role').style.display = '';
+  document.getElementById('input-teacher-code').value = '';
+}
+
+const TEACHER_CODE = 'MOKPO2026';
+
+function doTeacherLogin() {
+  const code = document.getElementById('input-teacher-code').value.trim();
+  if (!code) { toast('교사 코드를 입력하세요'); return; }
+  const storedHash = localStorage.getItem(ADMIN_PW_KEY);
+  const codeHash = simpleHash(code);
+  if ((storedHash && codeHash === storedHash) || (!storedHash && code === TEACHER_CODE)) {
+    S.role = 'teacher';
+    S.student = { grade:0, cls:0, num:0, uuid:'teacher_' + S.googleUser.email, nickname: S.googleUser.name, label: S.googleUser.name + ' (교사)', isTeacher: true };
+    S.stamps = {}; S.quizResults = {};
+    S.subjects = { g2:{}, g3:{} };
+    save();
+    goTo('screen-home');
+    updateHome();
+  } else {
+    toast('교사 코드가 맞지 않아요 🔒');
   }
 }
 
 function showStudentForm(user) {
   document.getElementById('login-step-google').style.display = 'none';
+  document.getElementById('login-step-role').style.display = 'none';
   document.getElementById('login-step-student').style.display = '';
   document.getElementById('login-greeting').textContent = `👋 ${user.name}님, 환영합니다!`;
   document.getElementById('login-user-info').textContent = user.email;
@@ -589,10 +630,22 @@ function switchInfoTab(i) {
 // ============================================================
 function renderDesignGroups() {
   const el = document.getElementById('design-cats'); if (!el) return;
-  const grade = S.student ? S.student.grade : 0;
-  if (!grade) {
+  const grade = S.student ? S.student.grade : -1;
+  const isTeacher = S.student?.isTeacher;
+
+  if (grade === -1) {
     document.getElementById('design-hint').textContent = '\uD83D\uDCCC \uB85C\uADF8\uC778 \uD6C4 \uB0B4 \uD559\uB144\uC5D0 \uB9DE\uB294 \uACFC\uBAA9\uC774 \uD45C\uC2DC\uB3FC\uC694';
     el.innerHTML = '<div class="empty-msg" style="padding:24px;text-align:center;">\uB85C\uADF8\uC778\uC774 \uD544\uC694\uD569\uB2C8\uB2E4 \uD83D\uDD12</div>';
+    updateSummary(); return;
+  }
+
+  if (isTeacher) {
+    document.getElementById('design-hint').textContent = '\uD83D\uDCCC \uAD50\uC0AC \uBAA8\uB4DC \u2014 1\uD559\uB144(\u21922\uD559\uB144)\u00B72\uD559\uB144(\u21923\uD559\uB144) \uC120\uD0DD\uACFC\uBAA9 \uC804\uCCB4 \uD45C\uC2DC';
+    let html = '<div style="font-size:15px;font-weight:700;color:var(--primary-dark);margin:10px 0 6px;">\uD83C\uDF92 \uD604 1\uD559\uB144 \u2192 \uB0B4\uB144(2\uD559\uB144) \uC120\uD0DD\uACFC\uBAA9</div>';
+    html += renderDesignTable('g2', SUBJECTS_G2);
+    html += '<div style="font-size:15px;font-weight:700;color:var(--accent);margin:18px 0 6px;">\uD83C\uDF92 \uD604 2\uD559\uB144 \u2192 \uB0B4\uB144(3\uD559\uB144) \uC120\uD0DD\uACFC\uBAA9</div>';
+    html += renderDesignTable('g3', SUBJECTS_G3);
+    el.innerHTML = html;
     updateSummary(); return;
   }
 
@@ -608,25 +661,30 @@ function renderDesignGroups() {
     S.subjects[gradeKey] = {};
   }
 
+  el.innerHTML = renderDesignTable(gradeKey, semData);
+  updateSummary();
+}
+
+function renderDesignTable(gradeKey, semData) {
+  if (!S.subjects[gradeKey] || typeof S.subjects[gradeKey] !== 'object' || Array.isArray(S.subjects[gradeKey])) {
+    S.subjects[gradeKey] = {};
+  }
   let html = '';
   semData.forEach(semObj => {
     html += `<div class="sem-section-title">${semObj.sem}</div>`;
     html += '<table class="curriculum-table design-table"><thead><tr><th>\uAD50\uACFC</th><th>\uACFC\uBAA9\uBA85</th><th>\uC720\uD615</th><th>\uD559\uC810</th><th>\uC120\uD0DD\uADF8\uB8F9</th></tr></thead><tbody>';
-
     semObj.groups.forEach(grp => {
       const sel = S.subjects[gradeKey][grp.id] || [];
       const cnt = sel.length;
       const full = cnt >= grp.pick;
       const groupCls = cnt === grp.pick ? 'ct-group-full' : cnt > grp.pick ? 'ct-group-over' : '';
       const perCredit = grp.credits / grp.pick;
-
       grp.items.forEach((s, idx) => {
         const isSel = sel.includes(s.n);
         const disabled = !isSel && full;
         const rowCls = (isSel ? 'dt-selected' : '') + (disabled && !isSel ? ' dt-disabled' : '');
         const click = ` onclick="selectInGroup('${gradeKey}','${grp.id}','${s.n.replace(/'/g,"\\'")}',this)"`;
         const typeLabel = s.t === 'general' ? '\uC77C\uBC18' : s.t === 'career' ? '\uC9C4\uB85C' : '\uC735\uD569';
-
         html += `<tr class="${rowCls}"${click}>`;
         html += `<td>${s.subj}</td><td>${s.n}</td><td class="ct-${s.t}">${typeLabel}</td><td>${perCredit}</td>`;
         if (idx === 0) {
@@ -635,12 +693,9 @@ function renderDesignGroups() {
         html += '</tr>';
       });
     });
-
     html += '</tbody></table>';
   });
-
-  el.innerHTML = html;
-  updateSummary();
+  return html;
 }
 
 function selectInGroup(gradeKey, groupId, name, el) {
@@ -666,9 +721,16 @@ function selectInGroup(gradeKey, groupId, name, el) {
 
 function updateSummary() {
   const grade = S.student ? S.student.grade : 0;
+  const isTeacher = S.student?.isTeacher;
+  const el = document.getElementById('selected-chips'); if (!el) return;
+
+  if (isTeacher) {
+    el.innerHTML = '<div class="empty-msg" style="padding:12px;text-align:center;font-size:13px;color:var(--text-light);">\uD83D\uDC69\u200D\uD83C\uDFEB \uAD50\uC0AC \uBAA8\uB4DC\uC5D0\uC11C\uB294 \uC5F4\uB78C \uC804\uC6A9\uC785\uB2C8\uB2E4</div>';
+    return;
+  }
+
   const gradeKey = grade === 1 ? 'g2' : 'g3';
   const semData  = grade === 1 ? SUBJECTS_G2 : grade === 2 ? SUBJECTS_G3 : null;
-  const el = document.getElementById('selected-chips'); if (!el) return;
 
   if (!semData || !S.subjects[gradeKey]) {
     el.innerHTML = '<div class="empty-msg">\uACFC\uBAA9\uC744 \uC120\uD0DD\uD558\uBA74 \uC5EC\uAE30\uC5D0 \uD45C\uC2DC\uB3FC\uC694</div>';

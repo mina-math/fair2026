@@ -26,7 +26,40 @@
         🔒 Google 로그인으로 본인 확인만 하며,<br>개인정보는 이 기기에서만 사용됩니다.
       </div>
     </div>
-    <!-- Step 2: 학생 추가 정보 (Google 로그인 후) -->
+    <!-- Step 2: 역할 선택 (Google 로그인 후) -->
+    <div class="login-card" id="login-step-role" style="display:none;">
+      <div class="login-card-title" id="role-greeting">👋 환영합니다!</div>
+      <div id="role-user-info" style="text-align:center; margin-bottom:16px; font-size:13px; color:var(--text-light);"></div>
+      <div style="font-size:14px; font-weight:600; text-align:center; margin-bottom:14px;">어떤 자격으로 참여하시나요?</div>
+      <div style="display:flex; gap:12px; margin-bottom:14px;">
+        <button onclick="selectRole('student')" style="flex:1; padding:20px 12px; border-radius:16px; border:2px solid var(--primary); background:var(--primary-light); cursor:pointer; text-align:center;">
+          <div style="font-size:32px; margin-bottom:6px;">🎒</div>
+          <div style="font-size:15px; font-weight:700; color:var(--primary-dark);">학생</div>
+          <div style="font-size:11px; color:var(--text-light); margin-top:4px;">학년/반/번호 입력</div>
+        </button>
+        <button onclick="selectRole('teacher')" style="flex:1; padding:20px 12px; border-radius:16px; border:2px solid var(--accent); background:#FFEBEE; cursor:pointer; text-align:center;">
+          <div style="font-size:32px; margin-bottom:6px;">👩‍🏫</div>
+          <div style="font-size:15px; font-weight:700; color:var(--accent);">교사</div>
+          <div style="font-size:11px; color:var(--text-light); margin-top:4px;">교사 코드 입력</div>
+        </button>
+      </div>
+      <div style="text-align:center;">
+        <button onclick="googleLogout()" style="background:none; border:none; color:var(--text-light); font-size:12px; cursor:pointer; text-decoration:underline;">다른 계정으로 로그인</button>
+      </div>
+    </div>
+    <!-- Step 2-T: 교사 코드 입력 -->
+    <div class="login-card" id="login-step-teacher" style="display:none;">
+      <div class="login-card-title">👩‍🏫 교사 인증</div>
+      <div style="text-align:center; margin-bottom:14px; font-size:13px; color:var(--text-light);">교사 코드를 입력해주세요</div>
+      <div style="margin-bottom:16px;">
+        <input type="password" id="input-teacher-code" class="input-field" placeholder="교사 코드" onkeydown="if(event.key==='Enter')doTeacherLogin()">
+      </div>
+      <button class="btn btn-primary" onclick="doTeacherLogin()">입장하기</button>
+      <div style="text-align:center; margin-top:10px;">
+        <button onclick="backToRoleSelect()" style="background:none; border:none; color:var(--text-light); font-size:12px; cursor:pointer; text-decoration:underline;">← 뒤로가기</button>
+      </div>
+    </div>
+    <!-- Step 2-S: 학생 추가 정보 -->
     <div class="login-card" id="login-step-student" style="display:none;">
       <div class="login-card-title" id="login-greeting">👋 환영합니다!</div>
       <div id="login-user-info" style="text-align:center; margin-bottom:14px; font-size:13px; color:var(--text-light);"></div>
