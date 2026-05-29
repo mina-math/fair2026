@@ -654,11 +654,22 @@ function renderDesignGroups() {
   }
 
   if (isTeacher) {
-    document.getElementById('design-hint').textContent = '\uD83D\uDCCC \uAD50\uC0AC \uBAA8\uB4DC \u2014 1\uD559\uB144(\u21922\uD559\uB144)\u00B72\uD559\uB144(\u21923\uD559\uB144) \uC120\uD0DD\uACFC\uBAA9 \uC804\uCCB4 \uD45C\uC2DC';
-    let html = '<div style="font-size:15px;font-weight:700;color:var(--primary-dark);margin:10px 0 6px;">\uD83C\uDF92 \uD604 1\uD559\uB144 \u2192 \uB0B4\uB144(2\uD559\uB144) \uC120\uD0DD\uACFC\uBAA9</div>';
-    html += renderDesignTable('g2', SUBJECTS_G2);
-    html += '<div style="font-size:15px;font-weight:700;color:var(--accent);margin:18px 0 6px;">\uD83C\uDF92 \uD604 2\uD559\uB144 \u2192 \uB0B4\uB144(3\uD559\uB144) \uC120\uD0DD\uACFC\uBAA9</div>';
-    html += renderDesignTable('g3', SUBJECTS_G3);
+    const activeTab = el.dataset.designTab || '1';
+    document.getElementById('design-hint').textContent = activeTab === '1'
+      ? '\uD83D\uDCCC \uAD50\uC0AC \uBAA8\uB4DC \u2014 \uD604 1\uD559\uB144 \u2192 \uB0B4\uB144(2\uD559\uB144) \uC120\uD0DD\uACFC\uBAA9'
+      : '\uD83D\uDCCC \uAD50\uC0AC \uBAA8\uB4DC \u2014 \uD604 2\uD559\uB144 \u2192 \uB0B4\uB144(3\uD559\uB144) \uC120\uD0DD\uACFC\uBAA9';
+    let html = `
+      <div style="display:flex; gap:8px; margin-bottom:16px;">
+        <button onclick="switchDesignTab('1')" style="flex:1; padding:10px; border-radius:10px; font-size:14px; font-weight:700; border:none; cursor:pointer;
+          ${activeTab === '1' ? 'background:var(--primary); color:white;' : 'background:#f0f0f0; color:var(--text);'}">
+          1\uD559\uB144 (2\uD559\uB144 \uD3B8\uC81C)
+        </button>
+        <button onclick="switchDesignTab('2')" style="flex:1; padding:10px; border-radius:10px; font-size:14px; font-weight:700; border:none; cursor:pointer;
+          ${activeTab === '2' ? 'background:var(--primary); color:white;' : 'background:#f0f0f0; color:var(--text);'}">
+          2\uD559\uB144 (3\uD559\uB144 \uD3B8\uC81C)
+        </button>
+      </div>`;
+    html += activeTab === '1' ? renderDesignTable('g2', SUBJECTS_G2) : renderDesignTable('g3', SUBJECTS_G3);
     el.innerHTML = html;
     updateSummary(); return;
   }
@@ -1048,6 +1059,13 @@ function switchCurrTab(tab) {
   if (!content) return;
   content.dataset.curTab = tab;
   renderCurriculum();
+}
+
+function switchDesignTab(tab) {
+  const el = document.getElementById('design-cats');
+  if (!el) return;
+  el.dataset.designTab = tab;
+  renderDesignGroups();
 }
 
 function openMentoringForm() {
