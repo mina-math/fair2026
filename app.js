@@ -228,15 +228,28 @@ function enterAdminMode() {
   goTo('screen-admin');
 }
 
+function resetLoginSteps() {
+  document.getElementById('login-step-google').style.display = '';
+  document.getElementById('login-step-role').style.display = 'none';
+  document.getElementById('login-step-teacher').style.display = 'none';
+  document.getElementById('login-step-student').style.display = 'none';
+  const codeInput = document.getElementById('input-teacher-code');
+  if (codeInput) codeInput.value = '';
+}
+
 function googleLogout() {
   S.googleUser = null;
   S.role = null;
   localStorage.removeItem('mgh_fair26');
-  document.getElementById('login-step-google').style.display = '';
-  document.getElementById('login-step-student').style.display = 'none';
+  resetLoginSteps();
   if (typeof google !== 'undefined' && google.accounts) {
     google.accounts.id.disableAutoSelect();
   }
+}
+
+function backToRoleSelectFromStudent() {
+  document.getElementById('login-step-student').style.display = 'none';
+  document.getElementById('login-step-role').style.display = '';
 }
 
 function migrateSubjects(subj) {
@@ -342,6 +355,7 @@ function goTo(id) {
   if (id === 'screen-design') { renderDesignGroups(); renderPhaseNav('design-nav', 'screen-design'); }
   if (id === 'screen-forms') { renderFormsContent(); renderPhaseNav('forms-nav', 'screen-forms'); }
   if (id === 'screen-curriculum') renderCurriculum();
+  if (id === 'screen-login') resetLoginSteps();
 }
 
 // ============================================================
@@ -1131,8 +1145,6 @@ function doLogout() {
   document.getElementById('input-class').value = '';
   document.getElementById('input-number').value = '';
   document.getElementById('input-nickname').value = '';
-  document.getElementById('login-step-google').style.display = '';
-  document.getElementById('login-step-student').style.display = 'none';
   goTo('screen-login');
   updateChatFab();
   if (chatOpen) toggleChatbot();
