@@ -1116,11 +1116,8 @@ function renderFormsContent() {
       <div style="font-size:36px; margin-bottom:8px;">🔒</div>
       <div style="font-size:15px; font-weight:700; color:var(--text);">소감문과 만족도 설문은<br>모든 퀴즈를 완료하면 열려요</div>
       <div style="font-size:13px; color:var(--text-light); margin-top:8px;">현재 ${earned} / ${total} 부스 퀴즈 완료</div>
-    </div>`}
-    <div style="background:var(--primary-light); border-radius:12px; padding:14px; font-size:13px; color:var(--primary-dark);">
-      💡 소감문과 설문은 구글폼으로 연결됩니다.<br>
-      이 앱에서는 개인정보를 수집하지 않아요.
-    </div>`;
+    </div>`}`;
+
 }
 
 // ============================================================
