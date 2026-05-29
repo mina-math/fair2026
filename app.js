@@ -52,6 +52,7 @@ function getPhase() {
 }
 
 function allQuizzesDone() {
+  if (S.student?.isTeacher) return true;
   return BOOTHS.filter(b => !b.noStamp).every(b => S.stamps[b.id]);
 }
 
