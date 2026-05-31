@@ -1192,13 +1192,6 @@ function goToAdmin() {
   enterAdminMode();
 }
 
-function changeAdminPW() {
-  const pw = document.getElementById('new-pw').value.trim();
-  if (pw.length < 4) { toast('\uBE44\uBC00\uBC88\uD638\uB294 4\uC790\uB9AC \uC774\uC0C1 \uC785\uB825\uD558\uC138\uC694'); return; }
-  localStorage.setItem(ADMIN_PW_KEY, simpleHash(pw));
-  document.getElementById('new-pw').value = '';
-  toast('\uBE44\uBC00\uBC88\uD638\uAC00 \uBCC0\uACBD\uB410\uC5B4\uC694 \u2705');
-}
 
 function adminLogout() {
   if (S.student) { goTo('screen-home'); }
