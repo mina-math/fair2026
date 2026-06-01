@@ -524,7 +524,7 @@ const INFO_HTML = [
     </div>
 
     <div style="display:flex;flex-direction:column;gap:14px;margin-top:16px;">
-      <a href="2022 개정 교육과정 고등학교 과목선택 안내서(개정판).pdf" download style="
+      <a href="guidebook.pdf" download="2022 개정 교육과정 고등학교 과목선택 안내서(개정판).pdf" style="
         display:flex;align-items:center;gap:14px;
         background:linear-gradient(135deg,#1565C0,#0D47A1);
         color:white;border-radius:14px;padding:16px 18px;

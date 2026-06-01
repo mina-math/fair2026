@@ -850,7 +850,7 @@ function renderHomeBody(phase) {
         <div style="font-size:15px; font-weight:700; margin-bottom:4px;">📗 과목선택 가이드북</div>
         <div style="font-size:12px; color:var(--text-light); margin-bottom:12px;">2022 개정교육과정과 교과목, 대학 및 학과 정보를 알아보세요.</div>
         <div style="display:flex; gap:10px;">
-          <a href="2022 개정 교육과정 고등학교 과목선택 안내서(개정판).pdf" download style="flex:1; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:8px; background:linear-gradient(135deg, #1565C0, #0D47A1); color:white; border-radius:12px; padding:14px 10px; font-size:14px; font-weight:700; box-shadow:0 3px 10px rgba(21,101,192,0.3);">
+          <a href="guidebook.pdf" download="2022 개정 교육과정 고등학교 과목선택 안내서(개정판).pdf" style="flex:1; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:8px; background:linear-gradient(135deg, #1565C0, #0D47A1); color:white; border-radius:12px; padding:14px 10px; font-size:14px; font-weight:700; box-shadow:0 3px 10px rgba(21,101,192,0.3);">
             📄 책으로 보기
           </a>
           <div onclick="openCurriculumNav()" style="flex:1; display:flex; align-items:center; justify-content:center; gap:8px; background:linear-gradient(135deg, #C62828, #B71C1C); color:white; border-radius:12px; padding:14px 10px; font-size:14px; font-weight:700; cursor:pointer; box-shadow:0 3px 10px rgba(198,40,40,0.3);">

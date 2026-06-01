@@ -7,7 +7,7 @@ COPY app.js .
 COPY data.js .
 COPY style.css .
 COPY server.py .
-COPY *.pdf ./
+COPY guidebook.pdf ./
 COPY *.png ./
 EXPOSE 8080
 CMD ["python", "server.py"]

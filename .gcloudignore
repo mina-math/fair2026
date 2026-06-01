@@ -1,0 +1,9 @@
+.git
+.github
+.claude
+node_modules
+google_apps_script.js
+*.md
+*.xlsx
+*.jpg
+2022 개정 교육과정 고등학교 과목선택 안내서(개정판).pdf
